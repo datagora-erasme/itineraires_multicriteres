@@ -32,7 +32,7 @@ with:
 push: true
 context: ./backend
 # based on branch push tag latest for main and dev for dev
-tags: erasme/itineraires-multicriteres-backend:${{ github.ref == 'refs/heads/main' && 'latest' || 'dev' }}, erasme/itineraires-multicriteres-backend:${{ github.sha }}
+tags: erasme/itineraires-multicriteres-backend:${{ github.ref == 'refs/heads/main' && 'latest' || 'dev' }} ##, erasme/itineraires-multicriteres-backend:${{ github.sha }}
 frontend:
 runs-on: ubuntu-latest
 steps:
@@ -58,4 +58,4 @@ with:
 push: true
 context: ./frontend
 # based on branch push tag latest for main and dev for dev
-tags: erasme/itineraires-multicriteres-frontend:${{ github.ref == 'refs/heads/main' && 'latest' || 'dev' }}, erasme/itineraires-multicriteres-frontend:${{ github.sha }}
+tags: erasme/itineraires-multicriteres-frontend:${{ github.ref == 'refs/heads/main' && 'latest' || 'dev' }} ##, erasme/itineraires-multicriteres-frontend:${{ github.sha }}
