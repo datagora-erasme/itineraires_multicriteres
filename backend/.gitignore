@@ -1,0 +1,11 @@
+node_modules/
+temp/
+
+score_calculation_it/output_data/network/edges/
+score_calculation_it/output_data/bancs/
+score_calculation_it/output_data/eaux/
+score_calculation_it/output_data/fontaines/
+score_calculation_it/output_data/parcs/
+score_calculation_it/output_data/toilettes/
+score_calculation_it/output_data/vegetation/
+score_calculation_backup/

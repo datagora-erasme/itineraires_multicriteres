@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,4 +14,92 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+@layer utilities {
+  .main-btn {
+    @apply p-4 shadow-lg
+  }
+  .main-btn-mobile {
+    @apply bg-primary text-mainText font-bold rounded-full shadow-lg;
+  }
+  .main-btn-desktop {
+    @apply bg-bgWhite text-mainText font-bold flex flex-row gap-2 w-full;
+  }
+
+  .secondary-btn {
+    @apply p-4
+  }
+  .secondary-btn-mobile {
+    @apply bg-bgGray text-bgWhite rounded-full overflow-y-scroll shadow-lg text-mainText;
+  }
+
+  .card {
+    @apply bg-bgWhite fixed w-full min-h-[50vh] -left-0 p-4;
+  }
+
+  .card-desktop {
+    @apply bg-bgWhite static min-h-fit;
+  }
+
+  .card-details-desktop {
+    @apply bg-bgWhite min-h-[100px] max-w-[400px] top-16 left-[400px] flex flex-col gap-0 rounded-3xl;
+  }
+
+  .card-title {
+    @apply flex flex-row gap-2 font-bold text-mainText -mt-4
+  }
+
+  .main-input {
+    @apply block w-full p-2 border-gray-900 rounded-md shadow-sm focus:ring focus:ring-primary focus:border-primary sm:text-sm italic
+  }
+}
+
+.legend-gradient {
+  height: 5px;
+  width: 100px;
+  background: linear-gradient(to right, #cdf5d7, #0c6221);
+}
+
+
+/* SLIDER */
+/* CHROME */
+/* la zone de déplacement */
+input[type=range].custom-slider::-webkit-slider-runnable-track {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;  /* supprimé définie sur l'input */
+}
+/* le curseur */
+input[type=range].custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;       /* également nécessaire sur le curseur */
+  width: 1em;
+  height: inherit;                /* s'adapte à la hauteur de l'input */
+  border: none;
+  border-radius: 0;               /* pris en compte sur Webkit et Edge */
+  background: currentColor;       /* pris en compte sur Webkit only */
+}
+
+/* FIREFOX */
+/* la zone de déplacement */
+input[type=range].custom-slider::-moz-range-track {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;  /* supprimé définie sur l'input */
+}
+/* le curseur */
+input[type=range].custom-slider::-moz-range-thumb {
+  width: 1em;
+  height: inherit;                /* s'adapte à la hauteur de l'input */
+  border: none;                   /* supprimer la bordure */
+  border-radius: 0;               /* supprimer le rayon */
+  background: red;
+  color: red;
+}
+/* barre progression avant */
+input[type=range].custom-slider::-moz-range-progress {
+  height: 0;
+  background: transparent;        /* supprime barre progression avant */
 }
