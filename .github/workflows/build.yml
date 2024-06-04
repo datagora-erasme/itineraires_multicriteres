@@ -54,5 +54,5 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          context: ./frontend
+          context: ./frontend/dev.Dockerfile
           tags: erasme/itineraires-multicriteres-frontend:${{ github.ref == 'refs/heads/main' && 'latest' || 'dev' }} , erasme/itineraires-multicriteres-frontend:${{ github.sha }}
