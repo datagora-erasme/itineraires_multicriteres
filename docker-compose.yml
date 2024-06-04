@@ -11,10 +11,10 @@ services:
   frontend:
     build:
       context: frontend
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     env_file:
       - .env
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - ./frontend/src:/app/src
