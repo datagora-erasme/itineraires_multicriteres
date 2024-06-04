@@ -1,15 +1,14 @@
-version: '3'
 services:
   backend:
-    image: erasme/itineraires_fraicheur_backend:15-04-2024
     build: backend/
     env_file:
       - .env
     ports:
       - "3002:3002"
+    volumes:
+      - ./backend:/app
     #command: "tail -f /dev/null"
   frontend:
-    image: erasme/itineraires_fraicheur_frontend:15-04-2024
     build:
       context: frontend
       dockerfile: dev.Dockerfile
@@ -17,3 +16,5 @@ services:
       - .env
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app

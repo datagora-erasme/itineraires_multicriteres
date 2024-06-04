@@ -17,5 +17,4 @@ function App() {
     </MainContextProvider>
   );
 }
-
 export default App;
