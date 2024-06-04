@@ -386,7 +386,7 @@ function Map(){
                             <GeoJSON 
                             data={it.geojson} 
                             style={(feature) => ({
-                                color: colorIfScale(feature.properties.freshness_score_13).hex(), 
+                                color: colorIfScale(feature.properties.pollen_score).hex(), 
                                 weight: it.id === "LENGTH" ? 5 : 10, 
                                 lineCap: "round", 
                                 lineJoin: "round",

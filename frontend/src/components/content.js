@@ -22,7 +22,7 @@ function Content({showMenu, setShowMenu}){
     return(
         <>  
             <div style={{zIndex:1000}} className="absolute md:top-8 bottom-0 flex flex-col gap-4 w-full p-8 md:pd-0 md:w-[400px] rounded-t-3xl md:gap-0 md:rounded-full bg-bgWhite md:bg-transparent">
-                <div className="hidden md:block bg-bgWhite w-[300px] ml-[20px] p-4 absolute top-0 rounded-full font-bold text-xl drop-shadow-lg">Sortons au frais !</div>
+                <div className="hidden md:block bg-bgWhite w-[300px] ml-[20px] p-4 absolute top-0 rounded-full font-bold text-xl drop-shadow-lg">Parcours à la carte</div>
                 <div className="hidden md:block h-8 bg-bgWhite rounded-t-3xl"></div>
                 <div className=" md:hidden flex flex-row justify-center">
                     <BackButton showMenu={showMenu}/>

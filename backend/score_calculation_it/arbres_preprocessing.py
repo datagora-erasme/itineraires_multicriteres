@@ -66,8 +66,9 @@ if choice.upper() == "OUI":
     arbres_buffer = arbres.set_geometry('buffer')
 
     #intersection entre les buffers des arbres et les edges_buffer
-    intersections = gpd.sjoin(edges_buffer, arbres_buffer, how="inner", op='intersects')
+    intersections = gpd.sjoin(edges_buffer, arbres_buffer, how="inner", predicate='intersects')
     print(intersections.head())
+
     if not intersections.empty:
         mean_raep = intersections.groupby(['u', 'v', 'key'])['raep'].mean().reset_index()
         edges_buffer = pd.merge(edges_buffer, mean_raep, on=['u', 'v', 'key'], how='left')
@@ -76,5 +77,7 @@ if choice.upper() == "OUI":
 
     print(edges_buffer.head())
     print(edges_buffer[edges_buffer['arbres_weight'] != 0].shape)
+    print(edges_buffer[edges_buffer['arbres_weight'] == 'NULL'].shape)
+
     
-    edges_buffer.to_file(edges_buffer_path, driver="GPKG", layer="edges_buffer")
+    edges_buffer.to_file(edges_buffer_arbres_pollen_prop_path, driver="GPKG", layer="edges_buffer")

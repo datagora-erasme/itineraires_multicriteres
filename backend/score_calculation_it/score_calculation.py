@@ -16,8 +16,6 @@ create_folder("./output_data/network/graph/")
 ### GLOBAL VARIABLES ###
 
 score_columns = ["score_prairies_prop", "score_arbustes_prop", "score_arbres_prop", "score_C_wavg_scaled", "score_eaux_prop", "score_canop"]
-score_columns_pollen = ["score_arbres_prop", "score_parcs_prop"]
-
 
 ### FUNCTIONS ###
 
@@ -51,14 +49,6 @@ def total_score(input_path, output_path, score_columns):
     
 
     edges.to_file(output_path, driver="GPKG")
-
-def total_score_pollen(input_path, output_path, score_columns):
-    edges = gpd.read_file(input_path, layer="edges")
-    print(edges.columns)
-    edges["total_score"] = edges[score_columns].sum(axis=1)
-
-    edges.to_file(output_path, driver="GPKG")
-
 
 def all_score_edges(input_path, output_path, params):
     """
@@ -99,14 +89,6 @@ def score_distance(input_path, output_path):
 
     edges.to_file(output_path, driver="GPKG")
 
-def score_distance_pollen(input_path, output_path):
-    """calculate the score by distance for each edges"""
-    edges = gpd.read_file(input_path)
-
-    edges["score_distance"] = round(edges["total_score"] * edges["length"])
-
-    edges.to_file(output_path, driver="GPKG")
-
 def score_fraicheur(input_path, output_path):
     """Score from 0 to 10 in term of freshness instead of heat"""
     edges = gpd.read_file(input_path)
@@ -131,18 +113,6 @@ def score_fraicheur(input_path, output_path):
 
     edges.to_file(output_path, driver="GPKG")
 
-def score_pollen(input_path, output_path):
-    """Score from 0 to 10 """
-    edges = gpd.read_file(input_path)
-
-    min_score = edges["total_score"].min()
-    max_score = edges["total_score"].max()
-    slope = (0-10)/(max_score-min_score)
-    origin_ordinate = -slope*max_score
-    edges["pollen_score"] = edges["total_score"].apply(lambda x: round(slope*x+origin_ordinate, 2))
-
-    edges.to_file(output_path, driver="GPKG")
-
 def create_graph(graph_path, edges_buffered_path, graph_output_path):
     graph_e = gpd.read_file(graph_path, layer="edges")
     graph_n = gpd.read_file(graph_path, layer="nodes")
@@ -164,26 +134,6 @@ def create_graph(graph_path, edges_buffered_path, graph_output_path):
     graph_e["freshness_score_08"] = edges_buffered["freshness_score_08"]
     graph_e["freshness_score_13"] = edges_buffered["freshness_score_13"]
     graph_e["freshness_score_18"] = edges_buffered["freshness_score_18"]
-
-    G = ox.graph_from_gdfs(graph_n, graph_e)
-
-    ox.save_graph_geopackage(G, graph_output_path)
-
-def create_graph__pollen(graph_path, edges_buffered_path, graph_output_path):
-    graph_e = gpd.read_file(graph_path, layer="edges")
-    graph_n = gpd.read_file(graph_path, layer="nodes")
-    edges_buffered = gpd.read_file(edges_buffered_path)
-
-    graph_e["uniqId"] = graph_e.apply(create_uniqID, axis=1)
-
-    graph_e = graph_e.set_index(["u", "v", "key"])
-    edges_buffered = edges_buffered.set_index(["u", "v", "key"])
-    graph_n = graph_n.set_index(["osmid"])
-
-    graph_e["total_score"] = edges_buffered["total_score"]
-    graph_e["score_distance"] = edges_buffered["score_distance"]
-
-    graph_e["pollen_score"] = edges_buffered["pollen_score"]
 
     G = ox.graph_from_gdfs(graph_n, graph_e)
 
@@ -223,33 +173,6 @@ def score_calculation_pipeline(meta_params):
 
         concat_weights.to_csv(weights_path, index=False)
 
-def score_calculation_pipeline_pollen(meta_params):
-    for params_name, params in meta_params.items():
-        print(f"Starting score calculation for {params_name}...")
-        all_score_edges(edges_buffer_path, edges_buffer_scored_path, params["params"])
-        total_score_pollen(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_pollen)
-        score_distance_pollen(edges_buffer_total_score_path, edges_buffer_total_score_distance_path,0.5,0.5)
-        score_pollen(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_pollen_path)
-        create_graph(bounding_metrop_path, edges_buffer_total_score_distance_pollen_path, params["graph_path"])
-
-        weights_path = "./weights_score.csv"
-
-        # Check if the weights file is empty
-        try:
-            weights = pd.read_csv(weights_path)
-        except pd.errors.EmptyDataError:
-            # If the file is empty, create a new DataFrame with columns
-            weights = pd.DataFrame(columns=["graph_file", "arbres", "parcs"])
-
-        currents_weights = pd.DataFrame({
-            "graph_file": params["graph_path"],
-            "arbres": params["params"]["arbres_prop"]["alpha"],
-            "parcs": params["params"]["parcs"]["alpha"],
-        }, index=[0])
-
-        concat_weights = pd.concat([weights, currents_weights])
-
-        concat_weights.to_csv(weights_path, index=False)
 
 final_params = {
     "P0_01O5At0_01Ar10C0_01E5Ca" : {
@@ -304,24 +227,4 @@ final_params = {
     },
 }
 
-final_params_pollen = {
-    "P0_01O5At0_01Ar10C0_01E5Ca" : {
-        "graph_path": "./output_data/network/graph/final_network_pollen.gpkg", # to change
-        "params": {
-        "arbres_prop": {
-            "edges_path": edges_buffer_arbres_pollen_prop_path,
-            "fn_cont": lambda x: 10*(1-x),
-            "alpha": 10
-            },
-        "parcs_prop" : {
-            "edges_path": edges_buffer_parcs_pollen_prop_path,
-            "fn_cont": lambda x: 0.01*(1-x),
-            "alpha": 0.01
-            },
-        
-        },
-    },
-}
-
-
-score_calculation_pipeline_pollen(final_params_pollen)
+score_calculation_pipeline(final_params)

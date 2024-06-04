@@ -24,7 +24,7 @@ print("Loading network ...")
 if(os.path.isfile(final_network_pickle_path) & os.path.isfile(final_network_multidigraph_pickle_path)):
     load_net = True
 else:
-    load_net = create_pickles_from_graph(final_network_path, final_network_pickle_path, final_network_multidigraph_pickle_path)
+    load_net = create_pickles_from_graph_pollen(final_network_path, final_network_pickle_path, final_network_multidigraph_pickle_path)
 
 if(load_net):
     print("Network loaded")

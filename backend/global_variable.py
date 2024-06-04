@@ -13,9 +13,9 @@ bounding_metrop_path = globpath("./score_calculation_it/input_data/bounding_metr
 metrop_network_bouding_path = globpath("./score_calculation_it/input_data/network/metrop_network_bounding.gpkg")
 
 ### GRAPH PATH ###
-final_network_path = globpath("./score_calculation_it/output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca.gpkg")
-final_network_pickle_path = globpath("./score_calculation_it/output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca.pickle")
-final_network_multidigraph_pickle_path = globpath("./score_calculation_it/output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca_multidigraph.pickle")
+final_network_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen.gpkg")
+final_network_pickle_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen.pickle")
+final_network_multidigraph_pickle_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen_multidigraph.pickle")
 
 final_network_path_pollen = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen.gpkg")
 

@@ -44,10 +44,10 @@ export const MainContextProvider = ({ children }) => {
     const [lenScore, setLenScore] = useState(null)
 
     const calculateMeanScore = (itinerary) => {
-      const freshness_scores = itinerary.geojson.features.map((feat) => feat.properties.freshness_score_13)
+      const pollen_scores = itinerary.geojson.features.map((feat) => feat.properties.pollen_score)
       const initialValue = 0
-      const sum = freshness_scores.reduce((accumulator, currentValue) => accumulator + currentValue, initialValue)
-      return Math.round((sum/freshness_scores.length)*10)/10
+      const sum = pollen_scores.reduce((accumulator, currentValue) => accumulator + currentValue, initialValue)
+      return Math.round((sum/pollen_scores.length)*10)/10
     }
 
     const roundItineraries = (itineraries) => {
