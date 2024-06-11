@@ -45,7 +45,6 @@ if choice.upper() == "OUI":
 
         #normalise la proportion de parcs entre 0 et 1
         edges["parcs_prop"] = (edges["parcs_prop"] - edges["parcs_prop"].min()) / (edges["parcs_prop"].max() - edges["parcs_prop"].min())
-
         edges.reset_index().to_file(output_path, driver="GPKG", layer=layer)
 
     calculate_parc_proportion(edges_buffer_path, parcs_classes_path, edges_buffer_parcs_pollen_prop_path)

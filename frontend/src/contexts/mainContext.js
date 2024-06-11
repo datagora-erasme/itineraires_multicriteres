@@ -43,11 +43,20 @@ export const MainContextProvider = ({ children }) => {
 
     const [lenScore, setLenScore] = useState(null)
 
+    const [criteria, setCriteria] = useState(null);
+
     const calculateMeanScore = (itinerary) => {
-      const pollen_scores = itinerary.geojson.features.map((feat) => feat.properties.pollen_score)
-      const initialValue = 0
-      const sum = pollen_scores.reduce((accumulator, currentValue) => accumulator + currentValue, initialValue)
-      return Math.round((sum/pollen_scores.length)*10)/10
+      let scores;
+      if (criteria === "frais") {
+          scores = itinerary.geojson.features.map((feat) => feat.properties.freshness_score_13);
+      } else if (criteria === "pollen") {
+          scores = itinerary.geojson.features.map((feat) => feat.properties.pollen_score);
+      } else {
+          return null;
+      }
+      const initialValue = 0;
+      const sum = scores.reduce((accumulator, currentValue) => accumulator + currentValue, initialValue);
+      return Math.round((sum / scores.length) * 10) / 10;
     }
 
     const roundItineraries = (itineraries) => {
@@ -235,7 +244,9 @@ export const MainContextProvider = ({ children }) => {
                 setFilteredItinerariesFeatures, 
                 ifScore,
                 lenScore,
-                roundItineraries
+                roundItineraries,
+                criteria,
+                setCriteria
             }}
         >
             {children}

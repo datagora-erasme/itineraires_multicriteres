@@ -18,7 +18,17 @@ const colors = {
     "0.01": "#28572c"
 }
 
+const colors_pollen = {
+    "1":" #F94144 ",
+    "0.8": "#F3712B",
+    "0.6": "#f8961e",
+    "0.4": "#f9844a",
+    "0.2": "#f9c74f",
+    "0.01": "#90be6d"
+}
+
 const colorIfScale = chroma.scale(["#f42a2d", "#3d83f5"]).domain([0,10])
+const colorPolScale = chroma.scale(["#F94144", "#90be6d"]).domain([0,10])
 
 function MapFreshness({setZoomToUserPosition, zoomToUserPosition, radius, selectedStartAddress, showCircle}){
     const map = useMap()
@@ -101,7 +111,7 @@ function Map(){
         currentItinerary, setCurrentItinerary, selectedStartAddress, selectedEndAddress, radius, showCircle,
         zoomToItinerary, setZoomToItinerary,freshnessLayers, setShowPoiDetails, setHistory, history, setShowFindFreshness,
         setPoiDetails, layers, filteredFreshnessFeatures, setFilteredFreshnessFeatures, filteredItinerariesFeatures,
-        setFilteredItinerariesFeatures, roundItineraries
+        setFilteredItinerariesFeatures, roundItineraries, criteria
      } = useContext(MainContext)
 
     function getColor(data){
@@ -380,23 +390,25 @@ function Map(){
                     })
                 }
 
-                {currentItinerary && 
+                {currentItinerary &&
                     currentItinerary.map((it, index) => {
-                        return(
-                            <GeoJSON 
-                            data={it.geojson} 
-                            style={(feature) => ({
-                                color: colorIfScale(feature.properties.pollen_score).hex(), 
-                                weight: it.id === "LENGTH" ? 5 : 10, 
-                                lineCap: "round", 
-                                lineJoin: "round",
-                                dashArray: it.id === "LENGTH" ? '1, 10' : '', 
-                                dashOffset: '0'
-                                })} 
-                            key={Math.random()}/>
-                        )
+                        return (
+                            <GeoJSON
+                                data={it.geojson}
+                                style={(feature) => ({
+                                    color: criteria === "frais" ? colorIfScale(feature.properties.freshness_score_13).hex() : colorPolScale(feature.properties.pollen_score).hex(),
+                                    weight: it.id === "LENGTH" ? 5 : 10,
+                                    lineCap: "round",
+                                    lineJoin: "round",
+                                    dashArray: it.id === "LENGTH" ? '1, 10' : '',
+                                    dashOffset: '0'
+                                })}
+                                key={Math.random()}
+                            />
+                        );
                     })
                 }
+
 
                 { selectedStartAddress &&
                     <Marker position={[selectedStartAddress.geometry.coordinates[1], selectedStartAddress.geometry.coordinates[0]]}></Marker>

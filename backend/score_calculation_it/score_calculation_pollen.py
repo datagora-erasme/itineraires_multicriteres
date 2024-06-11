@@ -120,8 +120,8 @@ params = {
     },
     "parcs_prop" : {
         "edges_path": edges_buffer_parcs_pollen_prop_path,
-        "fn_cont": lambda x: x,
-        "alpha": 1
+        "fn_cont": lambda x: 5*x,
+        "alpha": 5
     },
 }
 

@@ -15,6 +15,20 @@ def load_graph_from_pickle(pickle_path):
 
     return G
 
+
+# def calculate_itinerary(start_lat, start_lon, end_lat, end_lon, criteria):
+#     print("Choosing the right graph pickle file...")
+#     print("Criteria : ", criteria)
+#     if criteria == "frais":
+#         graph_pickle_path = "output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca.gpkg"
+#     elif criteria == "pollen":
+#         graph_pickle_path = "output_data/network/graph/final_network_pollen.gpkg"
+#     else:
+#         raise ValueError("Invalid criteria. Please choose 'frais' or 'pollen'.")
+    
+#     G = load_graph_from_pickle(graph_pickle_path)
+#     return G
+
 # start = (4.8478, 45.7001)
 # end = (5.0303, 45.7624)
 startLat = float(sys.argv[1])
@@ -25,6 +39,7 @@ endLon = float(sys.argv[4])
 
 start = (startLon, startLat)
 end = (endLon, endLat)
+
 
 # s = time.time()
 # s_g = time.time()

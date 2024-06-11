@@ -1,9 +1,11 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from models.data import *
 from load_graph import *
 from models.itinerary import *
 from global_variable import *
+#from calculate_itinerary import *
 
 app = Flask(__name__)
 CORS(app)
@@ -20,16 +22,53 @@ It allows to reduce the time between request and response (the files took severa
 G = None
 G_multidigraph = None
 
-print("Loading network ...")
-if(os.path.isfile(final_network_pickle_path) & os.path.isfile(final_network_multidigraph_pickle_path)):
-    load_net = True
-else:
-    load_net = create_pickles_from_graph_pollen(final_network_path, final_network_pickle_path, final_network_multidigraph_pickle_path)
+graph_paths = {
+    "frais": {
+        "gpkg": final_network_path, 
+        "pickle": final_network_pickle_path,
+        "multidigraph_pickle": final_network_multidigraph_pickle_path
+    },
+    "pollen": {
+        "gpkg": final_network_pollen_path,
+        "pickle": final_network_pickle_pollen_path,
+        "multidigraph_pickle": final_network_multidigraph_pickle_pollen_path
+    }
+}
 
-if(load_net):
-    print("Network loaded")
-    G = load_graph_from_pickle(final_network_pickle_path)
-    G_multidigraph = load_graph_from_pickle(final_network_multidigraph_pickle_path)
+G = None
+G_multidigraph = None
+
+def load_graphs(criteria):
+    global G, G_multidigraph
+    paths = graph_paths[criteria]
+    gpkg_path = paths["gpkg"]
+    pickle_path = paths["pickle"]
+    multidigraph_pickle_path = paths["multidigraph_pickle"]
+
+    print("Loading network ...")
+    if os.path.isfile(pickle_path) and os.path.isfile(multidigraph_pickle_path):
+        load_net = True
+    else:
+        load_net = create_pickles_from_graph_pollen(gpkg_path, pickle_path, multidigraph_pickle_path)
+
+    if load_net:
+        print("Network loaded")
+        G = load_graph_from_pickle(pickle_path)
+        G_multidigraph = load_graph_from_pickle(multidigraph_pickle_path)
+
+load_graphs("frais")
+
+# print("Loading network ...")
+# if(os.path.isfile(final_network_pickle_path) & os.path.isfile(final_network_multidigraph_pickle_path)):
+#     load_net = True
+# else:
+#     load_net = create_pickles_from_graph_pollen(final_network_path, final_network_pickle_path, final_network_multidigraph_pickle_path)
+
+# if(load_net):
+#     print("Network loaded")
+#     G = load_graph_from_pickle(final_network_pickle_path)
+#     G_multidigraph = load_graph_from_pickle(final_network_multidigraph_pickle_path)
+
 
 @app.route('/data/', methods=['GET'])
 def get_layers():
@@ -68,7 +107,8 @@ def get_layers():
 @app.route('/itinerary/', methods=['GET'])
 def get_itinerary():
     """Route for itinerary calculation"""
-
+    criteria = request.args.get("criteria", default="pollen")
+    
     start_lat = request.args.get("start[lat]")
     start_lon = request.args.get("start[lon]")
     end_lat = request.args.get("end[lat]")
@@ -79,26 +119,44 @@ def get_itinerary():
 
     print(start_lat, start_lon, end_lat, end_lon)
     try:
+        load_graphs(criteria)  #charger le graphe en fonction du critère
         geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph)
 
-        results = [
-            {
-                "id": "LENGTH",
-                "name": "Itinéraire le plus court",
-                "geojson": geojson_path_length,
-                "color": " #1b2599 "
-            },
-                        {
-                "id": "IF",
-                "name": "Itinéraire le plus frais",
-                "geojson": geojson_path_IF, 
-                "color": "#1f8b2c"
-            },
-        ]
+        if (criteria == "frais"):
+            results = [
+                {
+                    "id": "LENGTH",
+                    "name": "Itinéraire le plus court",
+                    "geojson": geojson_path_length,
+                    "color": " #1b2599 "
+                },
+                {
+                    "id": "IF",
+                    "name": "Itinéraire le plus au frais",
+                    "geojson": geojson_path_IF, 
+                    "color": "#1f8b2c"
+                },
+            ]
+        elif (criteria == "pollen"):
+            results = [
+                {
+                    "id": "LENGTH",
+                    "name": "Itinéraire le plus court",
+                    "geojson": geojson_path_length,
+                    "color": " #1b2599 "
+                },
+                {
+                    "id": "IF",
+                    "name": "Itinéraire le moins allergisant",
+                    "geojson": geojson_path_IF, 
+                    "color": "#1f8b2c"
+                },
+            ]
+            
         return jsonify(results)
     except Exception as e:
         print(e)
         return '', 500
-
+    
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=3002)

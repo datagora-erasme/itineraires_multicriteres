@@ -62,7 +62,7 @@ if choice.upper() == "OUI":
     edges_buffer["arbres_weight"] = 0
     
     #buffers autour des arbres
-    arbres['buffer'] = arbres.geometry.buffer(50)  #50 mètres
+    arbres['buffer'] = arbres.geometry.buffer(30)  #3   0 mètres
     arbres_buffer = arbres.set_geometry('buffer')
 
     #intersection entre les buffers des arbres et les edges_buffer
