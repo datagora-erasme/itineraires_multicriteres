@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import MainContext from "../contexts/mainContext";
 import { FaHourglassStart, FaSnowflake } from "react-icons/fa";
+import { GiPollenDust } from "react-icons/gi";
 import { GiPathDistance } from "react-icons/gi"
 import {BiX} from "react-icons/bi"
 
 const CurrentItineraryDetails = ({showMenu}) => {
-    const { currentItinerary, filteredItinerariesFeatures, setShowCurrentItineraryDetails, ifScore, lenScore } = useContext(MainContext)
+    const { currentItinerary, filteredItinerariesFeatures, setShowCurrentItineraryDetails, ifScore, lenScore, criteria } = useContext(MainContext)
     const [details, setDetails] = useState([])
 
     useEffect(() => {
@@ -49,6 +50,7 @@ const CurrentItineraryDetails = ({showMenu}) => {
             </div>
             <div className="flex flex-col gap-4">
                 {details.map((det, i) => {
+                if (criteria === "frais") {
                     return(
                         <div key={i} className="flex flex-col items-start w-full">
                             <div className="flex w-full items-center gap-6">
@@ -71,7 +73,31 @@ const CurrentItineraryDetails = ({showMenu}) => {
                                 <div className="px-2 flex gap-1"><FaSnowflake className="mt-1 text-endGradientLegend"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
                             </div>
                         </div>
-                    )
+                    ) }
+                if (criteria === "pollen") {
+                    return(
+                        <div key={i} className="flex flex-col items-start w-full">
+                            <div className="flex w-full items-center gap-6">
+                                <h6 className="font-bold text-mainText">{det.name}</h6>
+                                <div className={`bg-gradient-to-r from-startGradientLegendPollen to-endGradientLegendPollen w-[100px] ${det.id === "LENGTH" ? "h-[5px]" : "h-[10px]"} flex flex-row gap-4 pl-4`}>
+                                    {det.id === "LENGTH" && (
+                                        <>
+                                            <div className="h-full w-[10px] bg-white"> </div>
+                                            <div className="h-full w-[10px] bg-white"> </div>
+                                            <div className="h-full w-[10px] bg-white"> </div>
+                                            <div className="h-full w-[10px] bg-white"> </div>
+                                            <div className="h-full w-[10px] bg-white"> </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="px-2 flex gap-1"><GiPathDistance className="mt-1"/> {det.distance}</div>
+                                <div className="px-2 flex"><FaHourglassStart className="mt-1"/> {det.duration}</div>
+                                <div className="px-2 flex gap-1"><GiPollenDust className="mt-1 text-endGradientLegendPollen"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
+                            </div>
+                        </div>
+                    ) }
                 })}
             </div>
             <div className="mt-2 flex flex-col items-start gap-2">

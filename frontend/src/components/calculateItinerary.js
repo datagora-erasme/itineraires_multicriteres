@@ -228,14 +228,14 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
         <div className="flex justify-center items-center mb-4 ">
           <button
             onClick={() => setCriteria("frais")}
-            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "frais" ? "bg-primary text-white" : "bg-white text-black border border-gray-300"}`}
+            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "frais" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <FaSnowflake className="mr-1" /> Plus au frais
           </button>
 
           <button
             onClick={() => setCriteria("pollen")}
-            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "pollen" ? "bg-primary text-white" : "bg-white text-black border border-gray-300"}`}
+            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "pollen" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <GiPollenDust className="mr-1" /> Moins de pollen
           </button>

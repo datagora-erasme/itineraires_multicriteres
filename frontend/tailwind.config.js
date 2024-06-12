@@ -13,7 +13,9 @@ module.exports = {
         mainText: '#000000',
         ligneModale: "#BDBDBD",
         startGradientLegend: '#f42a2d',
-        endGradientLegend: '#3d83f5'
+        endGradientLegend: '#3d83f5',
+        startGradientLegendPollen: '#9E2A2B',
+        endGradientLegendPollen: '#768948'
       },
     },
   },

@@ -28,7 +28,7 @@ const colors_pollen = {
 }
 
 const colorIfScale = chroma.scale(["#f42a2d", "#3d83f5"]).domain([0,10])
-const colorPolScale = chroma.scale(["#F94144", "#90be6d"]).domain([0,10])
+const colorPolScale = chroma.scale(["#C20003", "#768948"]).domain([0,10])
 
 function MapFreshness({setZoomToUserPosition, zoomToUserPosition, radius, selectedStartAddress, showCircle}){
     const map = useMap()
