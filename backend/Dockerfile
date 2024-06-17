@@ -14,6 +14,10 @@ COPY ./score_calculation_it/input_data /app/score_calculation_it/input_data
 COPY ./score_calculation_it/input_data/fetch_data_docker.py /app/score_calculation_it/input_data/fetch_data_docker.py
 #COPY ./score_calculation_it/output_data/network/graph/final_network_bounding_scaled_no_na.gpkg /app/score_calculation_it/output_data/network/graph/final_network_bounding_scaled_no_na.gpkg
 COPY ./score_calculation_it/output_data/network/graph/final_network_pollen.gpkg /app/score_calculation_it/output_data/network/graph/final_network_pollen.gpkg
+COPY ./score_calculation_it/output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca.gpkg /app/score_calculation_it/output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca.gpkg
+COPY ./score_calculation_it/output_data/network/graph/final_network_pollen.pickle /app/score_calculation_it/output_data/network/graph/final_network_pollen.pickle
+
+
 # COPY ./data/geojson /app/data/geojson
 # COPY ./data_informations.json /app/data_informations.json
 # COPY ./raw_data/ /app/raw_data
