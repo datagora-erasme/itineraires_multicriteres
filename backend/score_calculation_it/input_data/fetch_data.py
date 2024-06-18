@@ -67,6 +67,9 @@ def download_all_data(params, wfs, outputFormat):
     for data_name in params.keys():
         download_data(params, data_name, wfs, outputFormat)
 
+
+
+
 ### SCRIPT ###
 
 ## WFS CONNECTION ##

@@ -47,7 +47,7 @@ if choice.upper() == "OUI":
     
     arbres = arbres[arbres['raep'] != 0]
     
-    arbres = arbres[arbres["essencefrancais"] != "Emplacement libre"]
+    arbres = arbres[arbres["essencefrancais"] != "Emplacement libre"] 
     
     print(arbres.head())
 
@@ -60,9 +60,9 @@ if choice.upper() == "OUI":
     print(edges_buffer.head())
 
     edges_buffer["arbres_weight"] = 0
-    
+
     #buffers autour des arbres
-    arbres['buffer'] = arbres.geometry.buffer(30)  #3   0 mètres
+    arbres['buffer'] = arbres.geometry.buffer(30)  #30 mètres
     arbres_buffer = arbres.set_geometry('buffer')
 
     #intersection entre les buffers des arbres et les edges_buffer
