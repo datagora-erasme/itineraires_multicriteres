@@ -60,7 +60,7 @@ jobs:
   redeploy-back:
       name: Redeploy back Workload
       runs-on: ubuntu-latest
-      needs: push_to_registry
+      needs: backend
       steps:
         - name: Make API Request
           uses: fjogeleit/http-request-action@master
@@ -72,7 +72,7 @@ jobs:
   redeploy-front:
     name: Redeploy front Workload
     runs-on: ubuntu-latest
-    needs: push_to_registry
+    needs: frontend
     steps:
       - name: Make API Request
         uses: fjogeleit/http-request-action@master
