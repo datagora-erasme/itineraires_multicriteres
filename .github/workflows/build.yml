@@ -56,3 +56,28 @@ jobs:
           push: true
           context: ./frontend/
           tags: erasme/itineraires-multicriteres-frontend:${{ github.ref == 'refs/heads/main' && 'latest' || 'dev' }} , erasme/itineraires-multicriteres-frontend:${{ github.sha }}
+
+  redeploy-back:
+      name: Redeploy back Workload
+      runs-on: ubuntu-latest
+      needs: push_to_registry
+      steps:
+        - name: Make API Request
+          uses: fjogeleit/http-request-action@master
+          with:
+            url: ${{ secrets.RANCHER_BASE_URL }}/v3/project/c-m-ls255pvz:p-8wdk6/workloads/deployment:itineraire-multicriteres:back?action=redeploy
+            method: 'POST'
+            bearerToken: ${{ secrets.RANCHER_TOKEN }}
+            data: '{"scale": 2}'
+  redeploy-front:
+    name: Redeploy front Workload
+    runs-on: ubuntu-latest
+    needs: push_to_registry
+    steps:
+      - name: Make API Request
+        uses: fjogeleit/http-request-action@master
+        with:
+          url: ${{ secrets.RANCHER_BASE_URL }}/v3/project/c-m-ls255pvz:p-8wdk6/workloads/deployment:itineraire-multicriteres:front?action=redeploy
+          method: 'POST'
+          bearerToken: ${{ secrets.RANCHER_TOKEN }}
+          data: '{"scale": 2}'
