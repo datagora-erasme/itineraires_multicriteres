@@ -32,6 +32,16 @@ graph_paths = {
         "gpkg": final_network_pollen_path,
         "pickle": final_network_pickle_pollen_path,
         "multidigraph_pickle": final_network_multidigraph_pickle_pollen_path
+    },
+    "bruit": {
+        "gpkg": final_network_bruit_path,
+        "pickle": final_network_pickle_bruit_path,
+        "multidigraph_pickle": final_network_multidigraph_pickle_bruit_path
+    },
+    "tourisme": {
+        "gpkg": final_network_tourisme_path,
+        "pickle": final_network_pickle_tourisme_path,
+        "multidigraph_pickle": final_network_multidigraph_pickle_tourisme_path
     }
 }
 
@@ -45,18 +55,20 @@ def load_graphs(criteria):
     pickle_path = paths["pickle"]
     multidigraph_pickle_path = paths["multidigraph_pickle"]
 
+
     print("Loading network ...")
     if os.path.isfile(pickle_path) and os.path.isfile(multidigraph_pickle_path):
         load_net = True
     else:
-        load_net = create_pickles_from_graph_pollen(gpkg_path, pickle_path, multidigraph_pickle_path)
+        load_net = create_pickles_from_graph_criteria(gpkg_path, pickle_path, multidigraph_pickle_path, criteria)
+        
 
     if load_net:
         print("Network loaded")
         G = load_graph_from_pickle(pickle_path)
         G_multidigraph = load_graph_from_pickle(multidigraph_pickle_path)
 
-load_graphs("frais")
+load_graphs("tourisme")
 
 # print("Loading network ...")
 # if(os.path.isfile(final_network_pickle_path) & os.path.isfile(final_network_multidigraph_pickle_path)):
@@ -107,7 +119,7 @@ def get_layers():
 @app.route('/itinerary/', methods=['GET'])
 def get_itinerary():
     """Route for itinerary calculation"""
-    criteria = request.args.get("criteria", default="pollen")
+    criteria = request.args.get("criteria", default="frais")
     
     start_lat = request.args.get("start[lat]")
     start_lon = request.args.get("start[lon]")
@@ -148,6 +160,36 @@ def get_itinerary():
                 {
                     "id": "IF",
                     "name": "Itinéraire le moins allergisant",
+                    "geojson": geojson_path_IF, 
+                    "color": "#1f8b2c"
+                },
+            ]
+        elif (criteria == "bruit"):
+            results = [
+                {
+                    "id": "LENGTH",
+                    "name": "Itinéraire le plus court",
+                    "geojson": geojson_path_length,
+                    "color": " #1b2599 "
+                },
+                {
+                    "id": "IF",
+                    "name": "Itinéraire le moins bruyant",
+                    "geojson": geojson_path_IF, 
+                    "color": "#1f8b2c"
+                },
+            ]
+        elif (criteria == "tourisme"):
+            results = [
+                {
+                    "id": "LENGTH",
+                    "name": "Itinéraire le plus court",
+                    "geojson": geojson_path_length,
+                    "color": " #1b2599 "
+                },
+                {
+                    "id": "IF",
+                    "name": "Itinéraire le plus touristique",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
                 },

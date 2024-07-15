@@ -103,3 +103,8 @@ input[type=range].custom-slider::-moz-range-progress {
   height: 0;
   background: transparent;        /* supprime barre progression avant */
 }
+
+/* marker */
+img.huechange {
+filter: hue-rotate(145deg); /* rouge */
+}

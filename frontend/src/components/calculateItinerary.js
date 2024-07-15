@@ -2,7 +2,10 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import _debounce from 'lodash/debounce';
 import { FaChevronDown, FaCheck, FaSnowflake } from "react-icons/fa";
-import { GiPollenDust } from "react-icons/gi";
+import { HiSpeakerXMark } from "react-icons/hi2";
+import { TbFlowerOff } from "react-icons/tb";
+import { MdPhotoCamera } from "react-icons/md";
+
 import { BiCurrentLocation } from "react-icons/bi";
 import MainContext from "../contexts/mainContext";
 
@@ -237,9 +240,23 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
             onClick={() => setCriteria("pollen")}
             className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "pollen" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
-            <GiPollenDust className="mr-1" /> Moins de pollen
+            <TbFlowerOff className="mr-1" /> Moins de pollen
           </button>
-        </div>
+          </div>
+          <div className="flex justify-center items-center mb-4 ">
+          <button
+            onClick={() => setCriteria("bruit")}
+            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "bruit" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
+          >
+            <HiSpeakerXMark className="mr-1" /> Moins de bruit
+          </button>
+          <button
+            onClick={() => setCriteria("tourisme")}
+            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "tourisme" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
+          >
+            <MdPhotoCamera className="mr-1" /> Lieux touristiques
+          </button>
+          </div>
 
         
         <div className="flex justify-center items-center">

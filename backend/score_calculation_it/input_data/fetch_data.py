@@ -28,7 +28,7 @@ def connection_wfs(url, service_name, version):
         print(f"SUCCESS : Connected to {service_name}")
     except NameError:
         print(f"Error while connecting to {service_name} ... : {NameError}")
-
+    print(url)
     return wfs
 
 def download_data(params, data_name, wfs, outputFormat):
@@ -43,7 +43,8 @@ def download_data(params, data_name, wfs, outputFormat):
         #FOR NOW BUG WIT bbox for toilettes and fontaines with datagrandlyon, when corrected : replace the following
         # line by this one : data = wfs.getfeature(typename=data_key, bbox=bbox, outputFormat=outputFormat, filter="sortBy=gid")
         data = wfs.getfeature(typename=data_key, outputFormat=outputFormat, filter="sortBy=gid")
-        print(f"{data_name} fetched with sucess")
+        print(data)
+        print(f"{data_name} fetched with success")
     except NameError:
         print(f"Error fetching {data_name}")
 
@@ -67,9 +68,6 @@ def download_all_data(params, wfs, outputFormat):
     for data_name in params.keys():
         download_data(params, data_name, wfs, outputFormat)
 
-
-
-
 ### SCRIPT ###
 
 ## WFS CONNECTION ##
@@ -78,6 +76,12 @@ print("WFS CONNECTION")
 data_grandlyon_wfs_url = "https://data.grandlyon.com/geoserver/metropole-de-lyon/ows?SERVICE=WFS&VERSION=2.0.0"
 data_grandlyon_wfs = connection_wfs(data_grandlyon_wfs_url, "datagrandlyon", "2.0.0")
 
+# tourisme WFS
+data_grandlyon_tourisme_wfs_url = "https://data.grandlyon.com/geoserver/wfs"
+data_grandlyon_tourisme_wfs = connection_wfs(data_grandlyon_tourisme_wfs_url, "datagrandlyon", "2.0.0")
+
+
+
 ## DATA DOWNLOAD ##
 
 fetching_choice = input("\n Voulez-vous télécharger toutes (ALL) les données, une seule (ONE) ou seulement les données à afficher sur l'application web (WEB_ONLY) ? \n Veuillez entrer ALL, ONE ou WEB_ONLY selon votre choix : ")
@@ -85,7 +89,9 @@ print("Data Download")
 
 if(fetching_choice == "ALL"):
 ### Download all data ###
-    download_all_data(data_params, data_grandlyon_wfs, geojsonOutputFormat)
+    #download_all_data(data_params, data_grandlyon_wfs, geojsonOutputFormat)
+    download_all_data(data_params_tourisme, data_grandlyon_tourisme_wfs, geojsonOutputFormat)
+
 elif(fetching_choice == "ONE"):
 ###  download a specific data ###
     available_data = [data_name for data_name in data_params.keys()]
@@ -102,3 +108,10 @@ else:
     print("VEUILLEZ entrer un choix valide (ALL, ONE ou WEB_ONLY)")
 
 
+"""
+wfs_url="
+https://ows.region-bretagne.fr/geoserver/rb/wfs?service=wfs&request=getCapabilities
+"
+response=requests.get(wfs_url).content 
+    
+"""

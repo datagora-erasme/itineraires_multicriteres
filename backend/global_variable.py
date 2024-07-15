@@ -21,8 +21,13 @@ final_network_pollen_path = globpath("./score_calculation_it/output_data/network
 final_network_pickle_pollen_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen.pickle")
 final_network_multidigraph_pickle_pollen_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen_multidigraph.pickle")
 
+final_network_bruit_path = globpath("./score_calculation_it/output_data/network/graph/final_network_bruit.gpkg")
+final_network_pickle_bruit_path = globpath("./score_calculation_it/output_data/network/graph/final_network_bruit.pickle")
+final_network_multidigraph_pickle_bruit_path = globpath("./score_calculation_it/output_data/network/graph/final_network_bruit_multidigraph.pickle")
 
-final_network_path_pollen = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen.gpkg")
+final_network_tourisme_path = globpath("./score_calculation_it/output_data/network/graph/final_network_tourisme.gpkg")
+final_network_pickle_tourisme_path = globpath("./score_calculation_it/output_data/network/graph/final_network_tourisme.pickle")
+final_network_multidigraph_pickle_tourisme_path = globpath("./score_calculation_it/output_data/network/graph/final_network_tourisme_multidigraph.pickle")
 
 ### EDGES PATH ###
 edges_buffer_path = globpath("./score_calculation_it/input_data/network/edges_buffered_12_bounding.gpkg")
@@ -52,7 +57,13 @@ edges_buffer_total_score_path = globpath("./score_calculation_it/output_data/net
 edges_buffer_total_score_distance_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_total_score_distance_bounding.gpkg")
 edges_buffer_total_score_distance_freshness_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_total_score_distance_freshness_bounding.gpkg")
 edges_buffer_total_score_distance_pollen_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_total_score_distance_pollen_bounding.gpkg")
+edges_buffer_total_score_distance_bruit_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_total_score_distance_bruit_bounding.gpkg")
+edges_buffer_total_score_distance_tourisme_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_total_score_distance_tourisme_bounding.gpkg")
 
+edges_buffer_bruit_wavg_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_bruit_wavg_bounding.gpkg")
+edges_buffer_bruit_wavg_path_no_na = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_bruit_wavg_bounding_no_na.gpkg")
+
+edges_buffer_tourisme_prop_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_tourisme_prop_bounding.gpkg")
 
 ### DATA PATH ###
 #### VEGETATION ####
@@ -107,6 +118,9 @@ eaux_buffer_path = globpath("./score_calculation_it/output_data/eaux/eaux_buffer
 
 #### POLLEN ####
 arbres_classes_pollen_path = globpath("./score_calculation_it/output_data/arbres/arbres.gpkg")
+
+#### BRUIT ####
+bruit_path = globpath("./score_calculation_it/input_data/bruit/bruit.gpkg")
 
 ### DATA PARAMS ###
 data_params = {
@@ -242,5 +256,14 @@ data_params = {
         "gpkg_path": globpath("./score_calculation_it/input_data/arbres/arbres.gpkg"),
         "geojson_path": globpath("./score_calculation_it/input_data/arbres/arbres.json"),
         "onMap": False
+    },
+}
+
+data_params_tourisme = {
+        "tourisme" : {
+        "wfs_key": "onlylyon-tourisme-et-congres:apd_apidae.apdlieutourisme_latest",
+        "gpkg_path": globpath("./score_calculation_it/input_data/tourisme/poi_tourisme.gpkg"),
+        "geojson_path": globpath("./score_calculation_it/input_data/tourisme/poi_tourisme.json"),
+        "onMap": True 
     }
 }

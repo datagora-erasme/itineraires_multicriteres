@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import norm
 from data_utils import *
+from shapely.geometry import Point
 import sys
 sys.path.append("../")
 from global_variable import *
@@ -21,15 +22,29 @@ def map_raep(famille):
 choice = input("Souhaitez-vous mettre à jour le réseau pondéré par les arbres ? OUI ou NON\n")
 
 if choice.upper() == "OUI":
+    #arbres d'alignements
     arbres = gpd.read_file(data_params["arbres"]["gpkg_path"])
     arbres = arbres.to_crs(3946)
 
     print(arbres.head())
     print(arbres.columns)
 
+    #arbres des parcs, dataset additonnel fourni par les communes
+    arbres_parcs = gpd.read_file('./input_data/arbres/arbre_vdl_opendata_juin_2024.shp')
+    arbres_parcs = arbres_parcs.to_crs(epsg=3946)
+
     #arbres['lat'] = arbres['lat'].apply(lambda x: float(x.replace(',', '.')) if isinstance(x, str) else x)
     #arbres['lon'] = arbres['lon'].apply(lambda x: float(x.replace(',', '.')) if isinstance(x, str) else x)
-    
+
+    #concatenation des deux datasets
+    arbres_parcs = arbres_parcs.rename(columns={'Type_en_fr': 'essencefrancais'})
+    arbres_parcs = arbres_parcs.rename(columns={'Type_en_la': 'essencelatin'})
+    arbres_parcs = arbres_parcs.rename(columns={'Genre': 'genre'})
+    arbres_parcs = arbres_parcs.rename(columns={'Essence': 'essence'})
+    arbres_parcs = arbres_parcs.rename(columns={'Hauteur_to': 'hauteurtotale_m'})
+
+    arbres = pd.concat([arbres, arbres_parcs], ignore_index=True)
+
     arbres.dropna(subset=['codeinsee'], inplace=True)
     arbres['codeinsee'] = arbres['codeinsee'].round().astype(int)
     
@@ -46,8 +61,8 @@ if choice.upper() == "OUI":
     arbres['raep'] = arbres['famille'].apply(map_raep)
     
     arbres = arbres[arbres['raep'] != 0]
-    
     arbres = arbres[arbres["essencefrancais"] != "Emplacement libre"] 
+    arbres = arbres.dropna(axis=1, how='all')
     
     print(arbres.head())
 

@@ -226,7 +226,7 @@ Les données distribuées pour l'application web sont celles stockées dans le d
 Le frontend est conçu en React et react-leaflet pour ce qui est de la cartographie. Il est conçu pour être une unique page intégrable dans un site web. 
 Le dossier src contient l'ensemble des scripts avec des composants et un context (permettant la circulation des variables entre les différents composants).
 
-NB : le fetch des données *Lieux frais ouverts au public* se fait via une URL temporaire suite à changement de conception côté datagrandlyon. Si modification d'URL il y a, ce changement s'effectue dans le fichier **mainContext.js** Ligne 127.
+NB : le fetch des données *Lieux frais ouverts au public* se fait via une URL temporaire suite à changement de conception côté datagrandlyon. Si modification d'URL il y a, ce changement s'effectue dans le fichier **mainContext.js** Ligne 141.
 
 # Pondération du réseau piéton et analyse statistique
 

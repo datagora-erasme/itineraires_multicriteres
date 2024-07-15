@@ -51,7 +51,12 @@ export const MainContextProvider = ({ children }) => {
           scores = itinerary.geojson.features.map((feat) => feat.properties.freshness_score_13);
       } else if (criteria === "pollen") {
           scores = itinerary.geojson.features.map((feat) => feat.properties.pollen_score);
-      } else {
+      } else if (criteria === "bruit") {
+        scores = itinerary.geojson.features.map((feat) => feat.properties.bruit_score);
+      } else if (criteria === "tourisme") {
+        scores = itinerary.geojson.features.map((feat) => feat.properties.tourisme_score);
+      }
+      else {
           return null;
       }
       const initialValue = 0;
@@ -133,7 +138,7 @@ export const MainContextProvider = ({ children }) => {
       })
         //https://download.data.grandlyon.com/files/rdata/pvo_patrimoine_voirie.pvocameracriter/equipements_frais.json --> solution temporaire
         //https://download.data.grandlyon.com/ws/grandlyon/com_donnees_communales.equipementspublicsclimatises/all.json --> solution initiale
-        const fetchFreshPlaces = await axios.get("https://download.data.grandlyon.com/files/rdata/pvo_patrimoine_voirie.pvocameracriter/equipements_frais.json")
+        const fetchFreshPlaces = await axios.get("https://download.data.grandlyon.com/files/rdata/sortons_au_frais/equipements_frais.json")
         const freshplaces = {
           id: "batiments_frais",
           geojson: {
