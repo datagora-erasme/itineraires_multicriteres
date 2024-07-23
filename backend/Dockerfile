@@ -18,6 +18,7 @@ COPY ./models/ /app/models
 # COPY ./score_calculation_it/output_data/network/graph/final_network_pollen.pickle /app/score_calculation_it/output_data/network/graph/final_network_pollen.pickle
 # COPY ./score_calculation_it/output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca_multidigraph.pickle /app/score_calculation_it/output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca_multidigraph.pickle
 COPY ./score_calculation_it/output_data/network/graph/ /app/score_calculation_it/output_data/network/graph
+COPY ./score_calculation_it/input_data/ /app/score_calculation_it/input_data
 
 
 # COPY ./data/geojson /app/data/geojson
