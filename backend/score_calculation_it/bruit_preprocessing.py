@@ -32,12 +32,13 @@ if(choice == "OUI"):
     print("read file")
     bruit_edges = gpd.read_file(edges_buffer_bruit_wavg_path, layer="edges")
 
-    print("fill na")
-    bruit_edges["DN_wavg"] = bruit_edges["DN_wavg"].fillna(0)
+    print("fill na and zeros")
+    bruit_edges["DN_wavg"] = bruit_edges["DN_wavg"].fillna(0.01)
+    bruit_edges["DN_wavg"] = bruit_edges["DN_wavg"].replace(0, 0.01)
 
     print("scale noise")
 
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler = MinMaxScaler(feature_range=(0, 1)) #à modifier ?
 
     bruit_edges["DN_wavg_scaled"] = scaler.fit_transform(bruit_edges[["DN_wavg"]])
 

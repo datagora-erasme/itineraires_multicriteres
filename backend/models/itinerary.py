@@ -5,7 +5,7 @@ import networkx as nx
 import osmnx as ox
 import json
 
-def shortest_path(G, start, end, G_multidigraph):
+def shortest_path(G, start, end, G_multidigraph, weight="score_distance_13"):
     """Find the shortest and the freshness path between start and end. \n
         The term "if" is for indicator of freshness.
     """
@@ -16,7 +16,7 @@ def shortest_path(G, start, end, G_multidigraph):
     print("Finding shortest path IF ...")
 
     #TODO change the weight according to the hour (8h, 13h, 18h)
-    shortest_path_if = nx.shortest_path(G, source=origin_node, target=destination_node, weight="score_distance_13")
+    shortest_path_if = nx.shortest_path(G, source=origin_node, target=destination_node, weight=weight)
 
     route_edges_if = ox.utils_graph.get_route_edge_attributes(G_multidigraph, shortest_path_if)
 

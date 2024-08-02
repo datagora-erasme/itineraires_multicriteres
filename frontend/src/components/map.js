@@ -23,7 +23,7 @@
 
     const colorIfScale = chroma.scale(["#f42a2d", "#3d83f5"]).domain([0,10])
     const colorPolScale = chroma.scale(["#C20003", "#FEED72"]).domain([0,10])
-    const colorBrScale = chroma.scale(["#96CC8F", "#845B86"]).domain([0,10])
+    const colorBrScale = chroma.scale(["#845B86", "#96CC8F"]).domain([0,10])
 
     function MapFreshness({setZoomToUserPosition, zoomToUserPosition, radius, selectedStartAddress, showCircle}){
         const map = useMap()

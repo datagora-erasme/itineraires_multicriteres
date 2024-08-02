@@ -71,7 +71,9 @@ def score_distance(input_path, output_path):
     edges["total_score_tourisme"] = pd.to_numeric(edges["total_score_tourisme"], errors='coerce')
     edges["length"] = pd.to_numeric(edges["length"], errors='coerce')
 
-    edges["score_distance"] = round(edges["total_score_tourisme"] * edges["length"]) 
+    edges["score_distance_tourisme"] = round(edges["total_score_tourisme"] * edges["length"]) 
+    edges["score_distance_tourisme"] = edges["score_distance_tourisme"].replace(0, 0.01)
+    print(edges["score_distance_tourisme"].describe())
 
     edges.to_file(output_path, driver="GPKG")
 
@@ -89,8 +91,6 @@ def score_tourisme(input_path, output_path):
     #edges["tourisme_score"] = edges["tourisme_score"].apply(lambda x: 1-(x/10))
     #edges["tourisme_score"] = edges["tourisme_score"].apply(lambda x: x*10)
 
-   
-    print(edges["tourisme_score"].describe())
     edges.to_file(output_path, driver="GPKG")
 
 def create_graph_tourisme(graph_path, edges_buffered_path, graph_output_path):
@@ -105,7 +105,7 @@ def create_graph_tourisme(graph_path, edges_buffered_path, graph_output_path):
     graph_n = graph_n.set_index(["osmid"])
 
     graph_e["total_score_tourisme"] = edges_buffered["total_score_tourisme"]
-    graph_e["score_distance"] = edges_buffered["score_distance"]
+    graph_e["score_distance_tourisme"] = edges_buffered["score_distance_tourisme"]
 
     graph_e["tourisme_score"] = edges_buffered["tourisme_score"]
 

@@ -17,7 +17,7 @@ edges_buffer_path = globpath("./score_calculation_it/input_data/network/edges_bu
 
 ### GLOBAL VARIABLES ###
 
-score_columns_bruit = ["score_bruit_DN_wavg_scaled"]
+score_columns_bruit = ["score_bruit_DN_wavg"]
 
 ### FUNCTIONS ###
 
@@ -76,7 +76,7 @@ def score_distance(input_path, output_path):
     """calculate the score by distance for each edges"""
     edges = gpd.read_file(input_path)
 
-    edges["score_distance"] = round(edges["total_score_bruit"] * edges["length"]) 
+    edges["score_distance_bruit"] = round(edges["total_score_bruit"] * edges["length"]) 
 
     edges.to_file(output_path, driver="GPKG")
 
@@ -86,12 +86,14 @@ def score_bruit(input_path, output_path):
 
     min_score = edges["total_score_bruit"].min()
     max_score = edges["total_score_bruit"].max()
-    slope = (10-0)/(max_score-min_score)
+    slope = (0-10)/(max_score-min_score)
     origin_ordinate = -slope*max_score
     edges["bruit_score"] = edges["total_score_bruit"].apply(lambda x: round(slope*x+origin_ordinate, 2))
-    #edges["bruit_score"] = edges["total_score_bruit"].apply(lambda x: x)
+    #edges["bruit_score"] = edges["total_score_bruit"].apply(lambda x: x*10)
     #edges["bruit_score"] = edges["bruit_score"].apply(lambda x: 1-(x/10)) 
     #edges["bruit_score"] = edges["bruit_score"].apply(lambda x: x*10) 
+
+    print(edges["bruit_score"].describe())
     edges.to_file(output_path, driver="GPKG")
 
 def create_graph_bruit(graph_path, edges_buffered_path, graph_output_path):
@@ -106,7 +108,7 @@ def create_graph_bruit(graph_path, edges_buffered_path, graph_output_path):
     graph_n = graph_n.set_index(["osmid"])
 
     graph_e["total_score_bruit"] = edges_buffered["total_score_bruit"]
-    graph_e["score_distance"] = edges_buffered["score_distance"]
+    graph_e["score_distance_bruit"] = edges_buffered["score_distance_bruit"]
 
     graph_e["bruit_score"] = edges_buffered["bruit_score"]
 
@@ -115,7 +117,7 @@ def create_graph_bruit(graph_path, edges_buffered_path, graph_output_path):
     ox.save_graph_geopackage(G, graph_output_path)
 
 params = {
-    "DN_wavg_scaled" : {
+    "DN_wavg" : {
         "edges_path": edges_buffer_bruit_wavg_path_no_na,
         "fn_cont": lambda x: x,
         "alpha": 1
@@ -124,10 +126,10 @@ params = {
 
 
 
-all_score_edges(edges_buffer_path, edges_buffer_scored_path, params)
+#all_score_edges(edges_buffer_path, edges_buffer_scored_path, params)
 
-total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_bruit)
+#total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_bruit)
 
-score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
+#score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
 score_bruit(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_bruit_path)
 create_graph_bruit(metrop_network_bouding_path, edges_buffer_total_score_distance_bruit_path, "./output_data/network/graph/final_network_bruit.gpkg")

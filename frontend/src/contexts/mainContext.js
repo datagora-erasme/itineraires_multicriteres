@@ -43,7 +43,7 @@ export const MainContextProvider = ({ children }) => {
 
     const [lenScore, setLenScore] = useState(null)
 
-    const [criteria, setCriteria] = useState(null);
+    const [criteria, setCriteria] = useState([]);
 
     const calculateMeanScore = (itinerary) => {
       let scores;

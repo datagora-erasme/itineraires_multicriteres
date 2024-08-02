@@ -40,6 +40,7 @@ def total_score(input_path, output_path, score_columns):
     edges = gpd.read_file(input_path, layer="edges")
     print(edges.columns)
     edges["total_score_pollen"] = edges[score_columns].sum(axis=1)
+    edges["total_score_pollen"] = edges["total_score_pollen"].replace(0, 0.01)
     
     edges.to_file(output_path, driver="GPKG")
 
@@ -76,7 +77,9 @@ def score_distance(input_path, output_path):
     """calculate the score by distance for each edges"""
     edges = gpd.read_file(input_path)
 
-    edges["score_distance"] = round(edges["total_score_pollen"] * edges["length"]) 
+    edges["score_distance_pollen"] = round(edges["total_score_pollen"] * edges["length"]) 
+    edges["score_distance_pollen"] = edges["score_distance_pollen"].replace(0, 0.01)
+    print(edges["score_distance_pollen"].describe())
 
     edges.to_file(output_path, driver="GPKG")
 
@@ -104,7 +107,7 @@ def create_graph_pollen(graph_path, edges_buffered_path, graph_output_path):
     graph_n = graph_n.set_index(["osmid"])
 
     graph_e["total_score_pollen"] = edges_buffered["total_score_pollen"]
-    graph_e["score_distance"] = edges_buffered["score_distance"]
+    graph_e["score_distance_pollen"] = edges_buffered["score_distance_pollen"]
 
     graph_e["pollen_score"] = edges_buffered["pollen_score"]
 

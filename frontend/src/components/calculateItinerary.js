@@ -9,6 +9,7 @@ import { MdPhotoCamera } from "react-icons/md";
 import { BiCurrentLocation } from "react-icons/bi";
 import MainContext from "../contexts/mainContext";
 
+
 const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculation }) => {
   const [startAddressSuggestions, setStartAddressSuggestions] = useState([]);
   const [endAddressSuggestions, setEndAddressSuggestions] = useState([]);

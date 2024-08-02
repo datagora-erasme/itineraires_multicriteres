@@ -16,8 +16,10 @@ module.exports = {
         endGradientLegend: '#3d83f5',
         startGradientLegendPollen: '#C20003',
         endGradientLegendPollen: '#FEED72',
-        startGradientLegendBruit: '#96CC8F',
-        endGradientLegendBruit: '#845B86',
+        startGradientLegendBruit: '#845B86',
+        endGradientLegendBruit: '#96CC8F',
+        startGradientLegendTourisme: '#F42A2D', 
+        endGradientLegendTourisme: '#3D83F5'
       },
     },
   },

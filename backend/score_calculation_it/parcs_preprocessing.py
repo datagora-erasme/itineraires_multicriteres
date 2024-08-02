@@ -21,7 +21,6 @@ if choice.upper() == "OUI":
     print("Création des classes de parcs")
 
     parcs = gpd.read_file(data_params["parcs"]["gpkg_path"])
-    #ajoute un buffer autour des parcs de 15 mètres
     parcs["geometry"] = parcs.geometry.buffer(15)
     parcs.to_file(parcs_classes_path, driver="GPKG", layer="parcs")
 

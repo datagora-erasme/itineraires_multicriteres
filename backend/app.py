@@ -68,8 +68,6 @@ def load_graphs(criteria):
         G = load_graph_from_pickle(pickle_path)
         G_multidigraph = load_graph_from_pickle(multidigraph_pickle_path)
 
-load_graphs("tourisme")
-
 # print("Loading network ...")
 # if(os.path.isfile(final_network_pickle_path) & os.path.isfile(final_network_multidigraph_pickle_path)):
 #     load_net = True
@@ -119,8 +117,8 @@ def get_layers():
 @app.route('/itinerary/', methods=['GET'])
 def get_itinerary():
     """Route for itinerary calculation"""
-    criteria = request.args.get("criteria", default="frais")
-    
+    criteria_list = request.args.getlist("criteria")
+
     start_lat = request.args.get("start[lat]")
     start_lon = request.args.get("start[lon]")
     end_lat = request.args.get("end[lat]")
@@ -129,76 +127,75 @@ def get_itinerary():
     start = (float(start_lon), float(start_lat))
     end = (float(end_lon), float(end_lat))
 
-    print(start_lat, start_lon, end_lat, end_lon)
+    print(start_lat, start_lon, end_lat, end_lon, criteria_list)
+    results = []
+    
     try:
-        load_graphs(criteria)  #charger le graphe en fonction du critère
-        geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph)
-
-        if (criteria == "frais"):
-            results = [
-                {
+        for criteria in criteria_list:
+            load_graphs(criteria)  #charger le graphe en fonction du critère
+            
+            if criteria == "frais":
+                geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph)
+                results.append({
                     "id": "LENGTH",
                     "name": "Itinéraire le plus court",
                     "geojson": geojson_path_length,
                     "color": " #1b2599 "
-                },
-                {
+                })
+                results.append({
                     "id": "IF",
                     "name": "Itinéraire le plus au frais",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
-                },
-            ]
-        elif (criteria == "pollen"):
-            results = [
-                {
+                })
+            elif criteria == "pollen":
+                geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_pollen')
+                results.append({
                     "id": "LENGTH",
                     "name": "Itinéraire le plus court",
                     "geojson": geojson_path_length,
                     "color": " #1b2599 "
-                },
-                {
+                })
+                results.append({
                     "id": "IF",
                     "name": "Itinéraire le moins allergisant",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
-                },
-            ]
-        elif (criteria == "bruit"):
-            results = [
-                {
+                })
+            elif criteria == "bruit":
+                geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_bruit')
+                results.append({
                     "id": "LENGTH",
                     "name": "Itinéraire le plus court",
                     "geojson": geojson_path_length,
                     "color": " #1b2599 "
-                },
-                {
+                })
+                results.append({
                     "id": "IF",
                     "name": "Itinéraire le moins bruyant",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
-                },
-            ]
-        elif (criteria == "tourisme"):
-            results = [
-                {
+                })
+            elif criteria == "tourisme":
+                geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_tourisme')
+                results.append({
                     "id": "LENGTH",
                     "name": "Itinéraire le plus court",
                     "geojson": geojson_path_length,
                     "color": " #1b2599 "
-                },
-                {
+                })
+                results.append({
                     "id": "IF",
                     "name": "Itinéraire le plus touristique",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
-                },
-            ]
+                })
             
         return jsonify(results)
     except Exception as e:
         print(e)
         return '', 500
+
     
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=3002)
