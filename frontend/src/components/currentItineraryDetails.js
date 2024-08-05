@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import MainContext from "../contexts/mainContext";
-import { FaHourglassStart, FaSnowflake } from "react-icons/fa";
+import { FaHourglassStart, FaSnowflake, FaHotjar } from "react-icons/fa";
 import { GiPathDistance } from "react-icons/gi";
-import { TbFlowerOff } from "react-icons/tb";
-import { HiSpeakerXMark } from "react-icons/hi2";
-import { MdPhotoCamera } from "react-icons/md";
+import { TbFlowerOff, TbFlower } from "react-icons/tb";
+import { HiSpeakerXMark, HiSpeakerWave } from "react-icons/hi2";
+import { MdPhotoCamera, MdNoPhotography } from "react-icons/md";
 import {BiX} from "react-icons/bi"
 
 const CurrentItineraryDetails = ({showMenu}) => {
@@ -57,6 +57,8 @@ const CurrentItineraryDetails = ({showMenu}) => {
                         <div key={i} className="flex flex-col items-start w-full">
                             <div className="flex w-full items-center gap-6">
                                 <h6 className="font-bold text-mainText">{det.name}</h6>
+                                <div className="flex items-center gap-1">
+                                <FaHotjar className="mt-1 text-startGradientLegend"/> 
                                 <div className={`bg-gradient-to-r from-startGradientLegend to-endGradientLegend w-[100px] ${det.id === "LENGTH" ? "h-[5px]" : "h-[10px]"} flex flex-row gap-4 pl-4`}>
                                     {det.id === "LENGTH" && (
                                         <>
@@ -67,12 +69,12 @@ const CurrentItineraryDetails = ({showMenu}) => {
                                             <div className="h-full w-[10px] bg-white"> </div>
                                         </>
                                     )}
-                                </div>
+                                </div> <FaSnowflake className="mt-1 text-endGradientLegend"/> </div>
                             </div>
                             <div className="flex gap-4">
                                 <div className="px-2 flex gap-1"><GiPathDistance className="mt-1"/> {det.distance}</div>
                                 <div className="px-2 flex"><FaHourglassStart className="mt-1"/> {det.duration}</div>
-                                <div className="px-2 flex gap-1"><FaSnowflake className="mt-1 text-endGradientLegend"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
+                                <div className="px-2 flex gap-1"><FaSnowflake className="mt-1 text-black"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
                             </div>
                         </div>
                     ) }
@@ -80,8 +82,10 @@ const CurrentItineraryDetails = ({showMenu}) => {
                 if (criteria === "pollen") {
                     return(
                         <div key={i} className="flex flex-col items-start w-full">
-                            <div className="flex w-full items-center gap-6">
+                            <div className="flex w-full items-center gap-2">
                                 <h6 className="font-bold text-mainText">{det.name}</h6>
+                                <div className="flex items-center gap-1">
+                                <TbFlower className="mt-1 text-startGradientLegendPollen"/>
                                 <div className={`bg-gradient-to-r from-startGradientLegendPollen to-endGradientLegendPollen w-[100px] ${det.id === "LENGTH" ? "h-[5px]" : "h-[10px]"} flex flex-row gap-4 pl-4`}>
                                     {det.id === "LENGTH" && (
                                         <>
@@ -92,12 +96,13 @@ const CurrentItineraryDetails = ({showMenu}) => {
                                             <div className="h-full w-[10px] bg-white"> </div>
                                         </>
                                     )}
-                                </div>
+                                </div> 
+                                <TbFlowerOff className="mt-1 text-endGradientLegendPollen"/> </div>
                             </div>
                             <div className="flex gap-4">
                                 <div className="px-2 flex gap-1"><GiPathDistance className="mt-1"/> {det.distance}</div>
                                 <div className="px-2 flex"><FaHourglassStart className="mt-1"/> {det.duration}</div>
-                                <div className="px-2 flex gap-1"><TbFlowerOff className="mt-1 text-endGradientLegendPollen"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
+                                <div className="px-2 flex gap-1"><TbFlowerOff className="mt-1 text-black"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
                             </div>
                         </div>
                     ) }
@@ -105,24 +110,29 @@ const CurrentItineraryDetails = ({showMenu}) => {
                 if (criteria === "bruit") {
                     return(
                         <div key={i} className="flex flex-col items-start w-full">
-                            <div className="flex w-full items-center gap-6">
+                            <div className="flex w-full items-center gap-3">
                                 <h6 className="font-bold text-mainText">{det.name}</h6>
-                                <div className={`bg-gradient-to-r from-endGradientLegendBruit to-startGradientLegendBruit w-[100px] ${det.id === "LENGTH" ? "h-[5px]" : "h-[10px]"} flex flex-row gap-4 pl-4`}>
-                                    {det.id === "LENGTH" && (
-                                        <>
-                                            <div className="h-full w-[10px] bg-white"> </div>
-                                            <div className="h-full w-[10px] bg-white"> </div>
-                                            <div className="h-full w-[10px] bg-white"> </div>
-                                            <div className="h-full w-[10px] bg-white"> </div>
-                                            <div className="h-full w-[10px] bg-white"> </div>
-                                        </>
-                                    )}
+                                <div className="flex items-center gap-2">
+                                    <HiSpeakerWave className="text-startGradientLegendBruit" />
+                                    <div className={`bg-gradient-to-r from-startGradientLegendBruit to-endGradientLegendBruit w-[100px] ${det.id === "LENGTH" ? "h-[5px]" : "h-[10px]"} flex flex-row gap-4 pl-4`}>
+                                        {det.id === "LENGTH" && (
+                                            <>
+                                                <div className="h-full w-[10px] bg-white"></div>
+                                                <div className="h-full w-[10px] bg-white"></div>
+                                                <div className="h-full w-[10px] bg-white"></div>
+                                                <div className="h-full w-[10px] bg-white"></div>
+                                                <div className="h-full w-[10px] bg-white"></div>
+                                            </>
+                                        )}
+                                    </div>
+                                    <HiSpeakerXMark className="text-endGradientLegendBruit" />
                                 </div>
+
                             </div>
                             <div className="flex gap-4">
                                 <div className="px-2 flex gap-1"><GiPathDistance className="mt-1"/> {det.distance}</div>
                                 <div className="px-2 flex"><FaHourglassStart className="mt-1"/> {det.duration}</div>
-                                <div className="px-2 flex gap-1"><HiSpeakerXMark className="mt-1 text-startGradientLegendBruit"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
+                                <div className="px-2 flex gap-1"><HiSpeakerXMark className="mt-1 text-black"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
                             </div>
                         </div>
                     ) }
@@ -130,9 +140,11 @@ const CurrentItineraryDetails = ({showMenu}) => {
                     if (criteria === "tourisme") {
                         return(
                             <div key={i} className="flex flex-col items-start w-full">
-                                <div className="flex w-full items-center gap-6">
+                                <div className="flex w-full items-center gap-2">
                                     <h6 className="font-bold text-mainText">{det.name}</h6>
-                                    <div className={`bg-gradient-to-r from-startGradientLegendTourisme to-endGradientLegendTourisme w-[100px] ${det.id === "LENGTH" ? "h-[5px]" : "h-[10px]"} flex flex-row gap-4 pl-4`}>
+                                    <div className="flex items-center gap-1">
+                                    <MdNoPhotography className="mt-1 text-startGradientLegendTourisme"/> 
+                                    <div className={`bg-gradient-to-r from-startGradientLegendTourisme to-endGradientLegendTourisme w-[100px] ${det.id === "LENGTH" ? "h-[5px]" : "h-[10px]"} flex flex-row gap-4 pl-4` }>
                                         {det.id === "LENGTH" && (
                                             <>
                                                 <div className="h-full w-[10px] bg-white"> </div>
@@ -142,12 +154,12 @@ const CurrentItineraryDetails = ({showMenu}) => {
                                                 <div className="h-full w-[10px] bg-white"> </div>
                                             </>
                                         )}
-                                    </div>
+                                    </div> <MdPhotoCamera className="mt-1 text-endGradientLegendTourisme"/> </div>
                                 </div>
                                 <div className="flex gap-4">
                                     <div className="px-2 flex gap-1"><GiPathDistance className="mt-1"/> {det.distance}</div>
                                     <div className="px-2 flex"><FaHourglassStart className="mt-1"/> {det.duration}</div>
-                                    <div className="px-2 flex gap-1"><MdPhotoCamera className="mt-1 text-endGradientLegendTourisme"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
+                                    <div className="px-2 flex gap-1"><MdPhotoCamera className="mt-1 text-black"/> {det.id === "LENGTH" ? lenScore : ifScore}/10</div>
                                 </div>
                             </div>
                         ) }

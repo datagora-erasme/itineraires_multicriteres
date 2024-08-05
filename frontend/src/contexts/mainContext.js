@@ -45,6 +45,18 @@ export const MainContextProvider = ({ children }) => {
 
     const [criteria, setCriteria] = useState([]);
 
+    // const calculateMeanScore = (itinerary, localcriteria) => {
+    //   let scores;
+    //   console.log(localcriteria)
+    //   if (localcriteria === "frais") {
+    //       scores = itinerary.geojson.features.map((feat) => feat.properties.freshness_score_13);
+    //   } else if (localcriteria === "pollen") {
+    //       scores = itinerary.geojson.features.map((feat) => feat.properties.pollen_score);
+    //   } else if (localcriteria === "bruit") {
+    //     scores = itinerary.geojson.features.map((feat) => feat.properties.bruit_score);
+    //   } else if (localcriteria === "tourisme") {
+    //     scores = itinerary.geojson.features.map((feat) => feat.properties.tourisme_score);
+    //   }
     const calculateMeanScore = (itinerary) => {
       let scores;
       if (criteria === "frais") {
@@ -64,7 +76,7 @@ export const MainContextProvider = ({ children }) => {
       return Math.round((sum / scores.length) * 10) / 10;
     }
 
-    const roundItineraries = (itineraries) => {
+    const roundItineraries = (itineraries) => { 
       return itineraries.map((it) => {
         return {
           ...it,
@@ -196,7 +208,7 @@ export const MainContextProvider = ({ children }) => {
         setZoomToItinerary(true)
         /*eslint-disable*/
         const roundIt = roundItineraries(currentItinerary)
-        setIfScore(() => calculateMeanScore(currentItinerary[1]))
+        setIfScore(() => calculateMeanScore(currentItinerary[1]), criteria)
         setLenScore(() => calculateMeanScore(currentItinerary[0]))
       }
     }, [currentItinerary])

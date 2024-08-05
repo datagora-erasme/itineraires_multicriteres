@@ -31,7 +31,7 @@ def presency(x):
         "class": first_non_one
     })
 
-poiId = ["fontaines_potables", "fontaines_ornementales", "toilettes", "bancs"]
+poiId = ["fontaines_potables", "fontaines_ornementales", "toilettes", "bancs", "tourisme"]
 
 choice = input(f""" Choisissez parmi la liste suivante l'identifiant de la donnée que vous souhaitez mettre à jour : \n
 {poiId} \n
@@ -43,6 +43,8 @@ if(choice == "ALL"):
         print(f"Starting calculation for {id}")
         print("Reading file ...")
         data = gpd.read_file(data_params[id]["gpkg_path"])
+        if id == "tourisme":
+            data = data[data["type"] == 'PATRIMOINE_CULTUREL']
         data["class"] = id
         data.to_file(data_params[id]["gpkg_path"], driver="GPKG", layer=id)
         print("Bufferizing ...")
@@ -52,6 +54,8 @@ if(choice == "ALL"):
 elif(choice in poiId):
     print("Reading file ...")
     data = gpd.read_file(data_params[choice]["gpkg_path"])
+    if id == "tourisme":
+        data = data[data["type"] == 'PATRIMOINE_CULTUREL']
     data["class"] = choice
     data.to_file(data_params[choice]["gpkg_path"], driver="GPKG", layer=choice)
     print("Bufferizing ... ")

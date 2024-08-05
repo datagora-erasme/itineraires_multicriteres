@@ -158,7 +158,7 @@ def get_itinerary():
                 })
                 results.append({
                     "id": "IF",
-                    "name": "Itinéraire le moins allergisant",
+                    "name": "Itinéraire le moins allergène",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
                 })
