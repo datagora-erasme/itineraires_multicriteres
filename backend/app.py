@@ -117,7 +117,7 @@ def get_layers():
 @app.route('/itinerary/', methods=['GET'])
 def get_itinerary():
     """Route for itinerary calculation"""
-    criteria_list = request.args.getlist("criteria")
+    criteria_list = request.args.getlist("criteria[]")
 
     start_lat = request.args.get("start[lat]")
     start_lon = request.args.get("start[lon]")
