@@ -73,12 +73,17 @@ def one_score_edges(input_path, output_path, params, key):
     default_edges.to_file(output_path, driver="GPKG")
 
 def score_distance(input_path, output_path):
-    """calculate the score by distance for each edges"""
+    """Calculate the score by distance for each edge, favoring shorter segments"""
     edges = gpd.read_file(input_path)
 
-    edges["score_distance_bruit"] = round(edges["total_score_bruit"] * edges["length"]) 
+    edges["length"] = edges["length"].replace(0, 0.1)
+    edges["score_distance_bruit"] = round(edges["total_score_bruit"] * (1 / edges["length"]), 2)
+    edges["score_distance_bruit"] = edges["score_distance_bruit"].replace(0, 0.1)
+    
+    print(edges["score_distance_bruit"].describe())
 
     edges.to_file(output_path, driver="GPKG")
+
 
 def score_bruit(input_path, output_path):
     """Score from 0 to 10 """
@@ -126,10 +131,9 @@ params = {
 
 
 
-#all_score_edges(edges_buffer_path, edges_buffer_scored_path, params)
+all_score_edges(edges_buffer_path, edges_buffer_scored_path, params)
+total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_bruit)
 
-#total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_bruit)
-
-#score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
+score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
 score_bruit(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_bruit_path)
 create_graph_bruit(metrop_network_bouding_path, edges_buffer_total_score_distance_bruit_path, "./output_data/network/graph/final_network_bruit.gpkg")

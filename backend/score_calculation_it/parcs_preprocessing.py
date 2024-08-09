@@ -28,12 +28,13 @@ if choice.upper() == "OUI":
         edges = gpd.read_file(edges_path, layer=layer)
         parcs = gpd.read_file(parcs_path)
 
-        #simplify geometries to reduce errors
+        #simplifie les geometries pour éviter les erreurs de mémoire
         edges.geometry = [loads(dumps(geom, rounding_precision=5)) for geom in edges.geometry]
         parcs.geometry = [loads(dumps(geom, rounding_precision=5)) for geom in parcs.geometry]
 
-        #check for intersections between edges and parks
+        #verifie les intersections entre les edges et les parcs
         edges["parcs_prop"] = edges.intersects(parcs.unary_union).astype(int)
+        edges["parcs_prop"] = edges["parcs_prop"] * 5
 
         edges.reset_index().to_file(output_path, driver="GPKG", layer=layer)
 
@@ -42,9 +43,8 @@ if choice.upper() == "OUI":
     network_parcs = gpd.read_file(edges_buffer_parcs_pollen_prop_path)
     network_parcs = network_parcs.set_index(["u", "v", "key"])
 
-    #distribution de la proportion de parcs
     print("Distribution de 'parcs_prop':\n", network_parcs["parcs_prop"].describe())
-    #nombre d'edges qui sont dans un parc, c'est à dire qui ont une proportion de parcs égale à 1
-    print("Nombre d'edges dans un parc:", network_parcs[network_parcs["parcs_prop"] == 1].shape[0])
+    #nombre d'edges qui sont dans un parc, c'est à dire qui ont une proportion de parcs égale à 5
+    print("Nombre d'edges dans un parc:", network_parcs[network_parcs["parcs_prop"] == 5].shape[0])
 
     network_parcs.reset_index().to_file(edges_buffer_parcs_pollen_prop_path, driver="GPKG", layer="edges")

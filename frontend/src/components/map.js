@@ -138,6 +138,7 @@
                             id: id
                         }
                     })
+                    //console.log({...response.data})
                     const updatedGeojsonFiles = [...geojsonFiles, {...response.data}]
                     setGeojsonFiles(updatedGeojsonFiles)
                 } catch (error){
@@ -205,7 +206,7 @@
 
         const showDetailsPopupPolygon = (feature, layer) => {
             layer.on({
-                click: handleShowDetailsPopupPolygon
+                //click: handleShowDetailsPopupPolygon
             })
         }
 
@@ -347,8 +348,9 @@
                     <ZoomItinerary zoomToItinerary={zoomToItinerary} setZoomToItinerary={setZoomToItinerary} currentItinerary={currentItinerary}/>
 
                     {geojsonFiles.length !== 0 && 
-                        geojsonFiles.map((data) => { 
+                        geojsonFiles.map((data) => {
                             if(selectedLayers.includes(data.id)) {
+                                console.log(data.geojson.features)
                                 const dataType = data.geojson.features[0].geometry.type
                                 const markerOption = data.markerOption
                                 if(dataType === "Point"){

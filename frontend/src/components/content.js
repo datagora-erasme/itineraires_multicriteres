@@ -98,7 +98,7 @@ function Content({showMenu, setShowMenu}){
                     ) : (
                     <FaChevronDown className="hidden md:block text-gray-500 mt-1" />
                     )}
-                    <span>Consulter la carte fraîcheur</span>
+                    <span>Consulter les cartes</span>
                 </button>
                 {showLayers && <ListLayers/>}
                 

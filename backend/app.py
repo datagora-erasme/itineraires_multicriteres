@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from models.data import *
 from load_graph import *
@@ -87,6 +87,7 @@ def get_layers():
     print("request", request)
     if layer_id:
         if layer_id == "all":
+            print("tourisme all")
             try:
                 all_id = findMany()
                 data = [findOne(id["id"]) for id in all_id]
@@ -97,6 +98,7 @@ def get_layers():
                 print(e)
                 return '', 500
         else:
+            print("tourisme")
             try:
                 print("one layer")
                 data = findOne(layer_id)
@@ -107,6 +109,7 @@ def get_layers():
                 print(e)
                 return '', 500
     else:
+
         try:
             results = findMany()
             return jsonify(results)
@@ -195,6 +198,16 @@ def get_itinerary():
     except Exception as e:
         print(e)
         return '', 500
+    
+@app.errorhandler(500)
+def internal_server_error(e):
+    """Handle internal server error (500) and shows custom HTML page"""
+    return render_template('./public/error500.html'), 500
+
+@app.route('/force_error')
+def force_error():
+    """Route to force a 500 error for testing"""
+    raise Exception("This is a forced error to test the 500 error handler.")
 
     
 if __name__ == "__main__":

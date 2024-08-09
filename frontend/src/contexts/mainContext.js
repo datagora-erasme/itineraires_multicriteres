@@ -123,6 +123,7 @@ export const MainContextProvider = ({ children }) => {
               id: "all"
           }
         })
+        //console.log('res.data :',res.data)
         setLayers(res.data)
       }
         fetchLayers()

@@ -40,8 +40,8 @@ def total_score(input_path, output_path, score_columns):
     edges = gpd.read_file(input_path, layer="edges")
     print(edges.columns)
     edges["total_score_pollen"] = edges[score_columns].sum(axis=1)
-    edges["total_score_pollen"] = edges["total_score_pollen"].replace(0, 0.01)
-    
+    edges["total_score_pollen"] = edges["total_score_pollen"] + 1
+    print("total score :", edges["total_score_pollen"].describe())
     edges.to_file(output_path, driver="GPKG")
 
 def all_score_edges(input_path, output_path, params):
@@ -77,9 +77,9 @@ def score_distance(input_path, output_path):
     """calculate the score by distance for each edges"""
     edges = gpd.read_file(input_path)
 
-    edges["score_distance_pollen"] = round(edges["total_score_pollen"] * edges["length"]) 
-    edges["score_distance_pollen"] = edges["score_distance_pollen"].replace(0, 0.01)
-    print(edges["score_distance_pollen"].describe())
+    edges["score_distance_pollen"] = round(edges["total_score_pollen"] * (edges["length"]*2), 2)
+    edges["score_distance_pollen"] = edges["score_distance_pollen"].replace(0, 1)
+    print("score distance : ",edges["score_distance_pollen"].describe())
 
     edges.to_file(output_path, driver="GPKG")
 
@@ -123,8 +123,8 @@ params = {
     },
     "parcs_prop" : {
         "edges_path": edges_buffer_parcs_pollen_prop_path,
-        "fn_cont": lambda x: 5*x,
-        "alpha": 5
+        "fn_cont": lambda x: 1*x,
+        "alpha": 1
     },
 }
 

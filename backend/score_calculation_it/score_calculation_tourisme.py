@@ -39,11 +39,18 @@ def all_prop(input_path, params, output_path):
     edges.to_file(output_path, layer="edges", driver="GPKG")
     
 def total_score(input_path, output_path, score_columns):
+    
     edges = gpd.read_file(input_path, layer="edges")
     print(edges.columns)
     edges[score_columns] = edges[score_columns].apply(pd.to_numeric, errors='coerce')
     edges["total_score_tourisme"] = edges[score_columns].sum(axis=1)
-    
+
+    max_score = edges["total_score_tourisme"].max()
+    min_score = edges["total_score_tourisme"].min()
+    edges["total_score_tourisme"] = -edges["total_score_tourisme"] + (max_score + min_score)
+    print(edges["total_score_tourisme"].describe())
+
+        
     edges.to_file(output_path, driver="GPKG")
 
 def all_score_edges(input_path, output_path, params):
@@ -71,9 +78,9 @@ def score_distance(input_path, output_path):
     edges["total_score_tourisme"] = pd.to_numeric(edges["total_score_tourisme"], errors='coerce')
     edges["length"] = pd.to_numeric(edges["length"], errors='coerce')
 
-    edges["score_distance_tourisme"] = round(edges["total_score_tourisme"] * edges["length"]) 
-    edges["score_distance_tourisme"] = edges["score_distance_tourisme"].replace(0, 0.01)
-    print(edges["score_distance_tourisme"].describe())
+    edges["score_distance_tourisme"] = round(edges["total_score_tourisme"] * (edges["length"]*2), 2) 
+    edges["score_distance_tourisme"] = edges["score_distance_tourisme"].replace(0, 0.1)
+     #print(edges["score_distance_tourisme"].describe())
 
     edges.to_file(output_path, driver="GPKG")
 
@@ -85,12 +92,12 @@ def score_tourisme(input_path, output_path):
     
     min_score = edges["total_score_tourisme"].min()
     max_score = edges["total_score_tourisme"].max()
-    slope = (10-0)/(max_score-min_score)
-    origin_ordinate = -slope*min_score
+    slope = (0-10)/(max_score-min_score)
+    origin_ordinate = 10-slope*min_score
     edges["tourisme_score"] = edges["total_score_tourisme"].apply(lambda x: round(slope*x+origin_ordinate, 2))
     #edges["tourisme_score"] = edges["tourisme_score"].apply(lambda x: 1-(x/10))
     #edges["tourisme_score"] = edges["tourisme_score"].apply(lambda x: x*10)
-
+    print(edges["tourisme_score"].describe())
     edges.to_file(output_path, driver="GPKG")
 
 def create_graph_tourisme(graph_path, edges_buffered_path, graph_output_path):
@@ -121,8 +128,8 @@ params = {
     },
 }
 
-all_score_edges(edges_buffer_path, edges_buffer_scored_path, params)
-total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_tourisme)
-score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
+#all_score_edges(edges_buffer_path, edges_buffer_scored_path, params)
+#total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_tourisme)
+#score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
 score_tourisme(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_tourisme_path)
 create_graph_tourisme(metrop_network_bouding_path, edges_buffer_total_score_distance_tourisme_path, "./output_data/network/graph/final_network_tourisme.gpkg")

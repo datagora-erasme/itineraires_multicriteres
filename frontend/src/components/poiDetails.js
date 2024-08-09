@@ -89,19 +89,20 @@ const PoiDetails = ({showMenu}) => {
                                 {poiDetails.properties.adresse},   
                                 {"  " + poiDetails.properties.commune}
                             </span>
-                        </div>}
+                        </div>
+                        }
                         {poiDetails.properties.openinghours != null && <div className="w-full flex gap-1 items-center">
                             <img className="w-8 h-8" src="clock.svg" alt={poiDetails.properties.markerOption.iconUrl}/>
                             <span className="flex items-center text-left">
                                 {transformOpeningHours(poiDetails.properties.openinghours)}
                             </span>
-                        </div>}
+                            </div>}
                         {poiDetails.properties.commentaire != null && <div className="w-full flex gap-1 items-center">
                             <img className="w-8 h-8" src="informations.svg" alt={poiDetails.properties.markerOption.iconUrl}/>
                             <span className="flex items-center text-left">
                                 {poiDetails.properties.commentaire}
                             </span>
-                        </div>}
+                            </div>}
                     </div>
                 )}
                 <div className="flex justify-center items-center">

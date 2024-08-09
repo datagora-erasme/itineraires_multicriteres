@@ -20,10 +20,12 @@ def weighted_bruit_average(x):
     return pd.Series({
         "DN_wavg": round(np.average(x["DN"], weights=x["area"]), 2)
         })
-    
-choice = input("""Souhaitez-vous mettre à jour le bruit moyen par segment ? (OUI) ou (NON) \n
-    ATTENTION, le temps de calcul estimé est de ~2h
-""")
+
+choice = "OUI"
+
+#choice = input("""Souhaitez-vous mettre à jour le bruit moyen par segment ? (OUI) ou (NON) \n
+#    ATTENTION, le temps de calcul estimé est de ~2h
+#""")
 
 if(choice == "OUI"):
     print("Calculate noise weighted average ")
@@ -35,6 +37,7 @@ if(choice == "OUI"):
     print("fill na and zeros")
     bruit_edges["DN_wavg"] = bruit_edges["DN_wavg"].fillna(0.01)
     bruit_edges["DN_wavg"] = bruit_edges["DN_wavg"].replace(0, 0.01)
+    bruit_edges["DN_wavg"] = bruit_edges["DN_wavg"] * 10
 
     print("scale noise")
 
