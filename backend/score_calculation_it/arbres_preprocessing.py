@@ -68,7 +68,7 @@ if choice.upper() == "OUI":
 
     arbres.to_file(arbres_classes_pollen_path, driver="GPKG", layer="arbres")
 
-    #calcule la gaussienne pour chaque edge buffé en se basant sur l'indice allergisant (raep) des arbres
+    #calcule la moyenne pour chaque edge buffé en se basant sur l'indice allergisant (raep) des arbres
     edges_buffer = gpd.read_file(edges_buffer_path)
     edges_buffer = edges_buffer.to_crs(3946)
 
@@ -76,8 +76,7 @@ if choice.upper() == "OUI":
 
     edges_buffer["arbres_weight"] = 0
 
-    #buffers autour des arbres
-    arbres['buffer'] = arbres.geometry.buffer(30)  #30 mètres
+    arbres['buffer'] = arbres.geometry.buffer(20)  #20 mètres
     arbres_buffer = arbres.set_geometry('buffer')
 
     #intersection entre les buffers des arbres et les edges_buffer
@@ -88,6 +87,7 @@ if choice.upper() == "OUI":
         mean_raep = intersections.groupby(['u', 'v', 'key'])['raep'].mean().reset_index()
         edges_buffer = pd.merge(edges_buffer, mean_raep, on=['u', 'v', 'key'], how='left')
         edges_buffer['arbres_weight'] = edges_buffer['raep'].fillna(0)
+        edges_buffer['arbres_weight'] = edges_buffer['arbres_weight'].replace('NULL', 0)
         edges_buffer.drop(columns=['raep'], inplace=True)
 
     print(edges_buffer.head())

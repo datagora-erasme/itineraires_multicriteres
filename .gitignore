@@ -161,3 +161,12 @@ cython_debug/
 
 #backend/score_calculation_it/output_data/network/graph/final_network_pollen_multidigraph.pickle
 #backend/score_calculation_it/output_data/network/graph/final_network_pollen.pickle
+backend/score_calculation_it/output_data/network/graph/final_network_bruit_multidigraph.pickle
+backend/score_calculation_it/input_data/network/edges_buffered_12_bounding.gpkg-wal
+backend/score_calculation_it/output_data/tourisme/tourisme_buffered.gpkg
+backend/score_calculation_it/output_data/tourisme/tourisme_buffered.gpkg-shm
+backend/score_calculation_it/output_data/tourisme/tourisme_buffered.gpkg-wal
+backend/score_calculation_it/output_data/network/graph/final_network_bruit_multidigraph.pickle
+backend/score_calculation_it/output_data/network/graph/final_network_pollen_multidigraph.pickle
+backend/score_calculation_it/output_data/network/graph/final_network_tourisme_multidigraph.pickle
+
