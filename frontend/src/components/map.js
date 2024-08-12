@@ -380,30 +380,52 @@
                         })
                     }
 
-                    {currentItinerary &&
-                        currentItinerary.map((it, index) => {
-                            return (
-                                <GeoJSON
-                                    data={it.geojson}
-                                    style={(feature) => ({
-                                        color: criteria === "frais" 
-                                        ? colorIfScale(feature.properties.freshness_score_13).hex() 
-                                        : criteria === "bruit"
-                                            ? colorBrScale(feature.properties.bruit_score).hex()
-                                            : criteria === "pollen"
-                                            ? colorPolScale(feature.properties.pollen_score).hex()
-                                            : colorIfScale(feature.properties.tourisme_score).hex(),
-                                        weight: it.id === "LENGTH" ? 5 : 10,
-                                        lineCap: "round",
-                                        lineJoin: "round",
-                                        dashArray: it.id === "LENGTH" ? '1, 10' : '',
-                                        dashOffset: '0'
-                                    })}
-                                    key={Math.random()}
-                                />
-                            );
-                        })
+{currentItinerary &&
+    currentItinerary.map((it, index) => {
+        return (
+            <GeoJSON
+                data={it.geojson}
+                style={(feature) => {
+                    //mélange des couleurs en fonction des critères multiples
+                    let colors = [];
+
+                    if (criteria.includes("frais")) {
+                        colors.push(colorIfScale(feature.properties.freshness_score_13).hex());
                     }
+                    if (criteria.includes("bruit")) {
+                        colors.push(colorBrScale(feature.properties.bruit_score).hex());
+                    }
+                    if (criteria.includes("pollen")) {
+                        colors.push(colorPolScale(feature.properties.pollen_score).hex());
+                    }
+                    if (criteria.includes("tourisme")) {
+                        colors.push(colorIfScale(feature.properties.tourisme_score).hex());
+                    }
+
+                    //fonction pour mélanger les couleurs avec ajustement de la saturation
+                    function blendColorsLinear(colors) {
+                        return chroma.average(colors, 'rgb').saturate(3.5).hex();
+                    }
+
+                    //appliquer le mélange et ajuster le contraste
+                    let finalColor = blendColorsLinear(colors);
+                    finalColor = chroma(finalColor).set('hsl.l', '+0.1').set('hsl.s', '*1.0').hex();
+
+                    return {
+                        color: finalColor,
+                        weight: it.id === "LENGTH" ? 5 : 10,
+                        lineCap: "round",
+                        lineJoin: "round",
+                        dashArray: it.id === "LENGTH" ? '1, 10' : '',
+                        dashOffset: '0'
+                    };
+                }}
+                key={Math.random()}
+            />
+        );
+    })
+}
+
 
 
                     { selectedStartAddress &&
