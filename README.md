@@ -97,12 +97,6 @@ Dans un premier temps, build le backend avec la commande :
 ```bash
 docker-compose build backend
 ```
-
-Une fois le build réalisé, lancer le container backend avec la commande suivante : 
-
-```bash
-docker run yannisbarba/itineraires_fraicheur_backend:latest
-```
  
 Vérifier l'adresse sur laquelle le serveur s'exécute (*Running on <adresse-serveur> *), puis modifier si besoin le fichier .env à la racine du frontend et mettre les variales d'environnement suivantes : 
 
@@ -115,11 +109,14 @@ lancer alors le build du frontend via
 ```bash
 docker-compose build frontend
 ```
-
-puis exécuter le front end  : 
-
+lancer l'application via
 ```bash
-docker run yannisbarba/itineraires_fraicheur_frontend:latest
+docker-compose run
+```
+se rendre à l'addresse
+
+```txt
+http://localhost:3000/
 ```
 
 ## Exécution via conda (conseillé pour le développement)
@@ -190,8 +187,6 @@ npm start
 
 Toutes les variables globales (les chemins des fichiers, les paramètres spécifiques etc.) sont stockées dans le fichier **global_variable.py** à la racine du dossier backend. Il n'y a pas de base de données pour ce projet car il n'y en avait pas le besoin. Les quelques informations nécessaires au bon fonctionnement du frontend (chemin des layers, chemin des icons etc.) sont également stockés directement dans un dictionnaire python dans le fichier **global_variable.py**.
 
-Le backend est structuré en deux parties principales, l'API développée avec le framework **Flask** et les données avec l'analyse statistique (détaillée [ici](#analyse-statistique--pondération-du-réseau-piéton)).
-
 ### LES DONNÉES 
 L'ensemble des données utiles pour l'application web (et pour le calcul de score) sont stockées dans le dossier *score_calculation_it/input_data*
 
@@ -245,14 +240,44 @@ Cette donnée est indispensable pour la suite (à télécharger en premier lieu 
 python fetch_network.py
 ```
 
-### Les POIs
-Actuellement les points d'interêts (POI) ne sont pas pris en compte dans la pondération du graphe, cependant, il existe un fichier **poi_preprocessing.py** permettant de calculer la présence de POI sur les segments. Les résultats pourraient être utilisés dans le cadre d'une amélioration du calculateur d'itinéraire. 
-Afin de lancer les calculs, se placer ici : *./score_calculation_it/* puis exécuter le fichier et se laisser guider par les instructions du temrinal. 
+## Itinéraire pollen
+Le graphe pollen est calculé via différentes données d'arbres ainsi que les données des parcs. 
+
+### Arbres
+
+Les calculs nécessaire pour ce graphe peuvent être exécuté via le fichier **arbres_preprocessing.py** et en se laissant guider par les instructions du terminal.
 
 ```bash
-python poi_preprocessing.py
+python arbres_preprocessing.py
 ```
-### Parcs et Jardins
+
+### Parcs
+
+Les calculs nécessaire pour ce graphe peuvent être exécuté via le fichier **parcs_preprocessing.py** et en se laissant guider par les instructions du terminal.
+
+```bash
+python parcs_preprocessing.py
+```
+
+## Itinéraire bruit
+
+Les calculs nécessaire pour ce graphe peuvent être exécuté via le fichier **bruit_preprocessing.py** et en se laissant guider par les instructions du terminal.
+
+```bash
+python bruit_preprocessing.py
+```
+
+## Itinéraire touristique
+
+Les calculs nécessaire pour ce graphe peuvent être exécuté via le fichier **tourisme_preprocessing.py** et en se laissant guider par les instructions du terminal.
+
+```bash
+python tourisme_preprocessing.py
+```
+
+## Itinéraire frais
+
+### Parcs et Jardins pour l'itinéraire frais
 Les parcs ont un traitement un peu différents des autres POI, par conséquent, les calculs nécessaire pour le calculateur d'itinéraire peuvent être exécuté via le fichier **parcs_jardins_preprocessing.py** et en se laissant guider par les instructions du terminal.
 
 ```bash
@@ -310,6 +335,15 @@ La pondération du graph ne peut se faire que si l'ensemble des sous-réseaux ex
 
 ```bash
 python score_calculation.py
+```
+
+
+## Les POIs
+Actuellement les points d'interêts (POI) ne sont pas pris en compte dans la pondération du graphe, cependant, il existe un fichier **poi_preprocessing.py** permettant de calculer la présence de POI sur les segments. Les résultats pourraient être utilisés dans le cadre d'une amélioration du calculateur d'itinéraire. 
+Afin de lancer les calculs, se placer ici : *./score_calculation_it/* puis exécuter le fichier et se laisser guider par les instructions du temrinal. 
+
+```bash
+python poi_preprocessing.py
 ```
 
 ## Analyse de la pondération
