@@ -21,9 +21,10 @@
     
 
 
-    const colorIfScale = chroma.scale(["#f42a2d", "#3d83f5"]).domain([0,10])
-    const colorPolScale = chroma.scale(["#C20003", "#FEED72"]).domain([0,10])
-    const colorBrScale = chroma.scale(["#845B86", "#96CC8F"]).domain([0,10])
+    const colorIfScale = chroma.scale(["#D50B0F", "#04204E"]).domain([0,10])
+    const colorPolScale = chroma.scale(["#8F0002", "#FEE420"]).domain([0,10])
+    const colorBrScale = chroma.scale(["#543A55", "#6FB865"]).domain([0,10])
+    const colorToScale = chroma.scale(["#000000", "#000000"]).domain([0,10])
 
     function MapFreshness({setZoomToUserPosition, zoomToUserPosition, radius, selectedStartAddress, showCircle}){
         const map = useMap()
@@ -382,30 +383,54 @@
                         })
                     }
 
-                    {currentItinerary &&
-                        currentItinerary.map((it, index) => {
-                            return (
-                                <GeoJSON
-                                    data={it.geojson}
-                                    style={(feature) => ({
-                                        color: criteria === "frais" 
-                                        ? colorIfScale(feature.properties.freshness_score_13).hex() 
-                                        : criteria === "bruit"
-                                            ? colorBrScale(feature.properties.bruit_score).hex()
-                                            : criteria === "pollen"
-                                            ? colorPolScale(feature.properties.pollen_score).hex()
-                                            : colorIfScale(feature.properties.tourisme_score).hex(),
-                                        weight: it.id === "LENGTH" ? 5 : 10,
-                                        lineCap: "round",
-                                        lineJoin: "round",
-                                        dashArray: it.id === "LENGTH" ? '1, 10' : '',
-                                        dashOffset: '0'
-                                    })}
-                                    key={Math.random()}
-                                />
-                            );
-                        })
-                    }
+            {currentItinerary &&
+                currentItinerary.map((it, index) => {
+                    return (
+                        <GeoJSON
+                            data={it.geojson}
+                            style={(feature) => {
+                                //mélange des couleurs en fonction des critères multiples
+                                let colors = [];
+
+                                if (criteria.includes("frais")) {
+                                    colors.push(colorIfScale(feature.properties.freshness_score_13).hex());
+                                }
+                                if (criteria.includes("bruit")) {
+                                    colors.push(colorBrScale(feature.properties.bruit_score).hex());
+                                }
+                                if (criteria.includes("pollen")) {
+                                    colors.push(colorPolScale(feature.properties.pollen_score).hex());
+                                }
+                                if (criteria.includes("tourisme")) {
+                                    colors.push(colorToScale(feature.properties.tourisme_score).hex());
+                                }
+
+                                //fonction pour mélanger les couleurs avec ajustement de la saturation
+                                function blendColorsLinear(colors) {
+                                    if (colors.length === 0) {
+                                         return '#C2C2C2';
+                                    }
+                                    return chroma.average(colors, 'rgb').saturate(6).hex();
+                                }
+
+                                //appliquer le mélange et ajuster le contraste
+                                let finalColor = blendColorsLinear(colors);
+                                finalColor = chroma(finalColor).set('hsl.l', '+0.2').set('hsl.s', '*1.0').hex();
+
+                                return {
+                                    color: finalColor,
+                                    weight: it.id === "LENGTH" ? 5 : 10,
+                                    lineCap: "round",
+                                    lineJoin: "round",
+                                    dashArray: it.id === "LENGTH" ? '1, 10' : '',
+                                    dashOffset: '0'
+                                };
+                            }}
+                            key={Math.random()}
+                        />
+                    );
+                })
+            }
 
 
                     { selectedStartAddress &&

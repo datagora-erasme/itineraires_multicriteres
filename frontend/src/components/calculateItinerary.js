@@ -114,6 +114,8 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
     }
   };
 
+
+
   const calculateItinerary = () => {
     setIsLoading(true);
     setShowCurrentItineraryDetails(false);
@@ -128,7 +130,9 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
           lat: selectedEndAddress.geometry.coordinates[1],
           lon: selectedEndAddress.geometry.coordinates[0]
         },
-        criteria 
+        //criteria : criteria ? criteria.join(',') : {}
+        //criteria : criteria.map((n) => `${n}`).join('&')
+        criteria
       }
     }).then((response) => {
       const end = performance.now();
@@ -158,6 +162,14 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
       setSelectedStartAddress(userAddress);
     }
   }, [userAddress]);
+
+  const toggleCriteria = (criterion) => {
+    if (criteria.includes(criterion)) {
+      setCriteria(criteria.filter(c => c !== criterion));
+    } else {
+      setCriteria([...criteria, criterion]);
+    }
+  };
 
   return (
     <div className="card md:card-desktop">
@@ -189,7 +201,7 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
             const name = addressName(suggestion.properties);
             return (
               <li key={suggestion.properties.osm_id} value={suggestion.properties.osm_id} onClick={() => handleSelectStartAddress(suggestion.properties.osm_id)}>
-                {name > 40 ? `${name.slice(0, 40)}...` : name}
+                {name.length > 40 ? `${name.slice(0, 40)}...` : name}
               </li>
             )
           })}
@@ -220,7 +232,7 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
             const name = addressName(suggestion.properties);
             return (
               <li key={suggestion.properties.osm_id} value={suggestion.properties.osm_id} onClick={() => handleSelectEndAddress(suggestion.properties.osm_id)}>
-                {name > 40 ? `${name.slice(0, 40)}...` : name}
+                {name.length > 40 ? `${name.slice(0, 40)}...` : name}
               </li>
             )
           })}
@@ -231,29 +243,29 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
         <span className="block mb-1 mt-4 flex">Critères</span>
         <div className="flex justify-center items-center mb-4 ">
           <button
-            onClick={() => setCriteria("frais")}
-            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "frais" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
+            onClick={() => toggleCriteria("frais")}
+            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria.includes("frais") ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <FaSnowflake className="mr-1" /> Plus au frais
           </button>
 
           <button
-            onClick={() => setCriteria("pollen")}
-            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "pollen" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
+            onClick={() => toggleCriteria("pollen")}
+            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria.includes("pollen") ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <TbFlowerOff className="mr-1" /> Moins de pollen
           </button>
           </div>
           <div className="flex justify-center items-center mb-4 ">
           <button
-            onClick={() => setCriteria("bruit")}
-            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "bruit" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
+            onClick={() => toggleCriteria("bruit")}
+            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria.includes("bruit") ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <HiSpeakerXMark className="mr-1" /> Moins de bruit
           </button>
           <button
-            onClick={() => setCriteria("tourisme")}
-            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria === "tourisme" ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
+            onClick={() => toggleCriteria("tourisme")}
+            className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria.includes("tourisme") ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <MdPhotoCamera className="mr-1" /> Lieux touristiques
           </button>
