@@ -9,179 +9,235 @@ import { BiX } from "react-icons/bi";
 
 const CurrentItineraryDetails = ({ showMenu }) => {
     const { currentItinerary, filteredItinerariesFeatures, setShowCurrentItineraryDetails, ifScore, lenScore, criteria } = useContext(MainContext);
-    const [shortestItinerary, setShortestItinerary] = useState(null);
+    const [details, setDetails] = useState({});
 
     useEffect(() => {
-        if (Array.isArray(currentItinerary) && currentItinerary.length > 0 && criteria.length > 0) {
-            let shortest = null;
+        if (currentItinerary) {
+            const newDetails = {};
+            console.log(currentItinerary)
+            currentItinerary.forEach((itinerary) => {
+                const details = calculateItineraryDetails(itinerary);
+                    newDetails[itinerary.idcriteria] = {
+                        ...details,
+                        name: itinerary.name,
+                        color: itinerary.color,
+                    };
+                })
 
-            for (let it of currentItinerary) {
-                let tot = 0;
-                let dist = "";
-                let duration = 0;
+            // //itérer sur chaque critère et associer l'itinéraire correspondant
+            // criteria.forEach((criterion, idx) => {
+            //     const itineraryLength = currentItinerary.find(it => it.id === "LENGTH");
+            //     let tempcritere
+            //     switch (criterion) {
+            //         case "frais":
+            //             tempcritere = "frais"
+            //             break;
+            //         case "pollen":
+            //             tempcritere = "allergène"
+            //             break;
+            //         case "bruit":
+            //             tempcritere = "bruyant"
+            //             break;
+            //         case "tourisme":
+            //             tempcritere = "touristique"
+            //             break;
+            //     }
+            //     const itineraryIF = currentItinerary.find(it => it.id === "IF" && it.name.toLowerCase().includes(tempcritere));
 
-                //calculer la longueur totale
-                it.geojson.features.forEach((feat) => {
-                    tot += feat.properties.length;
-                });
+            //     if (itineraryLength) {
+            //         const lengthDetails = calculateItineraryDetails(itineraryLength);
+            //         newDetails[itineraryLength.id] = {
+            //             ...lengthDetails,
+            //             name: itineraryLength.name,
+            //             color: itineraryLength.color,
+            //         };
+            //     }
 
-                //calculer la distance
-                dist = tot > 1000 ? (Math.round(tot) / 1000).toString() + " km" : Math.round(tot).toString() + " m";
+            //     if (itineraryIF) {
+            //         const IFDetails = calculateItineraryDetails(itineraryIF);
+            //         newDetails[itineraryIF.id] = {
+            //             ...IFDetails,
+            //             name: itineraryIF.name,
+            //             color: itineraryIF.color,
+            //         };
+            //     }
+            // });
 
-                //calculer la durée
-                duration = Math.round((Math.round(tot) * 60) / 4000);
-                duration = duration > 60 ? `${Math.trunc(duration / 60)}h ${duration % 60}min` : `${duration}min`;
-
-                if (!shortest || tot < shortest.tot) {
-                    shortest = { id: it.id, name: it.name, distance: dist, duration: duration, tot: tot };
-                }
-            }
-
-            setShortestItinerary(shortest);
+            console.log(newDetails)
+            setDetails(newDetails);
         }
     }, [currentItinerary, criteria]);
 
-    const renderCriterion = (criterion, score) => {
-        let startIcon, endIcon, gradientClass;
+    //fonction qui calcule la distance et la durée d'un itinéraire
+    const calculateItineraryDetails = (itinerary) => {
+        let totalDistance = 0;
+        itinerary.geojson.features.forEach((feat) => {
+            totalDistance += feat.properties.length;
+        });
 
-        switch (criterion) {
-            case "frais":
-                startIcon = <FaHotjar className="mt-1 text-startGradientLegend" />;
-                endIcon = <FaSnowflake className="mt-1 text-endGradientLegend" />;
-                gradientClass = "from-startGradientLegend to-endGradientLegend";
-                break;
-            case "pollen":
-                startIcon = <TbFlower className="mt-1 text-startGradientLegendPollen" />;
-                endIcon = <TbFlowerOff className="mt-1 text-endGradientLegendPollen" />;
-                gradientClass = "from-startGradientLegendPollen to-endGradientLegendPollen";
-                break;
-            case "bruit":
-                startIcon = <HiSpeakerWave className="text-startGradientLegendBruit" />;
-                endIcon = <HiSpeakerXMark className="text-endGradientLegendBruit" />;
-                gradientClass = "from-startGradientLegendBruit to-endGradientLegendBruit";
-                break;
-            case "tourisme":
-                startIcon = <MdNoPhotography className="mt-1 text-startGradientLegendTourisme" />;
-                endIcon = <MdPhotoCamera className="mt-1 text-endGradientLegendTourisme" />;
-                gradientClass = "from-startGradientLegendTourisme to-endGradientLegendTourisme";
-                break;
-            default:
-                return null;
+        const distance = totalDistance > 1000 
+            ? `${(Math.round(totalDistance) / 1000).toString()} km` 
+            : `${Math.round(totalDistance).toString()} m`;
+
+        let duration = Math.round(totalDistance * 60 / 4000);
+        if (duration > 60) {
+            const hours = Math.trunc(duration / 60);
+            const minutes = duration % 60;
+            duration = `${hours}h ${minutes}min`;
+        } else {
+            duration = `${duration}min`;
         }
 
-        return (
-            <div key={criterion} className="flex flex-col items-start w-full">
-                <div className="flex w-full items-center gap-6">
-                    <h6 className="font-bold text-mainText">{criterion.charAt(0).toUpperCase() + criterion.slice(1)}</h6>
-                    <div className="flex items-center gap-1">
-                        {startIcon}
-                        <div className={`bg-gradient-to-r ${gradientClass} w-[100px] h-[10px] flex flex-row gap-4 pl-4`}>
-                            <div className="h-full w-[10px] bg-white"> </div>
-                        </div>
-                        {endIcon}
-                    </div>
-                </div>
-                <div className="flex gap-4">
-                    <div className="px-2 flex gap-1">{startIcon} {score}/10</div>
-                </div>
-            </div>
-        );
+        return { distance, duration };
     };
 
     return (
         <div className={`${showMenu ? "" : "hidden"} md:block mt-4 md:mt-0 card md:card-details-desktop`}>
-            <div
-                className="absolute w-full md:flex justify-end -mt-2 -ml-6 cursor-pointer hidden"
-                onClick={() => setShowCurrentItineraryDetails(false)}
-            >
+            <div 
+                className="absolute w-full md:flex justify-end -mt-2 -ml-6 cursor-pointer hidden" 
+                onClick={() => { 
+                    setShowCurrentItineraryDetails(false);
+                }}>
                 <BiX className="w-6 h-6" />
             </div>
             <div className="flex flex-col gap-4">
-                {shortestItinerary ? (
-                    <>
-                        {/* afficher l'itinéraire le plus court */}
-                        <div className="flex flex-col items-start w-full">
-                            <div className="flex w-full items-center gap-6">
-                                <h6 className="font-bold text-mainText">{shortestItinerary.name}</h6>
-                                <div className="flex items-center gap-1">
-                                    {criteria.length > 0 && (
-                                        <>
-                                            {criteria[0] === "frais" && <FaHotjar className="mt-1 text-startGradientLegend" />}
-                                            {criteria[0] === "pollen" && <TbFlower className="mt-1 text-startGradientLegendPollen" />}
-                                            {criteria[0] === "bruit" && <HiSpeakerWave className="text-startGradientLegendBruit" />}
-                                            {criteria[0] === "tourisme" && <MdNoPhotography className="mt-1 text-startGradientLegendTourisme" />}
-                                            <div className={`bg-gradient-to-r ${criteria[0] === "frais" ? "from-startGradientLegend to-endGradientLegend" : ""} 
-                                                ${criteria[0] === "pollen" ? "from-startGradientLegendPollen to-endGradientLegendPollen" : ""}
-                                                ${criteria[0] === "bruit" ? "from-startGradientLegendBruit to-endGradientLegendBruit" : ""}
-                                                ${criteria[0] === "tourisme" ? "from-startGradientLegendTourisme to-endGradientLegendTourisme" : ""}
-                                                w-[100px] h-[10px] flex flex-row gap-4 pl-4`}>
-                                                <div className="h-full w-[10px] bg-white"> </div>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="px-2 flex gap-1"><GiPathDistance className="mt-1" /> {shortestItinerary.distance}</div>
-                                <div className="px-2 flex"><FaHourglassStart className="mt-1" /> {shortestItinerary.duration}</div>
-                            </div>
-                        </div>
-
-                        {/* afficher les scores des critères pour l'itinéraire le plus court */}
-                        {criteria.map((criterion, i) => (
-                            <React.Fragment key={i}>
-                                {renderCriterion(criterion, criterion === "frais" ? ifScore : lenScore)}
-                            </React.Fragment>
-                        ))}
-                    </>
-                ) : (
-                    <div className="flex justify-center items-center p-4">
-                        <p className="text-mainText">Aucun itinéraire disponible.</p>
+            {criteria.map((criterion, idx) => {
+                const shortDetail = details[criterion+"length"]; //itinéraire le plus court
+                const weightedDetail = details[criterion];  //itinéraire pondéré pour le critère
+                console.log({lenScore})
+                return (
+                    <div key={idx}>
+                        {/* Itinéraire le plus court (ligne en pointillé) */}
+                        <ItineraryDetail
+                            detail={shortDetail}
+                            criterion={criterion}
+                            score={lenScore[idx]}
+                            isShortest={true}
+                        />
+                        {/* Itinéraire pondéré (ligne pleine) */}
+                        <ItineraryDetail
+                            detail={weightedDetail}
+                            criterion={criterion}
+                            score={ifScore[idx]}
+                            isShortest={false}
+                        />
                     </div>
-                )}
+                );
+            })}
 
-                {/* afficher les autres itinéraires avec les critères */}
-                {Array.isArray(currentItinerary) && currentItinerary.map((itinerary, index) => {
-                    if (itinerary.id !== shortestItinerary?.id) {
-                        let totalLength = itinerary.geojson.features.reduce((acc, feat) => acc + feat.properties.length, 0);
-                        let dist = totalLength > 1000 ? (Math.round(totalLength) / 1000).toString() + " km" : Math.round(totalLength).toString() + " m";
-                        let duration = Math.round((Math.round(totalLength) * 60) / 4000);
-                        duration = duration > 60 ? `${Math.trunc(duration / 60)}h ${duration % 60}min` : `${duration}min`;
-
-                        return (
-                            <div key={index} className="flex flex-col items-start w-full">
-                                <div className="flex w-full items-center gap-6">
-                                    <h6 className="font-bold text-mainText">{itinerary.name}</h6>
-                                    <div className="flex items-center gap-1">
-                                        {criteria.length > 0 && (
-                                            <>
-                                                {criteria[0] === "frais" && <FaHotjar className="mt-1 text-startGradientLegend" />}
-                                                {criteria[0] === "pollen" && <TbFlower className="mt-1 text-startGradientLegendPollen" />}
-                                                {criteria[0] === "bruit" && <HiSpeakerWave className="text-startGradientLegendBruit" />}
-                                                {criteria[0] === "tourisme" && <MdNoPhotography className="mt-1 text-startGradientLegendTourisme" />}
-                                                <div className={`bg-gradient-to-r ${criteria[0] === "frais" ? "from-startGradientLegend to-endGradientLegend" : ""} 
-                                                    ${criteria[0] === "pollen" ? "from-startGradientLegendPollen to-endGradientLegendPollen" : ""}
-                                                    ${criteria[0] === "bruit" ? "from-startGradientLegendBruit to-endGradientLegendBruit" : ""}
-                                                    ${criteria[0] === "tourisme" ? "from-startGradientLegendTourisme to-endGradientLegendTourisme" : ""}
-                                                    w-[100px] h-[10px] flex flex-row gap-4 pl-4`}>
-                                                    <div className="h-full w-[10px] bg-white"> </div>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="flex gap-4">
-                                    <div className="px-2 flex gap-1"><GiPathDistance className="mt-1" /> {dist}</div>
-                                    <div className="px-2 flex"><FaHourglassStart className="mt-1" /> {duration}</div>
-                                </div>
-                            </div>
-                        );
-                    }
-                    return null;
-                })}
+            </div>
+            <div className="mt-2 flex flex-col items-start gap-2">
+                <h6 className="font-bold text-mainText">Sur votre chemin :</h6>
+                <ul className="flex flex-row gap-8 flex-wrap">
+                    {filteredItinerariesFeatures.map((layer) => {
+                        if (layer.geojson.length !== 0) {
+                            return (
+                                <li key={layer.id} className="flex flex-row gap-2 items-center">
+                                    {layer.geojson.length}
+                                    <img className="w-8 h-8" alt={`${layer.id}_icon`} src={layer.markerOption.iconUrl} />
+                                </li>
+                            );
+                        }
+                        return null;
+                    })}
+                </ul>
             </div>
         </div>
     );
 };
+
+const ItineraryDetail = ({ detail, criterion, score, isShortest }) => {
+    if (!detail) return null;
+
+    return (
+        <div className="flex flex-col items-start w-full">
+            <div className="flex w-full items-center gap-6">
+                <h6 className="font-bold text-mainText">{detail.name}</h6>
+                <div className="flex items-center gap-1">
+                    {renderIcon(criterion)}
+                    <div
+                        className={`w-[100px] ${isShortest ? "h-[5px]" : "h-[10px]"} flex flex-row gap-4 pl-4 ${getGradientClasses(criterion)}`}
+                    >
+                        {isShortest && Array(5).fill(0).map((_, i) => (
+                            <div key={i} className="h-full w-[10px] bg-white"></div>
+                        ))}
+                    </div>
+                    {renderEndIcon(criterion)}
+                </div>
+            </div>
+            <div className="flex gap-4">
+                <div className="px-2 flex gap-1">
+                    <GiPathDistance className="mt-1" /> {detail.distance}
+                </div>
+                <div className="px-2 flex">
+                    <FaHourglassStart className="mt-1" /> {detail.duration}
+                </div>
+                <div className="px-2 flex gap-1">
+                    {renderScoreIcon(criterion)} {score}/10
+                </div>
+            </div>
+        </div>
+    );
+};
+
+function renderIcon(criterion) {
+    switch (criterion) {
+        case "frais":
+            return <FaHotjar className="mt-1 text-startGradientLegend" />;
+        case "pollen":
+            return <TbFlower className="mt-1 text-startGradientLegendPollen" />;
+        case "bruit":
+            return <HiSpeakerWave className="text-startGradientLegendBruit" />;
+        case "tourisme":
+            return <MdNoPhotography className="mt-1 text-startGradientLegendTourisme" />;
+        default:
+            return null;
+    }
+}
+
+function renderEndIcon(criterion) {
+    switch (criterion) {
+        case "frais":
+            return <FaSnowflake className="mt-1 text-endGradientLegend" />;
+        case "pollen":
+            return <TbFlowerOff className="mt-1 text-endGradientLegendPollen" />;
+        case "bruit":
+            return <HiSpeakerXMark className="text-endGradientLegendBruit" />;
+        case "tourisme":
+            return <MdPhotoCamera className="mt-1 text-endGradientLegendTourisme" />;
+        default:
+            return null;
+    }
+}
+
+function getGradientClasses(criterion) {
+    switch (criterion) {
+        case "frais":
+            return "bg-gradient-to-r from-startGradientLegend to-endGradientLegend";
+        case "pollen":
+            return "bg-gradient-to-r from-startGradientLegendPollen to-endGradientLegendPollen";
+        case "bruit":
+            return "bg-gradient-to-r from-startGradientLegendBruit to-endGradientLegendBruit";
+        case "tourisme":
+            return "bg-gradient-to-r from-startGradientLegendTourisme to-endGradientLegendTourisme";
+        default:
+            return "";
+    }
+}
+
+function renderScoreIcon(criterion) {
+    switch (criterion) {
+        case "frais":
+            return <FaSnowflake className="mt-1 text-black" />;
+        case "pollen":
+            return <TbFlowerOff className="mt-1 text-black" />;
+        case "bruit":
+            return <HiSpeakerXMark className="mt-1 text-black" />;
+        case "tourisme":
+            return <MdPhotoCamera className="mt-1 text-black" />;
+        default:
+            return null;
+    }
+}
 
 export default CurrentItineraryDetails;

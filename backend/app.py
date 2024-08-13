@@ -138,12 +138,14 @@ def get_itinerary():
                 geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph)
                 results.append({
                     "id": "LENGTH",
+                    "idcriteria": "fraislength",
                     "name": "Itinéraire le plus court",
                     "geojson": geojson_path_length,
                     "color": " #1b2599 "
                 })
                 results.append({
                     "id": "IF",
+                    "idcriteria": "frais",
                     "name": "Itinéraire le plus au frais",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
@@ -152,12 +154,14 @@ def get_itinerary():
                 geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_pollen')
                 results.append({
                     "id": "LENGTH",
+                    "idcriteria": "pollenlength",
                     "name": "Itinéraire le plus court",
                     "geojson": geojson_path_length,
                     "color": " #1b2599 "
                 })
                 results.append({
                     "id": "IF",
+                    "idcriteria": "pollen",
                     "name": "Itinéraire le moins allergène",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
@@ -166,12 +170,14 @@ def get_itinerary():
                 geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_bruit')
                 results.append({
                     "id": "LENGTH",
+                    "idcriteria": "bruitlength",
                     "name": "Itinéraire le plus court",
                     "geojson": geojson_path_length,
                     "color": " #1b2599 "
                 })
                 results.append({
                     "id": "IF",
+                    "idcriteria": "bruit",
                     "name": "Itinéraire le moins bruyant",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
@@ -180,12 +186,14 @@ def get_itinerary():
                 geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_tourisme')
                 results.append({
                     "id": "LENGTH",
+                    "idcriteria": "tourismelength",
                     "name": "Itinéraire le plus court",
                     "geojson": geojson_path_length,
                     "color": " #1b2599 "
                 })
                 results.append({
                     "id": "IF",
+                    "idcriteria": "tourisme",
                     "name": "Itinéraire le plus touristique",
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"

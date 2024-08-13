@@ -39,9 +39,9 @@ export const MainContextProvider = ({ children }) => {
 
     const [poiDetails, setPoiDetails] = useState(null)
 
-    const [ifScore, setIfScore] = useState(null)
+    const [ifScore, setIfScore] = useState([])
 
-    const [lenScore, setLenScore] = useState(null)
+    const [lenScore, setLenScore] = useState([])
 
     const [criteria, setCriteria] = useState([]);
 
@@ -57,8 +57,9 @@ export const MainContextProvider = ({ children }) => {
     //   } else if (localcriteria === "tourisme") {
     //     scores = itinerary.geojson.features.map((feat) => feat.properties.tourisme_score);
     //   }
-    const calculateMeanScore = (itinerary) => {
+    const calculateMeanScore = (itinerary, criteria) => {
       let scores;
+      console.log("criteria calculatemeanscore", criteria)
       if (criteria === "frais") {
           scores = itinerary.geojson.features.map((feat) => feat.properties.freshness_score_13);
       } else if (criteria === "pollen") {
@@ -69,7 +70,8 @@ export const MainContextProvider = ({ children }) => {
         scores = itinerary.geojson.features.map((feat) => feat.properties.tourisme_score);
       }
       else {
-          return null;
+          console.log("criteria not found")
+          return  ;
       }
       const initialValue = 0;
       const sum = scores.reduce((accumulator, currentValue) => accumulator + currentValue, initialValue);
@@ -203,15 +205,28 @@ export const MainContextProvider = ({ children }) => {
         }
     }, [userPosition])
 
+
     useEffect(() => {
       if(currentItinerary){
-        setZoomToItinerary(true)
-        /*eslint-disable*/
-        const roundIt = roundItineraries(currentItinerary)
-        setIfScore(() => calculateMeanScore(currentItinerary[1]), criteria)
-        setLenScore(() => calculateMeanScore(currentItinerary[0]))
+        setZoomToItinerary(true);
+        const roundIt = roundItineraries(currentItinerary);
+        let newIfScore = [];
+        let newLenScore = [];
+        for (let i = 0; i < criteria.length; i++) {
+          let k = i * 2;
+          let ifScoreA = calculateMeanScore(currentItinerary[k + 1], criteria[i]);
+          let lenScoreA = calculateMeanScore(currentItinerary[k], criteria[i]);
+          newIfScore.push(ifScoreA);
+          newLenScore.push(lenScoreA);
+        }
+        setIfScore(newIfScore);
+        setLenScore(newLenScore);
+        console.log("ifScore", newIfScore);
+        console.log("lenScore", newLenScore);
+        console.log("currentItinerary", currentItinerary);
       }
-    }, [currentItinerary])
+    }, [currentItinerary]);
+    
 
     return(
         <MainContext.Provider
