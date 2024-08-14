@@ -170,3 +170,4 @@ backend/score_calculation_it/output_data/network/graph/final_network_bruit_multi
 backend/score_calculation_it/output_data/network/graph/final_network_pollen_multidigraph.pickle
 backend/score_calculation_it/output_data/network/graph/final_network_tourisme_multidigraph.pickle
 
+backend/score_calculation_it/input_data/network/edges_buffered_12_bounding.gpkg

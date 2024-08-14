@@ -19,7 +19,9 @@ score_calculation_it/input_data/arbres/
 score_calculation_it/input_data/ambroisie*
 score_calculation_it/input_data/bruit/
 score_calculation_it/output_data/network/graph/*.multidigraph.pickle
+score_calculation_it/output_data/network/graph/*.pickle
+
 score_calculation_it/input_data/cache/
 score_calculation_it/input_data/tourisme/*
-score_calculation_it/output_data/network/graph/*.gpkg*
+#score_calculation_it/output_data/network/graph/*.gpkg*
 score_calculation_it/input_data/parcs/parcs.gpkg
