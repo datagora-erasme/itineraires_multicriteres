@@ -1,12 +1,13 @@
 
 import React, { useContext, useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, useMap, Popup } from 'react-leaflet'
 import axios from "axios"
 import L from 'leaflet'
 import { lineString, buffer, featureCollection, dissolve, booleanPointInPolygon, difference, circle } from "@turf/turf"
 import MarkerClusterGroup from '@changey/react-leaflet-markercluster';
 import MainContext from '../contexts/mainContext';
 import chroma from "chroma-js"
+
 
 
 const colors = {
@@ -21,10 +22,10 @@ const colors = {
 
 
 
-const colorIfScale = chroma.scale(["#D50B0F", "#04204E"]).domain([0, 10])
-const colorPolScale = chroma.scale(["#8F0002", "#FEE420"]).domain([0, 10])
-const colorBrScale = chroma.scale(["#543A55", "#6FB865"]).domain([0, 10])
-const colorToScale = chroma.scale(["#D50B0F", "#04204E"]).domain([0, 10])
+const colorIfScale = chroma.scale(["#f42a2d", "#3d83f5"]).domain([0, 10])
+const colorPolScale = chroma.scale(["#C20003", "#FEED72"]).domain([0, 10])
+const colorBrScale = chroma.scale(["#734CA9", "#3FCA8C"]).domain([0, 10])
+const colorToScale = chroma.scale(["#F9988B", "#F77564"]).domain([0, 10])
 
 function MapFreshness({ setZoomToUserPosition, zoomToUserPosition, radius, selectedStartAddress, showCircle }) {
     const map = useMap()
@@ -139,7 +140,6 @@ function Map() {
                         id: id
                     }
                 })
-                //console.log({...response.data})
                 const updatedGeojsonFiles = [...geojsonFiles, { ...response.data }]
                 setGeojsonFiles(updatedGeojsonFiles)
             } catch (error) {
@@ -276,7 +276,7 @@ function Map() {
                     return feature;
                 });
 
-                //round coordinates in order to avoid bug with dissolve
+                //round coordinates to avoid bugs with dissolve
                 const bufferedFeaturesRounded = bufferedFeatures.map((feat) => {
                     return {
                         ...feat,
@@ -355,7 +355,6 @@ function Map() {
                 {geojsonFiles.length !== 0 &&
                     geojsonFiles.map((data) => {
                         if (selectedLayers.includes(data.id)) {
-                            console.log(data.geojson.features)
                             const dataType = data.geojson.features[0].geometry.type
                             const markerOption = data.markerOption
                             if (dataType === "Point") {
@@ -372,6 +371,10 @@ function Map() {
                                             const coordinates = point.geometry.coordinates
                                             return (
                                                 <Marker key={index} position={[coordinates[1], coordinates[0]]} icon={new L.icon(markerOption)} onEachFeature={handleClickMarker}>
+                                                    <Popup>
+                                                        <div className="flex justify-center items-center">
+                                                        </div>
+                                                    </Popup>
                                                 </Marker>
                                             )
                                         })}
@@ -386,84 +389,39 @@ function Map() {
                         return null
                     })
                 }
-{/* 
-                {currentItinerary &&
-                    currentItinerary.map((it, index) => {
-                        return (
-                            <GeoJSON
-                                data={it.geojson}
-                                style={(feature) => {
-                                    let colors = [];
 
-                                    if (criteria.includes("frais")) {
-                                        colors.push(colorIfScale(feature.properties.freshness_score_13).hex());
-                                    }
-                                    if (criteria.includes("bruit")) {
-                                        colors.push(colorBrScale(feature.properties.bruit_score).hex());
-                                    }
-                                    if (criteria.includes("pollen")) {
-                                        colors.push(colorPolScale(feature.properties.pollen_score).hex());
-                                    }
-                                    if (criteria.includes("tourisme")) {
-                                        colors.push(colorToScale(feature.properties.tourisme_score).hex());
-                                    }
-                                    function blendColorsLinear(colors) {
-                                        if (colors.length === 0) {
-                                            return '#C2C2C2';
-                                        }
-                                        return chroma.average(colors, 'rgb').saturate(6).hex();
-                                    }
-                                    let finalColor = blendColorsLinear(colors);
-                                    finalColor = chroma(finalColor).set('hsl.l', '+0.2').set('hsl.s', '*1.0').hex();
-
-                                    return {
-                                        color: finalColor,
-                                        weight: it.id === "LENGTH" ? 5 : 10,
-                                        lineCap: "round",
-                                        lineJoin: "round",
-                                        dashArray: it.id === "LENGTH" ? '1, 10' : '',
-                                        dashOffset: '0'
-                                    };
-                                }}
-                                key={Math.random()}
-                            />
-                        );
-                    })
-                } */}
                 {currentItinerary && Object.entries(currentItinerary).map(([key, itinerary], index) => {
-  return (
-    <GeoJSON
-      data={itinerary.geojson}
-      style={(feature) => {
-        let selectedColors = []; 
-        console.log({itinerary})
-        console.log(currentItinerary)
 
-        if (itinerary.idcriteria.startsWith("bruit")) {
-            selectedColors.push(colorBrScale(feature.properties.bruit_score).hex());
-        } else if (itinerary.idcriteria.startsWith("frais")) {
-            selectedColors = colorIfScale(feature.properties.freshness_score_13).hex();
-        } else if (itinerary.idcriteria.startsWith("pollen")) {
-            selectedColors = colorPolScale(feature.properties.pollen_score).hex();
-        } else if (itinerary.idcriteria.startsWith("tourisme")) {
-            console.log("Pouet"+feature.properties.tourisme_score)
-            selectedColors = colorToScale(feature.properties.tourisme_score).hex();
-        }
+                    return (
+                        <GeoJSON
+                        key={Math.random()}
+                            data={itinerary.geojson}
+                            style={(feature) => {
+                                let selectedColors = [];
+
+                                if (itinerary.idcriteria.startsWith("bruit")) {
+                                    selectedColors.push(colorBrScale(feature.properties.bruit_score).hex());
+                                } else if (itinerary.idcriteria.startsWith("frais")) {
+                                    selectedColors = colorIfScale(feature.properties.freshness_score_13).hex();
+                                } else if (itinerary.idcriteria.startsWith("pollen")) {
+                                    selectedColors = colorPolScale(feature.properties.pollen_score).hex();
+                                } else if (itinerary.idcriteria.startsWith("tourisme")) {
+                                    selectedColors = colorToScale(feature.properties.tourisme_score).hex();
+                                }
 
 
-        return {
-          color: selectedColors,
-          weight: itinerary.idcriteria.includes("length") ? 5 : 10,
-          lineCap: "round",
-          lineJoin: "round",
-          dashArray: itinerary.idcriteria.includes("length") ? "1, 10" : "",
-          dashOffset: "0"
-        };
-      }}
-      key={index} 
-    />
-  );
-})}
+                                return {
+                                    color: selectedColors,
+                                    weight: itinerary.idcriteria.includes("length") ? 5 : 10,
+                                    lineCap: "round",
+                                    lineJoin: "round",
+                                    dashArray: itinerary.idcriteria.includes("length") ? "1, 10" : "",
+                                    dashOffset: "0"
+                                };
+                            }}
+                        />
+                    );
+                })}
 
 
 
@@ -521,6 +479,7 @@ function Map() {
                     }
                 })}
                 {filteredItinerariesFeatures.length !== 0 && filteredItinerariesFeatures.map((data) => {
+                    const tourismeFeature = filteredItinerariesFeatures.find(feature => feature.id === "tourisme");
                     if (data.geojson.length !== 0) {
                         const dataType = data.geojson[0].geometry.type
                         if (dataType === "MultiPolygon" || dataType === "Polygon") {
@@ -539,14 +498,19 @@ function Map() {
                                     iconCreateFunction={(cluster) => createClusterCustomIcon(cluster, markerOption)}
                                 >
                                     {data.geojson.map((dta, i) => {
-                                        const coordinates = [dta.geometry.coordinates[1], dta.geometry.coordinates[0]]
+                                        const coordinates = [dta.geometry.coordinates[1], dta.geometry.coordinates[0]];
+                                        
                                         return (
                                             <Marker key={Math.random()} position={coordinates} icon={new L.icon(markerOption)}>
-
+                                                {tourismeFeature && (
+                                                    <Popup>{dta.properties.nom}</Popup>
+                                                )}
                                             </Marker>
-                                        )
+                                        );
                                     })}
                                 </MarkerClusterGroup>
+                                
+
                             )
                         }
                     }

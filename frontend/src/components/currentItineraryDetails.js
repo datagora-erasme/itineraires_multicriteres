@@ -14,7 +14,6 @@ const CurrentItineraryDetails = ({ showMenu }) => {
     useEffect(() => {
         if (currentItinerary) {
             const newDetails = {};
-            console.log(currentItinerary)
             currentItinerary.forEach((itinerary) => {
                 const details = calculateItineraryDetails(itinerary);
                     newDetails[itinerary.idcriteria] = {
@@ -24,7 +23,6 @@ const CurrentItineraryDetails = ({ showMenu }) => {
                     };
                 })
 
-            console.log(newDetails)
             setDetails(newDetails);
         }
     }, [currentItinerary, criteria]);

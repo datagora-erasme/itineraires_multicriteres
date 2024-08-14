@@ -45,18 +45,7 @@ export const MainContextProvider = ({ children }) => {
 
     const [criteria, setCriteria] = useState([]);
 
-    // const calculateMeanScore = (itinerary, localcriteria) => {
-    //   let scores;
-    //   console.log(localcriteria)
-    //   if (localcriteria === "frais") {
-    //       scores = itinerary.geojson.features.map((feat) => feat.properties.freshness_score_13);
-    //   } else if (localcriteria === "pollen") {
-    //       scores = itinerary.geojson.features.map((feat) => feat.properties.pollen_score);
-    //   } else if (localcriteria === "bruit") {
-    //     scores = itinerary.geojson.features.map((feat) => feat.properties.bruit_score);
-    //   } else if (localcriteria === "tourisme") {
-    //     scores = itinerary.geojson.features.map((feat) => feat.properties.tourisme_score);
-    //   }
+
     const calculateMeanScore = (itinerary, criteria) => {
       let scores;
       if (criteria === "frais") {
@@ -123,7 +112,6 @@ export const MainContextProvider = ({ children }) => {
               id: "all"
           }
         })
-        //console.log('res.data :',res.data)
         setLayers(res.data)
       }
         fetchLayers()
@@ -219,9 +207,6 @@ export const MainContextProvider = ({ children }) => {
         }
         setIfScore(newIfScore);
         setLenScore(newLenScore);
-        console.log("ifScore", newIfScore);
-        console.log("lenScore", newLenScore);
-        console.log("currentItinerary", currentItinerary);
       }
     }, [currentItinerary]);
 
