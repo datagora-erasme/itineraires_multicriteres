@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+from datetime import datetime
 from models.data import *
 from load_graph import *
 from models.itinerary import *
@@ -10,10 +11,6 @@ from global_variable import *
 app = Flask(__name__)
 CORS(app)
 
-# network_path = "./score_calculation_it/output_data/network/graph/final_network_bounding_scaled_no_na.gpkg"
-# network_pickle_path = "./score_calculation_it/output_data/network/graph/final_network_bounding_scaled_no_na.pickle"
-# network_multidigraph_pickle_path ="./score_calculation_it/output_data/network/graph/final_network_bounding_scaled_no_na_multidigraph.pickle"
-
 """
 The final graph is loaded into a pickle file in order to keep it in RAM. 
 It allows to reduce the time between request and response (the files took several seconds to open).
@@ -22,6 +19,9 @@ It allows to reduce the time between request and response (the files took severa
 G = None
 G_multidigraph = None
 
+current_month = datetime.now().month
+print("current_month", current_month)
+
 graph_paths = {
     "frais": {
         "gpkg": final_network_path, 
@@ -29,9 +29,9 @@ graph_paths = {
         "multidigraph_pickle": final_network_multidigraph_pickle_path
     },
     "pollen": {
-        "gpkg": final_network_pollen_path,
-        "pickle": final_network_pickle_pollen_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_pollen_path
+        "gpkg": final_network_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_pollen_path,  
+        "pickle": final_network_pickle_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_pickle_pollen_path,
+        "multidigraph_pickle": final_network_multidigraph_pickle_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_multidigraph_pickle_pollen_path
     },
     "bruit": {
         "gpkg": final_network_bruit_path,
@@ -44,6 +44,7 @@ graph_paths = {
         "multidigraph_pickle": final_network_multidigraph_pickle_tourisme_path
     }
 }
+
 
 G = None
 G_multidigraph = None

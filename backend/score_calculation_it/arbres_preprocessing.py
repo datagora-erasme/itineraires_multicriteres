@@ -6,6 +6,8 @@ import numpy as np
 from scipy.stats import norm
 from data_utils import *
 from shapely.geometry import Point
+import requests
+import json
 import sys
 sys.path.append("../")
 from global_variable import *
@@ -26,10 +28,10 @@ if choice.upper() == "OUI":
     arbres = gpd.read_file(data_params["arbres"]["gpkg_path"])
     arbres = arbres.to_crs(3946)
 
-    print(arbres.head())
-    print(arbres.columns)
+    #print(arbres.head())
+    #print(arbres.columns)
 
-    #arbres des parcs, dataset additonnel fourni par les communes
+    #arbres des parcs de lyon, dataset additonnel fourni par les communes
     arbres_parcs = gpd.read_file('./input_data/arbres/arbre_vdl_opendata_juin_2024.shp')
     arbres_parcs = arbres_parcs.to_crs(epsg=3946)
 
@@ -45,17 +47,75 @@ if choice.upper() == "OUI":
 
     arbres = pd.concat([arbres, arbres_parcs], ignore_index=True)
 
+
+    #arbres de rilleux, dataset additionnel non public fourni par les communes
+    url = "https://download.data.grandlyon.com/files/rdata/sortons_au_frais/arbres_urbains.json"
+    response = requests.get(url)
+    content = response.content.decode('utf-8-sig')
+    data = json.loads(content)
+    values = data['values']
+    df = pd.DataFrame(values)
+
+    rilleux = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.lon, df.lat))
+    rilleux.set_crs(epsg=4326, inplace=True)
+    rilleux = rilleux.to_crs(3946)
+
+    latin_to_french = {
+    'Corylus': 'Noisetier',
+    'Cupressus': 'Cyprès',
+    'Alnus': 'Aulne',
+    'Populus': 'Peuplier',
+    'Fraxinus': 'Frêne',
+    'Betula': 'Bouleau',
+    'Platanus': 'Platane',
+    'Quercus': 'Chêne',
+    'Carpinus': 'Charme',
+    'Acer': 'Erable',
+    'Baccharis': 'Bacchari',
+    'Thuja': 'Thuya',
+    'Juglans': 'Noyer',
+    'Morus': 'Mûrier',
+    'Salix': 'Saule',
+    'Ulmus': 'Orme',
+    'Fagus': 'Hêtre',
+    'Castanea': 'Châtaignier',
+    'Olea': 'Olivier',
+    'Tilia': 'Tilleul',
+    'Juniperus': 'Cade',
+    'Ligustrum': 'Troène',
+    'Pinus': 'Pin',
+    }
+
+    rilleux['genre_fr'] = rilleux['genre'].map(latin_to_french)
+    rilleux = rilleux.dropna(subset=['genre_fr'])
+    rilleux = rilleux.rename(columns={'genre_fr': 'essencefrancais'})
+
+    arbres = pd.concat([arbres, rilleux], ignore_index=True)
+
+
+    #signalements d'ambroisie
+    ambroisie = gpd.read_file(data_params["ambroisie"]["gpkg_path"])
+    ambroisie = ambroisie.to_crs(3946)
+
+    ambroisie = ambroisie[ambroisie['signalement'] == 'Ambroisie']
+    arbres_parcs = arbres_parcs.rename(columns={'Type_en_fr': 'essencefrancais'})
+    
+    ambroisie = ambroisie.rename(columns={'signalement': 'essencefrancais'})
+    ambroisie = ambroisie.rename(columns={'insee': 'code_insee'})
+    arbres = pd.concat([arbres, ambroisie], ignore_index=True)
+
+
     arbres.dropna(subset=['codeinsee'], inplace=True)
     arbres['codeinsee'] = arbres['codeinsee'].round().astype(int)
-    
+
     arbres['famille'] = arbres['essencefrancais'].str.split().str[0]
     
     allergene_dict = {
         'Noisetier': 0, 'Cyprès': 0, 'Aulne': 0, 'Peuplier': 0, 'Frêne': 0,
-        'Bouleau': 0, 'Platane': 0, 'Chêne': 0, 'Charme': 0, 'Érable': 0,
+        'Bouleau': 0, 'Platane': 0, 'Chêne': 0, 'Charme': 0, 'Érable': 0, 'Erable': 0,
         'Bacchari': 0, 'Thuya': 0, 'Noyer': 0, 'Mûrier': 0, 'Saule': 0,
         'Orme': 0, 'Hêtre': 0, 'Châtaignier': 1, 'Olivier': 3, 'Tilleul': 2,
-        'Cade': 3, 'Troène': 2, 'Pin': 0,
+        'Cade': 3, 'Troène': 2, 'Pin': 0, 'Ambroisie': 5,
     }
     
     arbres['raep'] = arbres['famille'].apply(map_raep)

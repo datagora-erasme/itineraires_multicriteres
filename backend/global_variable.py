@@ -21,6 +21,10 @@ final_network_pollen_path = globpath("./score_calculation_it/output_data/network
 final_network_pickle_pollen_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen.pickle")
 final_network_multidigraph_pickle_pollen_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen_multidigraph.pickle")
 
+final_network_pollen_fevmai_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen_fevmai.gpkg")
+final_network_pickle_pollen_fevmai_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen_fevmai.pickle")
+final_network_multidigraph_pickle_pollen_fevmai_path = globpath("./score_calculation_it/output_data/network/graph/final_network_pollen_fevmai_multidigraph.pickle")
+
 final_network_bruit_path = globpath("./score_calculation_it/output_data/network/graph/final_network_bruit.gpkg")
 final_network_pickle_bruit_path = globpath("./score_calculation_it/output_data/network/graph/final_network_bruit.pickle")
 final_network_multidigraph_pickle_bruit_path = globpath("./score_calculation_it/output_data/network/graph/final_network_bruit_multidigraph.pickle")
@@ -49,6 +53,8 @@ edges_buffer_parcs_prop_path = globpath("./score_calculation_it/output_data/netw
 edges_buffer_eaux_prop_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_eaux_prop_bounding.gpkg")
 
 edges_buffer_arbres_pollen_prop_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffer_arbres_pollen_prop_path.gpkg")
+edges_buffer_arbres_pollen_prop_path_fevmai = globpath("./score_calculation_it/output_data/network/edges/edges_buffer_arbres_pollen_prop_path_fevmai.gpkg")
+
 edges_buffer_parcs_pollen_prop_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffer_parcs_pollen_prop_path.gpkg")
 
 edges_buffer_scored_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_scored_bounding.gpkg")
