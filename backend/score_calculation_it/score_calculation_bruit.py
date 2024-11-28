@@ -13,8 +13,6 @@ from global_variable import *
 ###### NETWORK SCORE CALCULATION #######
 create_folder("./output_data/network/graph/")
 
-edges_buffer_path = globpath("./score_calculation_it/input_data/network/edges_buffered_12_bounding.gpkg")
-
 ### GLOBAL VARIABLES ###
 
 score_columns_bruit = ["score_bruit_DN_wavg"]
@@ -77,7 +75,7 @@ def score_distance(input_path, output_path):
     edges = gpd.read_file(input_path)
 
     edges["length"] = edges["length"].replace(0, 0.1)
-    edges["score_distance_bruit"] = round(edges["total_score_bruit"] * (1 / edges["length"]), 2)
+    edges["score_distance_bruit"] = round(edges["total_score_bruit"] * edges["length"], 2)
     edges["score_distance_bruit"] = edges["score_distance_bruit"].replace(0, 0.1)
     
     print(edges["score_distance_bruit"].describe())

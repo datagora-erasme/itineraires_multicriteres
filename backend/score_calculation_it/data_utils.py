@@ -5,7 +5,10 @@ import pandas as pd
 import multiprocessing as mp
 import numpy as np
 from shapely.wkt import loads, dumps
+from shapely.geometry import Polygon, MultiPolygon
 import os
+import subprocess
+from osgeo import ogr
 
 def create_folder(folder_path):
     exist = os.path.exists(folder_path)
@@ -114,7 +117,7 @@ def calculate_area_proportion(edges_path, data_path, name, output_path, layer="s
     edges.geometry = [loads(dumps(geom, rounding_precision=3)) for geom in edges.geometry]
     data.geometry =  [loads(dumps(geom, rounding_precision=3)) for geom in data.geometry]
 
-    overlay_edges = gpd.overlay(edges, data, how="identity", keep_geom_type=True)
+    overlay_edges = gpd.overlay(edges, data, how="identity", keep_geom_type=True) 
 
     print(overlay_edges)
 
@@ -152,29 +155,75 @@ def calculate_many_prop(data_folder_path, edges_path, layer):
 
 def calculate_weighted_average(edges_path, data_path, output_path, layer, name, fn):
     """Calculate mean average of a variable for each edges"""
+    
+    print("Chargement des fichiers...")
     edges = gpd.read_file(edges_path, layer=layer)
     data = gpd.read_file(data_path)
 
+    # Vérifier et convertir les géométries de `data` si elles ne sont pas des Polygones
+    data['geometry'] = data['geometry'].apply(lambda x: x if isinstance(x, Polygon) else x.geoms[0] if isinstance(x, MultiPolygon) else None)
+
+    # Vérifier les types de géométrie uniques dans edges et data après conversion
+    print("Types de géométrie dans edges : ", edges.geometry.type.unique())
+    print("Types de géométrie dans data après conversion : ", data.geometry.type.unique())
+
+
+    # Nombre de lignes 
+    print(f"Nombre de lignes dans edges : {len(edges)}")
+    print(f"Nombre de lignes dans data : {len(data)}")
+
+    # Voir les CRS
+    print(edges.crs)
+    print(data.crs)
+
+    # Arrondissement des géométries
+    print("Arrondissement des géométries...")
     edges.geometry = [loads(dumps(geom, rounding_precision=3)) for geom in edges.geometry]
-    data.geometry =  [loads(dumps(geom, rounding_precision=3)) for geom in data.geometry]
+    data.geometry = [loads(dumps(geom, rounding_precision=3)) for geom in data.geometry]
+    print("Géométries arrondies.")
 
+    # Calcul de l'overlay entre edges et data
+    print("Calcul de l'overlay...")
     overlay_edges = gpd.overlay(edges, data, how="identity", keep_geom_type=True)
+    print(f"Overlay terminé. Nombre de lignes après overlay : {len(overlay_edges)}")
 
+    # Calcul de l'aire de chaque géométrie
+    print("Calcul de l'aire des géométries dans overlay...")
     overlay_serie = gpd.GeoSeries(overlay_edges["geometry"])
-
     overlay_edges["area"] = overlay_serie.area
+    print("Aire calculée pour chaque géométrie.")
 
+    # Conversion des colonnes 'u', 'v', 'key' en entiers
+    print("Conversion des colonnes 'u', 'v', 'key' en entier...")
     overlay_edges[["u", "v", "key"]] = overlay_edges[["u", "v", "key"]].astype(int)
+    print("Conversion terminée.")
 
+    # Réindexation de l'overlay
+    print("Réindexation de overlay_edges...")
     overlay_edges = overlay_edges.set_index(["u", "v", "key"])
 
+    # Application de la fonction fn
+    print("Application de la fonction de regroupement fn...")
     grouped = overlay_edges.groupby(["u", "v", "key"], group_keys=True).apply(fn)
+    print("Fonction de regroupement fn appliquée.")
 
+    # Réindexation de edges
+    print("Réindexation de edges...")
     edges = edges.set_index(["u", "v", "key"])
 
+    # Ajout de la moyenne pondérée à edges
+    print(f"Ajout de la colonne '{name}_wavg' dans edges...")
     edges[f"{name}_wavg"] = grouped[f"{name}_wavg"]
+    print(f"Colonne '{name}_wavg' ajoutée.")
 
+    # Enregistrement du fichier de sortie
+    print(f"Enregistrement du fichier de sortie à {output_path}...")
     edges.to_file(output_path, driver="GPKG", layer=layer)
+    print("Fichier sauvegardé avec succès.")
+
+
+
+
 
 def calculate_presency(edges_path, data_path, output_path, layer, name, fn):
     """For each edges of network detect presency of one layer"""
@@ -206,3 +255,52 @@ def create_csv_dataset(edges_path, output_path, layer):
     edges = edges.drop(["geometry", "highway", "oneway", "reversed", "from", "to", "name", "maxspeed", "lanes", "width", "service", "bridge", "ref", "junction", "tunnel", "est_width", "access"], axis=1)
 
     edges.to_csv(output_path)
+
+
+
+def cut_bruit(bruit_path, empreinte_path, sortie_path):
+    # Charger les fichiers géospatiaux
+    try:
+        bruit = gpd.read_file(bruit_path)
+        empreinte = gpd.read_file(empreinte_path)
+    except Exception as e:
+        print(f"Erreur lors du chargement des fichiers géospatiaux : {e}")
+        return
+
+    # Convertir les géométries en Polygones ou MultiPolygones si nécessaire
+    bruit['geometry'] = bruit['geometry'].apply(
+        lambda x: x if isinstance(x, Polygon) else x.geoms[0] if isinstance(x, MultiPolygon) else None
+    )
+
+    empreinte['geometry'] = empreinte['geometry'].apply(
+        lambda x: x if isinstance(x, Polygon) else x.geoms[0] if isinstance(x, MultiPolygon) else None
+    )
+
+    # Vérifier que les deux couches ont le même CRS
+    if bruit.crs != empreinte.crs:
+        empreinte = empreinte.to_crs(bruit.crs)
+
+    # Effectuer l'opération de découpe (intersection)
+    decoupe = gpd.overlay(bruit, empreinte, how='intersection')
+
+    # Sauvegarder le fichier découpé
+    try:
+        decoupe.to_file(sortie_path, driver="GPKG")
+        print(f"Fichier découpé sauvegardé sous : {sortie_path}")
+    except Exception as e:
+        print(f"Erreur lors de la sauvegarde du fichier découpé : {e}")
+        return
+
+    # Supprimer le fichier d'origine
+    if os.path.exists(bruit_path):
+        os.remove(bruit_path)
+        print(f"Le fichier d'origine {bruit_path} a été supprimé avec succès.")
+    else:
+        print(f"Le fichier {bruit_path} n'existe pas et n'a pas pu être supprimé.")
+
+    # Renommer le fichier découpé
+    if os.path.exists(sortie_path):
+        os.rename(sortie_path, bruit_path)
+        print(f"Le fichier a été renommé en {bruit_path}.")
+    else:
+        print(f"Le fichier {sortie_path} n'existe pas et n'a pas pu être renommé.")

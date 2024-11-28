@@ -127,6 +127,10 @@ arbres_classes_pollen_path = globpath("./score_calculation_it/output_data/arbres
 
 #### BRUIT ####
 bruit_path = globpath("./score_calculation_it/input_data/bruit/bruit.gpkg")
+sortie_path = globpath("./score_calculation_it/input_data/bruit/ouche_decoupee.gpkg")
+
+#### EMPREINTE ####
+empreinte_path = globpath("./score_calculation_it/input_data/empreinte/empreinte.gpkg")
 
 ### DATA PARAMS ###
 data_params = {
@@ -221,29 +225,29 @@ data_params = {
             "clusterCountStyle": "position:absolute;top:48px;left:-6px;color:black;font-weight:bold;"
         },
     },
-    "tourisme": {
-        "name": "Tourisme",
-        "wfs_key": "metropole-de-lyon:apd_apidae.apdlieutourisme_latest",
-        "gpkg_path": globpath("./score_calculation_it/input_data/tourisme/corrige_tourisme_3946.gpkg"),
-        "geojson_path": globpath("./score_calculation_it/input_data/tourisme/patrimoine_tourisme_3946.json"),
-        "edges_path": globpath("./score_calculation_it/output_data/network/edges/edges_buffered_tourisme.gpkg"),
-        "buffer_path": globpath("./score_calculation_it/output_data/tourisme/tourisme_buffered.gpkg"),
-        "buffer_size": 20,
-        "onMap": True,
-        "marker_option": {
-            "iconUrl": "building.svg",
-            "iconRetinaUrl": "building.svg",
-            "popupAnchor": [
-                0,
-                0
-            ],
-            "iconSize": [
-                40,
-                40
-            ],
-            "clusterCountStyle": "position:absolute;top:48px;left:-6px;color:black;font-weight:bold;"
-        },
-    },
+    # "tourisme": {
+    #     "name": "Tourisme",
+    #     "wfs_key": "metropole-de-lyon:apd_apidae.apdlieutourisme_latest",
+    #     "gpkg_path": globpath("./score_calculation_it/input_data/tourisme/corrige_tourisme_3946.gpkg"),
+    #     "geojson_path": globpath("./score_calculation_it/input_data/tourisme/patrimoine_tourisme_3946.json"),
+    #     "edges_path": globpath("./score_calculation_it/output_data/network/edges/edges_buffered_tourisme.gpkg"),
+    #     "buffer_path": globpath("./score_calculation_it/output_data/tourisme/tourisme_buffered.gpkg"),
+    #     "buffer_size": 20,
+    #     "onMap": True,
+    #     "marker_option": {
+    #         "iconUrl": "building.svg",
+    #         "iconRetinaUrl": "building.svg",
+    #         "popupAnchor": [
+    #             0,
+    #             0
+    #         ],
+    #         "iconSize": [
+    #             40,
+    #             40
+    #         ],
+    #         "clusterCountStyle": "position:absolute;top:48px;left:-6px;color:black;font-weight:bold;"
+    #     },
+    #},
     "eaux_details": {
         "wfs_key" : "metropole-de-lyon:fpc_fond_plan_communaut.fpcplandeaudetail",
         "gpkg_path": globpath("./score_calculation_it/input_data/eaux_details/eaux_details.gpkg"),
@@ -292,15 +296,12 @@ data_params = {
         "geojson_path": globpath("./score_calculation_it/input_data/ambroisie/ambroisie.json"),
         "onMap": False
     },
+    "empreinte" : {
+        "wfs_key": "metropole-de-lyon:adr_voie_lieu.adrmetropole",
+        "gpkg_path": globpath("./score_calculation_it/input_data/empreinte/empreinte.gpkg"),
+        "geojson_path": globpath("./score_calculation_it/input_data/empreinte/empreinte.json"),
+        "onMap": False
+    },
     
-    
-}
 
-data_params_tourisme = {
-        "tourisme" : {
-        "wfs_key": "onlylyon-tourisme-et-congres:apd_apidae.apdlieutourisme_latest",
-        "gpkg_path": globpath("./score_calculation_it/input_data/tourisme/poi_tourisme.gpkg"),
-        "geojson_path": globpath("./score_calculation_it/input_data/tourisme/poi_tourisme.json"),
-        "onMap": True 
-    }
 }
