@@ -63,10 +63,10 @@ def download_data(params, data_name, wfs, outputFormat):
     data_geojson.to_file(geojson_output_path, driver="GeoJSON")
     
 
-def download_all_data(params, wfs, outputFormat):
+def download_all_data(parametre, wfs, outputFormat):
     print("FETCHING ALL DATA")
-    for data_name in params.keys():
-        download_data(params, data_name, wfs, outputFormat)
+    for data_name in parametre.keys():
+        download_data(parametre, data_name, wfs, outputFormat)
 
 ### SCRIPT ###
 
@@ -77,8 +77,8 @@ data_grandlyon_wfs_url = "https://data.grandlyon.com/geoserver/metropole-de-lyon
 data_grandlyon_wfs = connection_wfs(data_grandlyon_wfs_url, "datagrandlyon", "2.0.0")
 
 # tourisme WFS
-data_grandlyon_tourisme_wfs_url = "https://data.grandlyon.com/geoserver/wfs"
-data_grandlyon_tourisme_wfs = connection_wfs(data_grandlyon_tourisme_wfs_url, "datagrandlyon", "2.0.0")
+#data_grandlyon_tourisme_wfs_url = "https://data.grandlyon.com/geoserver/wfs"
+#data_grandlyon_tourisme_wfs = connection_wfs(data_grandlyon_tourisme_wfs_url, "datagrandlyon", "2.0.0")
 
 
 
@@ -89,8 +89,8 @@ print("Data Download")
 
 if(fetching_choice == "ALL"):
 ### Download all data ###
-    #download_all_data(data_params, data_grandlyon_wfs, geojsonOutputFormat)
-    download_all_data(data_params_tourisme, data_grandlyon_tourisme_wfs, geojsonOutputFormat)
+    download_all_data(data_params, data_grandlyon_wfs, geojsonOutputFormat)
+    #download_all_data(data_params_tourisme, data_grandlyon_tourisme_wfs, geojsonOutputFormat)
 
 elif(fetching_choice == "ONE"):
 ###  download a specific data ###
