@@ -5,10 +5,14 @@ import pandas as pd
 import multiprocessing as mp
 import numpy as np
 from shapely.wkt import loads, dumps
+from shapely.validation import make_valid
 from shapely.geometry import Polygon, MultiPolygon
 import os
 import subprocess
 from osgeo import ogr
+from sklearn.preprocessing import MinMaxScaler
+
+
 
 def create_folder(folder_path):
     exist = os.path.exists(folder_path)
@@ -153,74 +157,64 @@ def calculate_many_prop(data_folder_path, edges_path, layer):
         if(extention == "gpkg"):
             calculate_area_proportion(edges_path, file_path, data_name, edges_path, layer)
 
-def calculate_weighted_average(edges_path, data_path, output_path, layer, name, fn):
-    """Calculate mean average of a variable for each edges"""
+
+
+def bruit_pre(edges_buffer_path, bruit_path, edges_buffer_bruit_wavg_path, layer, name):
+    """Calculer la valeur de DN pour chaque segment, en gardant la valeur max de DN par segment"""
     
-    print("Chargement des fichiers...")
-    edges = gpd.read_file(edges_path, layer=layer)
-    data = gpd.read_file(data_path)
+    try:
+        print("Chargement des fichiers...")
+        # Charger les fichiers GeoPackage
+        edges = gpd.read_file(edges_buffer_path)
+        data = gpd.read_file(bruit_path)
 
-    # Vérifier et convertir les géométries de `data` si elles ne sont pas des Polygones
-    data['geometry'] = data['geometry'].apply(lambda x: x if isinstance(x, Polygon) else x.geoms[0] if isinstance(x, MultiPolygon) else None)
+        # Vérifier que les colonnes et les couches existent
+        print(f"Colonnes de 'edges' : {edges.columns}")
+        print(f"Colonnes de 'data' (bruit) : {data.columns}")
 
-    # Vérifier les types de géométrie uniques dans edges et data après conversion
-    print("Types de géométrie dans edges : ", edges.geometry.type.unique())
-    print("Types de géométrie dans data après conversion : ", data.geometry.type.unique())
+        # Nettoyer les géométries invalides dans les DataFrames
+        print("Nettoyage des géométries invalides...")
+        edges['geometry'] = edges['geometry'].apply(make_valid)
+        data['geometry'] = data['geometry'].apply(make_valid)
 
+        # Ajouter une colonne DN dans edges qui contiendra la valeur maximale de bruit pour chaque géométrie d'edges
+        print("Calcul de la valeur maximale de DN pour chaque segment de rue...")
+        
+        def get_max_dn_for_edge(edge_geometry):
+            # Trouver toutes les géométries de data qui intersectent la géométrie de edge
+            intersecting_data = data[data.geometry.intersects(edge_geometry)]
+            
+            if not intersecting_data.empty:
+                # Retourner la valeur maximale de DN parmi les géométries qui s'intersectent
+                return intersecting_data[name].max()
+            else:
+                # Si aucune intersection, retourner NaN (ou une valeur par défaut comme 0 si vous préférez)
+                return None
+        
+        # Appliquer cette fonction à chaque géométrie dans edges
+        edges[name] = edges.geometry.apply(get_max_dn_for_edge)
 
-    # Nombre de lignes 
-    print(f"Nombre de lignes dans edges : {len(edges)}")
-    print(f"Nombre de lignes dans data : {len(data)}")
+        # Vérifier que la colonne 'DN' a été ajoutée correctement
+        print(f"Exemples de lignes avec la nouvelle colonne '{name}' :\n{edges.head()}")
 
-    # Voir les CRS
-    print(edges.crs)
-    print(data.crs)
+        # Supprimer les lignes où la valeur de 'DN' est NaN (si aucune intersection)
+        print(f"Suppression des NaN dans la colonne '{name}'...")
+        edges = edges.dropna(subset=[name])
+        print(f"Nombre de lignes après suppression des NaN : {len(edges)}")
 
-    # Arrondissement des géométries
-    print("Arrondissement des géométries...")
-    edges.geometry = [loads(dumps(geom, rounding_precision=3)) for geom in edges.geometry]
-    data.geometry = [loads(dumps(geom, rounding_precision=3)) for geom in data.geometry]
-    print("Géométries arrondies.")
+        # Normalisation des valeurs de bruit avec MinMaxScaler (si nécessaire)
+        print("Mise à l'échelle des valeurs de DN avec MinMaxScaler...")
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        edges["DN_scaled"] = scaler.fit_transform(edges[[name]])
+        print("Mise à l'échelle terminée.")
 
-    # Calcul de l'overlay entre edges et data
-    print("Calcul de l'overlay...")
-    overlay_edges = gpd.overlay(edges, data, how="identity", keep_geom_type=True)
-    print(f"Overlay terminé. Nombre de lignes après overlay : {len(overlay_edges)}")
+        # Sauvegarder les résultats dans le fichier final
+        print(f"Sauvegarde du fichier prétraité sous {edges_buffer_bruit_wavg_path}...")
+        edges.to_file(edges_buffer_bruit_wavg_path, driver="GPKG", layer=layer)
+        print(f"Fichier prétraité sauvegardé sous {edges_buffer_bruit_wavg_path}")
 
-    # Calcul de l'aire de chaque géométrie
-    print("Calcul de l'aire des géométries dans overlay...")
-    overlay_serie = gpd.GeoSeries(overlay_edges["geometry"])
-    overlay_edges["area"] = overlay_serie.area
-    print("Aire calculée pour chaque géométrie.")
-
-    # Conversion des colonnes 'u', 'v', 'key' en entiers
-    print("Conversion des colonnes 'u', 'v', 'key' en entier...")
-    overlay_edges[["u", "v", "key"]] = overlay_edges[["u", "v", "key"]].astype(int)
-    print("Conversion terminée.")
-
-    # Réindexation de l'overlay
-    print("Réindexation de overlay_edges...")
-    overlay_edges = overlay_edges.set_index(["u", "v", "key"])
-
-    # Application de la fonction fn
-    print("Application de la fonction de regroupement fn...")
-    grouped = overlay_edges.groupby(["u", "v", "key"], group_keys=True).apply(fn)
-    print("Fonction de regroupement fn appliquée.")
-
-    # Réindexation de edges
-    print("Réindexation de edges...")
-    edges = edges.set_index(["u", "v", "key"])
-
-    # Ajout de la moyenne pondérée à edges
-    print(f"Ajout de la colonne '{name}_wavg' dans edges...")
-    edges[f"{name}_wavg"] = grouped[f"{name}_wavg"]
-    print(f"Colonne '{name}_wavg' ajoutée.")
-
-    # Enregistrement du fichier de sortie
-    print(f"Enregistrement du fichier de sortie à {output_path}...")
-    edges.to_file(output_path, driver="GPKG", layer=layer)
-    print("Fichier sauvegardé avec succès.")
-
+    except Exception as e:
+        print(f"Erreur lors du traitement du bruit : {e}")
 
 
 
@@ -258,7 +252,8 @@ def create_csv_dataset(edges_path, output_path, layer):
 
 
 
-def cut_bruit(bruit_path, empreinte_path, sortie_path):
+def cut_empreinte(bruit_path, empreinte_path, sortie_path):
+    # Permet de prendre uniquement la métropole de lyon 
     # Charger les fichiers géospatiaux
     try:
         bruit = gpd.read_file(bruit_path)
@@ -304,3 +299,30 @@ def cut_bruit(bruit_path, empreinte_path, sortie_path):
         print(f"Le fichier a été renommé en {bruit_path}.")
     else:
         print(f"Le fichier {sortie_path} n'existe pas et n'a pas pu être renommé.")
+
+
+
+
+def check_data_integrity(edges_path, bruit_path):
+    """Vérifie l'intégrité des données avant le traitement"""
+
+    # Charger les fichiers
+    edges = gpd.read_file(edges_path)
+    bruit = gpd.read_file(bruit_path)
+
+    #Supprimer les doublons dans la colonne 'geometry' en gardant la première occurrence
+    edges = edges.drop_duplicates(subset='geometry')
+    edges_duplicates_geometry = edges[edges.duplicated(subset='geometry', keep=False)]
+    # Vérification des doublons dans les géométries
+    print(f"Nombre de doublons dans 'edges' pour 'geometry' : {edges.duplicated(subset='geometry').sum()}")
+    print(f"Nombre de doublons dans 'bruit' pour 'geometry' : {bruit.duplicated(subset='geometry').sum()}")
+
+    # Vérification des NaN dans la colonne DN de 'bruit'
+    print(f"Nombre de NaN dans 'DN' de 'bruit' : {bruit['DN'].isna().sum()}")
+
+    # Vérification des doublons dans les indices ['u', 'v', 'key'] dans 'edges'
+    print(f"Nombre de doublons dans 'edges' pour ['u', 'v', 'key'] : {edges.duplicated(subset=['u', 'v', 'key']).sum()}")
+
+    # Vérification des doublons dans toutes les colonnes de 'edges' et 'bruit'
+    print(f"Nombre de doublons dans 'edges' (toutes colonnes) : {edges.duplicated().sum()}")
+    print(f"Nombre de doublons dans 'bruit' (toutes colonnes) : {bruit.duplicated().sum()}")

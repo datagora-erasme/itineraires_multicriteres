@@ -6,7 +6,6 @@ from models.data import *
 from load_graph import *
 from models.itinerary import *
 from global_variable import *
-#from calculate_itinerary import *
 
 app = Flask(__name__)
 CORS(app)
@@ -56,29 +55,31 @@ def load_graphs(criteria):
     pickle_path = paths["pickle"]
     multidigraph_pickle_path = paths["multidigraph_pickle"]
 
+    print(f"Loading network for {criteria}...")
 
-    print("Loading network ...")
+    # Vérifiez si les fichiers pickle existent déjà
     if os.path.isfile(pickle_path) and os.path.isfile(multidigraph_pickle_path):
+        print(f"Pickle files found for {criteria}, loading them.")
         load_net = True
     else:
-        load_net = create_pickles_from_graph_criteria(gpkg_path, pickle_path, multidigraph_pickle_path, criteria)
-        
+        print(f"Pickle files not found for {criteria}, creating them...")
+        try:
+            load_net = create_pickles_from_graph_criteria(gpkg_path, pickle_path, multidigraph_pickle_path, criteria)
+            if load_net:
+                print(f"Pickle files for {criteria} created successfully.")
+            else:
+                print(f"Failed to create pickle files for {criteria}.")
+        except Exception as e:
+            print(f"Error while creating pickle files for {criteria}: {e}")
+            load_net = False
 
     if load_net:
-        print("Network loaded")
+        print(f"Network loaded successfully for {criteria}.")
         G = load_graph_from_pickle(pickle_path)
         G_multidigraph = load_graph_from_pickle(multidigraph_pickle_path)
+    else:
+        print(f"Network loading failed for {criteria}.")
 
-# print("Loading network ...")
-# if(os.path.isfile(final_network_pickle_path) & os.path.isfile(final_network_multidigraph_pickle_path)):
-#     load_net = True
-# else:
-#     load_net = create_pickles_from_graph_pollen(final_network_path, final_network_pickle_path, final_network_multidigraph_pickle_path)
-
-# if(load_net):
-#     print("Network loaded")
-#     G = load_graph_from_pickle(final_network_pickle_path)
-#     G_multidigraph = load_graph_from_pickle(final_network_multidigraph_pickle_path)
 
 
 @app.route('/data/', methods=['GET'])
@@ -218,6 +219,6 @@ def force_error():
     """Route to force a 500 error for testing"""
     raise Exception("This is a forced error to test the 500 error handler.")
 
-    
+# Lancer appli
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=3002)
