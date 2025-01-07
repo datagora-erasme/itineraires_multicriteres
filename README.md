@@ -199,6 +199,8 @@ On peut distinguer deux types de données :
 
 Les données du bruit sont à télécharger sur le site CRAIG via le lien suivant : "https://depot.atmo-aura.fr/orhane/orhane_2023_multibruit.zip", puis il faut mettre le fichier bruit.gpkg dans le dossier bruit (itineraires_multicriteres-dev/backend/score_calculation_it/input_data/bruit/).
 
+Changer le format du fichier en GPKG via le lien : https://cloudconvert.com/
+
 Les données issues d'une requête WFS à datagrandlyon peuvent être téléchargées directement en exécutant le script **fetch_data.py** situé dans le dossier *score_calculation_it/input_data/*. Il est possible de télécharger une donnée en particulier ou toutes les données d'un coup.  Afin de lancer le téléchargement, exécuter le script dans un terminal **en se plaçant au niveau du script** puis lancer la commande suivante : 
 
 ```bash
