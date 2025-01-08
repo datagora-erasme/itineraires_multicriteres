@@ -10,5 +10,7 @@ import sys
 sys.path.append("../")
 from global_variable import *
 
-
-cut_empreinte(edges_buffer_path, empreinte_path, sortie_path)
+# Demander si on souhaite mettre à jour la taille du fichier edges
+choice = input("""Souhaitez-vous mettre à jour taille du fichier edges ? (OUI) ou (NON) \n""")
+if choice == "OUI":
+    cut_edges(edges_buffer_path, empreinte_path, sortie_path)

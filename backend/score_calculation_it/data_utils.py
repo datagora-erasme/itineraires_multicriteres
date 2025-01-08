@@ -252,53 +252,55 @@ def create_csv_dataset(edges_path, output_path, layer):
 
 
 
-def cut_empreinte(bruit_path, empreinte_path, sortie_path):
-    # Permet de prendre uniquement la métropole de lyon 
-    # Charger les fichiers géospatiaux
+def cut_bruit(bruit_path, empreinte_path, sortie_path):
+    """Découpe la couche 'bruit' avec le territoire de 'empreinte', utilise une couche intermédiaire, et renomme le fichier final"""
     try:
+        # Charger les fichiers géospatiaux
         bruit = gpd.read_file(bruit_path)
         empreinte = gpd.read_file(empreinte_path)
     except Exception as e:
         print(f"Erreur lors du chargement des fichiers géospatiaux : {e}")
         return
 
-    # Convertir les géométries en Polygones ou MultiPolygones si nécessaire
-    bruit['geometry'] = bruit['geometry'].apply(
-        lambda x: x if isinstance(x, Polygon) else x.geoms[0] if isinstance(x, MultiPolygon) else None
-    )
-
+    # Convertir les géométries de 'bruit' et 'empreinte' en Polygones ou MultiPolygones si nécessaire
     empreinte['geometry'] = empreinte['geometry'].apply(
         lambda x: x if isinstance(x, Polygon) else x.geoms[0] if isinstance(x, MultiPolygon) else None
     )
-
+    
     # Vérifier que les deux couches ont le même CRS
     if bruit.crs != empreinte.crs:
         empreinte = empreinte.to_crs(bruit.crs)
 
-    # Effectuer l'opération de découpe (intersection)
-    decoupe = gpd.overlay(bruit, empreinte, how='intersection')
-
-    # Sauvegarder le fichier découpé
+    # Effectuer l'opération de découpe (intersection) entre 'bruit' et 'empreinte'
     try:
-        decoupe.to_file(sortie_path, driver="GPKG")
-        print(f"Fichier découpé sauvegardé sous : {sortie_path}")
+        decoupe = gpd.overlay(bruit, empreinte, how='intersection')
+    except Exception as e:
+        print(f"Erreur lors de l'opération de découpe : {e}")
+        return
+
+    # Sauvegarder le fichier découpé sous un nom intermédiaire
+    temp_output_path = "temp_output_bruit.gpkg"
+    try:
+        decoupe.to_file(temp_output_path, driver="GPKG")
+        print(f"Fichier découpé sauvegardé sous : {temp_output_path}")
     except Exception as e:
         print(f"Erreur lors de la sauvegarde du fichier découpé : {e}")
         return
 
-    # Supprimer le fichier d'origine
+    # Supprimer le fichier d'entrée original
     if os.path.exists(bruit_path):
         os.remove(bruit_path)
-        print(f"Le fichier d'origine {bruit_path} a été supprimé avec succès.")
+        print(f"Le fichier d'entrée {bruit_path} a été supprimé avec succès.")
     else:
         print(f"Le fichier {bruit_path} n'existe pas et n'a pas pu être supprimé.")
 
-    # Renommer le fichier découpé
-    if os.path.exists(sortie_path):
-        os.rename(sortie_path, bruit_path)
-        print(f"Le fichier a été renommé en {bruit_path}.")
+    # Renommer le fichier découpé pour qu'il prenne le même nom que le fichier d'entrée
+    if os.path.exists(temp_output_path):
+        os.rename(temp_output_path, bruit_path)
+        print(f"Le fichier découpé a été renommé en {bruit_path}.")
     else:
-        print(f"Le fichier {sortie_path} n'existe pas et n'a pas pu être renommé.")
+        print(f"Le fichier {temp_output_path} n'existe pas et n'a pas pu être renommé.")
+
 
 
 
@@ -326,3 +328,53 @@ def check_data_integrity(edges_path, bruit_path):
     # Vérification des doublons dans toutes les colonnes de 'edges' et 'bruit'
     print(f"Nombre de doublons dans 'edges' (toutes colonnes) : {edges.duplicated().sum()}")
     print(f"Nombre de doublons dans 'bruit' (toutes colonnes) : {bruit.duplicated().sum()}")
+
+
+def cut_edges(edges_path, empreinte_path, sortie_path):
+    """Découpe la couche 'edges' avec le territoire de 'empreinte', utilise une couche intermédiaire, et renomme le fichier final"""
+    try:
+        # Charger les fichiers géospatiaux
+        edges = gpd.read_file(edges_path)
+        empreinte = gpd.read_file(empreinte_path)
+    except Exception as e:
+        print(f"Erreur lors du chargement des fichiers géospatiaux : {e}")
+        return
+
+    # Convertir les géométries de 'edges' et 'empreinte' en Polygones ou MultiPolygones si nécessaire
+    empreinte['geometry'] = empreinte['geometry'].apply(
+        lambda x: x if isinstance(x, Polygon) else x.geoms[0] if isinstance(x, MultiPolygon) else None
+    )
+    
+    # Vérifier que les deux couches ont le même CRS
+    if edges.crs != empreinte.crs:
+        empreinte = empreinte.to_crs(edges.crs)
+
+    # Effectuer l'opération de découpe (intersection) entre 'edges' et 'empreinte'
+    try:
+        decoupe = gpd.overlay(edges, empreinte, how='intersection')
+    except Exception as e:
+        print(f"Erreur lors de l'opération de découpe : {e}")
+        return
+
+    # Sauvegarder le fichier découpé sous un nom intermédiaire
+    temp_output_path = "temp_output.gpkg"
+    try:
+        decoupe.to_file(temp_output_path, driver="GPKG")
+        print(f"Fichier découpé sauvegardé sous : {temp_output_path}")
+    except Exception as e:
+        print(f"Erreur lors de la sauvegarde du fichier découpé : {e}")
+        return
+
+    # Supprimer le fichier d'entrée original
+    if os.path.exists(edges_path):
+        os.remove(edges_path)
+        print(f"Le fichier d'entrée {edges_path} a été supprimé avec succès.")
+    else:
+        print(f"Le fichier {edges_path} n'existe pas et n'a pas pu être supprimé.")
+
+    # Renommer le fichier découpé pour qu'il prenne le même nom que le fichier d'entrée
+    if os.path.exists(temp_output_path):
+        os.rename(temp_output_path, edges_path)
+        print(f"Le fichier découpé a été renommé en {edges_path}.")
+    else:
+        print(f"Le fichier {temp_output_path} n'existe pas et n'a pas pu être renommé.")

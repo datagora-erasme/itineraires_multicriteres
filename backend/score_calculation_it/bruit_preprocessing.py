@@ -9,6 +9,8 @@ from sklearn.preprocessing import MinMaxScaler
 import sys
 sys.path.append("../")
 from global_variable import *
+from osgeo import gdal, ogr
+import os
 
 
 ###### BRUIT PREPROCESSING ######
@@ -19,15 +21,15 @@ from global_variable import *
 # Demander si on souhaite mettre à jour la taille du fichier bruit
 choice = input("""Souhaitez-vous mettre à jour taille du fichier bruit ? (OUI) ou (NON) \n""")
 if choice == "OUI":
-    cut_empreinte(bruit_path, empreinte_path, sortie_path)
+    cut_bruit(bruit_path, empreinte_path, sortie_path)
 
 
-# Demander si on souhaite mettre à jour le bruit moyen par segment
+# Demander si on souhaite mettre à jour le bruit max par segment
 choice = input("""Souhaitez-vous mettre à jour le bruit max par segment ? (OUI) ou (NON) \n
 # ATTENTION, le temps de calcul estimé est de ~2h
 #""")
 
-# Si l'utilisateur souhaite mettre à jour le bruit moyen par segment
+# Si l'utilisateur souhaite mettre à jour le bruit max par segment
 if choice == "OUI":
     print("Calculate noise weighted average ")
     #try:
