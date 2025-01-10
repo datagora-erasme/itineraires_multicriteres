@@ -257,14 +257,6 @@ Cette donnée est indispensable pour la suite (à télécharger en premier lieu 
 python fetch_network.py
 ```
 
-### Edges 
-
-Mise à jour avec l'empreinte territoriale de la méttrople de Lyon sur le fichier edges peut être exécuté via le fichier **edges_preprocessing.py**.
-
-```bash
-python edges_preprocessing.py
-```
-
 ### Chemin des fichiers 
 
 Executer le script **global_variable.py** en se mettant au niveau du backend itinéraires_multicritères/backend.
