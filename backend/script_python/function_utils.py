@@ -307,6 +307,33 @@ def calculate_area_proportion(edges_path, data_path, name, output_path, layer="s
 
     print("File saved successfully!")
 
+
+def calculate_weighted_average(edges_path, data_path, output_path, layer, name, fn):
+    """Calculate mean average of a variable for each edges"""
+    edges = gpd.read_file(edges_path, layer=layer)
+    data = gpd.read_file(data_path)
+
+    edges.geometry = [loads(dumps(geom, rounding_precision=3)) for geom in edges.geometry]
+    data.geometry =  [loads(dumps(geom, rounding_precision=3)) for geom in data.geometry]
+
+    overlay_edges = gpd.overlay(edges, data, how="identity", keep_geom_type=True)
+
+    overlay_serie = gpd.GeoSeries(overlay_edges["geometry"])
+
+    overlay_edges["area"] = overlay_serie.area
+
+    overlay_edges[["u", "v", "key"]] = overlay_edges[["u", "v", "key"]].astype(int)
+
+    overlay_edges = overlay_edges.set_index(["u", "v", "key"])
+
+    grouped = overlay_edges.groupby(["u", "v", "key"], group_keys=True).apply(fn)
+
+    edges = edges.set_index(["u", "v", "key"])
+
+    edges[f"{name}_wavg"] = grouped[f"{name}_wavg"]
+
+    edges.to_file(output_path, driver="GPKG", layer=layer)
+
 def calculate_many_prop(data_folder_path, edges_path, layer):
     """
     Computes area proportions for multiple GeoPackage files in a folder 

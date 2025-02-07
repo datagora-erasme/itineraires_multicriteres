@@ -4,6 +4,7 @@ sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
+from backend.script_python.function_utils import create_folder
 import geopandas as gpd
 import pandas as pd
 from shapely.wkt import dumps, loads
