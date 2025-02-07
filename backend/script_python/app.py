@@ -1,4 +1,6 @@
 import os
+import sys 
+sys.path.append("../")
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from datetime import datetime
@@ -19,6 +21,7 @@ G = None
 G_multidigraph = None
 
 current_month = datetime.now().month
+
 print("current_month", current_month)
 
 graph_paths = {
@@ -49,6 +52,34 @@ G = None
 G_multidigraph = None
 
 def load_graphs(criteria):
+    """
+    Loads a graph based on a given criteria by either loading from existing pickle files or 
+    creating new pickle files if they do not exist.
+
+    This function first checks if the pickle files for the specified criteria are already 
+    available. If they exist, the function loads the graph from these files. If not, it attempts 
+    to create the pickle files from the original graph data stored in a GeoPackage file. 
+    The function will then load the graph from the created pickle files.
+
+    Parameters:
+    -----------
+    criteria : str
+        The criteria used to identify the specific graph to be loaded (e.g., network type, area, etc.).
+
+    Returns:
+    --------
+    None
+        The function loads the graph data into the global variables `G` and `G_multidigraph`, 
+        representing the graph and its multidigraph version, respectively. If the network cannot 
+        be loaded, it prints an error message.
+    
+    Notes:
+    -----
+    - The function relies on external helper functions: `create_pickles_from_graph_criteria`, 
+      `load_graph_from_pickle`.
+    - Pickle files are expected to be stored at paths defined in the `graph_paths` dictionary 
+      for the given `criteria`.
+    """    
     global G, G_multidigraph
     paths = graph_paths[criteria]
     gpkg_path = paths["gpkg"]
@@ -84,7 +115,28 @@ def load_graphs(criteria):
 
 @app.route('/data/', methods=['GET'])
 def get_layers():
-    """Route for layers used in the "Consulter la carte fraîcheur" functionality"""
+    """
+    Route for retrieving layer data used in the "Consulter la carte fraîcheur" functionality.
+
+    This function handles requests for specific layer data based on the provided layer ID. 
+    It can return either a single layer or all layers if the 'id' parameter is set to "all". 
+    If no 'id' is provided, it returns all available layers.
+
+    Parameters:
+    -----------
+    None
+
+    Returns:
+    --------
+    - If successful, returns a JSON response with the layer data.
+    - If no data is found, returns an empty response with a 404 status.
+    - In case of an error, returns an empty response with a 500 status.
+
+    Notes:
+    -----
+    - This function interacts with external functions: `findMany`, `findOne`.
+    - The `request.args.get('id')` is used to get the 'id' parameter from the request.
+    """    """Route for layers used in the "Consulter la carte fraîcheur" functionality"""
     layer_id = request.args.get('id')
     print("request", request)
     if layer_id:
@@ -121,7 +173,37 @@ def get_layers():
 
 @app.route('/itinerary/', methods=['GET'])
 def get_itinerary():
-    """Route for itinerary calculation"""
+    """
+    Route for itinerary calculation based on various criteria (e.g., "frais", "pollen", "bruit", "tourisme").
+    
+    This function computes itineraries between a start and end point for multiple criteria provided in the request. 
+    It loads the graph based on the specified criteria and calculates two types of itineraries:
+    1. The shortest path ("LENGTH").
+    2. The best path based on the specific criteria (e.g., least pollen, least noise, most scenic, etc. - "IF").
+
+    Parameters:
+    -----------
+    - criteria[] (list of str): A list of criteria that determine how the itinerary should be calculated.
+    - start[lat] (float): Latitude of the starting point.
+    - start[lon] (float): Longitude of the starting point.
+    - end[lat] (float): Latitude of the destination point.
+    - end[lon] (float): Longitude of the destination point.
+
+    Returns:
+    --------
+    - A JSON response with a list of itinerary results for each criteria. Each result contains:
+        - id: The ID for the type of itinerary (LENGTH or IF).
+        - idcriteria: The ID for the criteria used (e.g., frais, pollen).
+        - name: A descriptive name for the itinerary.
+        - geojson: The GeoJSON path for the calculated itinerary.
+        - color: A color code for displaying the itinerary on a map.
+
+    Notes:
+    -----
+    - The `load_graphs` function loads the network graph based on the specified criteria.
+    - The `shortest_path` function calculates the itineraries based on the loaded graph.
+    - If no valid criteria are found or if an error occurs, the request will return a 500 status.
+    """
     criteria_list = request.args.getlist("criteria[]")
 
     start_lat = request.args.get("start[lat]")
@@ -171,6 +253,7 @@ def get_itinerary():
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
                 })
+
             elif criteria == "bruit":
                 geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_bruit')
                 results.append({

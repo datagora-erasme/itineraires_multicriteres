@@ -1,14 +1,16 @@
 #%%
+import sys
 import os
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import time
 from t4gpd.sun.STHardShadow import STHardShadow
 from datetime import datetime, timedelta
 from t4gpd.commons.DatetimeLib import DatetimeLib
-from data_utils import *
-import sys
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
 
 #%%
@@ -17,6 +19,20 @@ create_folder("./output_data/ombres/")
 
 ##### FUNCTION #####
 def overlay_intersect(edges_path, data_path, output_path):
+    """
+    This function performs a spatial intersection between two geospatial datasets: one representing edges and the other representing some data.
+    It reads both datasets, computes the intersection of their geometries, and creates a new GeoDataFrame that stores the intersection results.
+    The result includes a "class" column populated with the "datetime" from the intersection dataset, and the geometry from the intersection itself.
+    Finally, the resulting GeoDataFrame is saved to a file.
+
+    Parameters:
+    edges_path (str): The file path to the edges dataset (GeoPackage or other supported format).
+    data_path (str): The file path to the data dataset (GeoPackage or other supported format).
+    output_path (str): The file path where the result of the intersection should be saved.
+
+    Returns:
+    None: The function saves the intersection result to the output_path.
+    """
     data = gpd.read_file(data_path)
     edges = gpd.read_file(edges_path)
 
@@ -31,13 +47,13 @@ def overlay_intersect(edges_path, data_path, output_path):
 #%%
 
 choice = input("""
- Souhaitez vous remettre à jour la donnée d'ombre ? OUI ou NON. 
- Pour cela, assurez-vous que la donnée de bâtiment soit au bon endroit (cf README.md). 
- Le script est construit pour s'exécuter pour la date du 21 juin 2023 pour les horaires 8h, 13h et 18h. 
- ATTENTION, le temps de calcul estimé est de ~7h
- """)
+    Would you like to update the shadow data? YES or NO.
+    To do so, make sure that the building data is in the correct location (see README.md).
+    The script is designed to run for the date of June 21, 2023, at 8:00 AM, 1:00 PM, and 6:00 PM.
+    WARNING: The estimated computation time is ~7 hours.
+""")
 
-if (choice=="OUI"):
+if (choice == "YES"):
     ## CALCULATE BUILDINGS SHADOWS OF LYON METROPOLE ###
     bat = gpd.read_file(data_params["batiments"]["gpkg_path"])
     bat = bat.to_crs(3946)

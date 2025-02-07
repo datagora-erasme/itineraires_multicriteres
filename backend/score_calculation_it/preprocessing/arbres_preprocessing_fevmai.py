@@ -1,15 +1,16 @@
+import sys
 import os
-os.environ['USE_PYGEOS'] = '0'
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 import geopandas as gpd
 import pandas as pd
 import numpy as np
 from scipy.stats import norm
-from data_utils import *
+from function_utils import *
 from shapely.geometry import Point
 import requests
 import json
-import sys
-sys.path.append("../")
 from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR ARBRES ######
@@ -19,21 +20,35 @@ create_folder("./output_data/arbres/")
 ###### ARBRES PREPROCESSING ######
 
 def map_raep(famille):
+    """
+    Maps a tree family to an allergenic index (RAEP).
+
+    The RAEP index is retrieved from the `allergene_dict` dictionary, which 
+    associates each tree family with a specific value representing its allergenic 
+    potential. If the tree family is not found in `allergene_dict`, the function 
+    returns 0 by default.
+
+    Args:
+        famille (str): The name of the tree family in French.
+
+    Returns:
+        int: The corresponding RAEP allergenic index.
+    """
     return allergene_dict.get(famille, 0)
 
-choice = input("Souhaitez-vous mettre à jour le réseau pondéré par les arbres ? OUI ou NON\n")
+choice = input("Would you like to update the tree-weighted network? YES or NO\n")
 
-if choice.upper() == "OUI":
+if choice.upper() == "YES":
     #arbres d'alignements
     arbres = gpd.read_file(data_params["arbres"]["gpkg_path"])
     arbres = arbres.to_crs(3946)
 
 
-    #arbres des parcs de lyon, dataset additonnel non public fourni par les communes
+    # Trees in Lyon's parks, additional non-public dataset provided by municipalities
     arbres_parcs = gpd.read_file('./input_data/arbres/arbre_vdl_opendata_juin_2024.shp')
     arbres_parcs = arbres_parcs.to_crs(epsg=3946)
 
-    #concatenation des deux datasets
+    # Concatenation of the two datasets
     arbres_parcs = arbres_parcs.rename(columns={'Type_en_fr': 'essencefrancais'})
     arbres_parcs = arbres_parcs.rename(columns={'Type_en_la': 'essencelatin'})
     arbres_parcs = arbres_parcs.rename(columns={'Genre': 'genre'})
@@ -43,7 +58,7 @@ if choice.upper() == "OUI":
     arbres = pd.concat([arbres, arbres_parcs], ignore_index=True)
 
 
-    #arbres de rilleux, dataset additionnel non public fourni par les communes
+    # Trees from Rilleux, additional non-public dataset provided by the municipalities
     url = "https://download.data.grandlyon.com/files/rdata/sortons_au_frais/arbres_urbains.json"
     response = requests.get(url)
     content = response.content.decode('utf-8-sig')
@@ -133,7 +148,7 @@ if choice.upper() == "OUI":
 
     arbres.to_file(arbres_classes_pollen_path, driver="GPKG", layer="arbres")
 
-    #calcule la moyenne pour chaque edge buffé en se basant sur l'indice allergisant (raep) des arbres
+    # Calculates the average allergenic index (RAEP) for each buffered edge based on nearby trees
     edges_buffer = gpd.read_file(edges_buffer_path)
     edges_buffer = edges_buffer.to_crs(3946)
 
@@ -144,7 +159,7 @@ if choice.upper() == "OUI":
     arbres['buffer'] = arbres.geometry.buffer(20)  #20 mètres
     arbres_buffer = arbres.set_geometry('buffer')
 
-    #intersection entre les buffers des arbres et les edges_buffer
+    # Intersection between tree buffers and edges_buffer
     intersections = gpd.sjoin(edges_buffer, arbres_buffer, how="inner", predicate='intersects')
     print(intersections.head())
 

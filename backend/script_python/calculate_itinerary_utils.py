@@ -301,6 +301,41 @@ def merge_networks(default_network, output_path):
 #     return abs(x1-x2) + abs(y1-y2)
 
 def shortest_path(graph_file_path, shortest_path_file_path, origin_point, destination_point, weight):
+    """
+    Calculates the shortest path between two points in a graph using Dijkstra's algorithm 
+    and saves the result as a GeoJSON file.
+
+    This function loads graph data from a GeoPackage file, computes the shortest path 
+    between two given points (origin and destination), and saves the route's edges as a 
+    GeoJSON file.
+
+    Parameters:
+    -----------
+    graph_file_path : str
+        The path to the GeoPackage file containing the graph data (edges and nodes).
+    
+    shortest_path_file_path : str
+        The path where the resulting shortest path (as GeoJSON) will be saved.
+    
+    origin_point : tuple
+        The (latitude, longitude) coordinates of the origin point.
+    
+    destination_point : tuple
+        The (latitude, longitude) coordinates of the destination point.
+    
+    weight : str
+        The edge attribute to use as the weight for the shortest path calculation (e.g., "length").
+
+    Returns:
+    --------
+    None
+        The function saves the shortest path as a GeoJSON file at the specified output path.
+    
+    Raises:
+    ------
+    NetworkXNoPath
+        If no path is found between the origin and destination nodes, an error message is printed.
+    """
     # Load the graph data from the GeoPackage file
     #print(f"Loading Network from {graph_file_path}")
     gdf_edges = gpd.read_file(graph_file_path, layer='edges')
@@ -341,7 +376,6 @@ def shortest_path(graph_file_path, shortest_path_file_path, origin_point, destin
     except nx.NetworkXNoPath:
         traceback.print_exc()
         print("No path found")
-
 #create_folder("./data/osm/shortest_path/")
 
 #origin_point = (45.73424, 4.8593181)

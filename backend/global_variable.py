@@ -4,6 +4,15 @@ import os
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 def globpath(path):
+    """
+    Join the given relative path with the base directory path of the script.
+    
+    Parameters:
+    path (str): The relative path to be joined.
+    
+    Returns:
+    str: The absolute path formed by joining the base path and the given path.
+    """
     return os.path.join(base_path, path)
 
 ### BOUDING LYON METROPOLE PATH ###

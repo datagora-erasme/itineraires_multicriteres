@@ -1,12 +1,13 @@
+import sys
 import os
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 import geopandas as gpd
 import pandas as pd
 import numpy as np
 from scipy.stats import norm
-from data_utils import *
-import sys
-
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR ARBRES ######
@@ -14,9 +15,9 @@ create_folder("./output_data/tourisme/")
 
 ###### TOURISME PREPROCESSING ######
 
-choice = input("Souhaitez-vous mettre à jour le réseau pondéré par les POI touristiques ? OUI ou NON\n")
+choice = input("Do you want to update the network weighted by tourist POIs? YES or NO\n")
 
-if choice.upper() == "OUI":
+if choice.upper() == "YES":
     poi_df = gpd.read_file("./input_data/tourisme/corrige_tourisme_3946.gpkg")
     poi_df = poi_df.to_crs(3946)
 
@@ -24,7 +25,7 @@ if choice.upper() == "OUI":
 
     print(poi_df.head())
 
-    #calcule le nombre de POI touristiques par edge buffé
+    # Calculate the number of tourist POIs per buffered edge
     edges_buffer = gpd.read_file(edges_buffer_path)
     edges_buffer = edges_buffer.to_crs(3946)
 
@@ -32,15 +33,15 @@ if choice.upper() == "OUI":
 
     edges_buffer["tourisme_weight"] = 0
 
-    #buffers autour des POI touristiques
+    # Buffers around tourist POIs
     poi_df['buffer'] = poi_df.geometry.buffer(20)  # 20 mètres
     poi_buffer = poi_df.set_geometry('buffer')
 
-    #intersection entre les buffers des POI et les edges_buffer
+    # Intersection between the POI buffers and the edges_buffer
     intersections = gpd.sjoin(edges_buffer, poi_buffer, how="inner", predicate='intersects')
     print(intersections.head())
 
-    #compte le nombre de POI touristiques par edge buffé
+    # Count the number of tourist POIs per buffered edge
     tourisme_weight = intersections.groupby(["u", "v", "key"]).size().reset_index(name='count')
     print(tourisme_weight.head())
 
@@ -58,7 +59,7 @@ if choice.upper() == "OUI":
     #edge_buffer_wo_zeros = edges_buffer[edges_buffer['count'] != 0]
     #print(edge_buffer_wo_zeros['count'].describe())
 
-    #converti les colonnes qui ne sont pas des géométries en chaînes de caractères
+    # Convert columns that are not geometries into strings
     for col in edges_buffer.columns:
         if col != 'geometry':
             edges_buffer[col] = edges_buffer[col].astype(str)

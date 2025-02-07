@@ -1,12 +1,14 @@
 #%%
 import os
+import sys
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import pandas as pd
 import osmnx as ox
-from data_utils import *
-import sys
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
 from sklearn.preprocessing import MinMaxScaler
 from app import load_graphs
@@ -15,16 +17,17 @@ import pickle
 
 
 def total_score(input_path, output_path, score_columns):
-    """Calcul du score total de bruit en fonction des colonnes spécifiées"""
+    """Calculation of the total noise score based on the specified columns"""
     edges_data = gpd.read_file(input_path)
     
-    print(f"Colonnes dans {input_path} : {edges_data.columns}")
+    print(f"Columns in {input_path} : {edges_data.columns}")
     edges_data["total_score_bruit"] = edges_data[score_columns].sum(axis=1) 
-    print(f"Calcul du total_score_bruit terminé.")
+    print(f"Calculation of total_score_bruit completed.")
 
-    # Sauvegarder le fichier de scores
+    # Save the score file
     edges_data.to_file(output_path, driver="GPKG")
-    print(f"Le fichier de scores a été sauvegardé sous {output_path}.")
+    print(f"The score file has been saved at {output_path}.")
+
 
 def score_distance(input_path, output_path):
     """Calculate the score by distance for each edge, favoring shorter segments"""
@@ -32,32 +35,35 @@ def score_distance(input_path, output_path):
 
     edges_data["score_distance_bruit"] = edges_data["DN"] * edges_data["length"]
     
-    print(f"Calcul du score_distance_bruit terminé.")
+    print(f"Calculation of score_distance_bruit completed.")
 
-    # Sauvegarder le fichier des scores pondérés par la distance
+    # Save the file with distance-weighted scores
     edges_data.to_file(output_path, driver="GPKG")
-    print(f"Le fichier de score_distance_bruit a été sauvegardé sous {output_path}.")
+    print(f"The score_distance_bruit file has been saved at {output_path}.")
+
 
 def score_bruit(input_path, output_path):
-    """Calculer un score de bruit de 0 à 10"""
+    """Calculate a noise score from 0 to 10, based on the score_distance_bruit"""
     edges_data = gpd.read_file(input_path)
     
-    min_score = edges_data["total_score_bruit"].min()  
-    max_score = edges_data["total_score_bruit"].max()  
-    slope = (0 - 10) / (max_score - min_score)  
-    origin_ordinate = -slope * max_score  
+    # Get the minimum and maximum values of score_distance_bruit for normalization
+    min_score = edges_data["score_distance_bruit"].min()  
+    max_score = edges_data["score_distance_bruit"].max()  
+    slope = (0 - 10) / (max_score - min_score)  # Calculate the slope for scaling
+    origin_ordinate = -slope * max_score  # Y-intercept for normalization
     
-    # Appliquer le calcul du score de bruit
-    edges_data["bruit_score"] = edges_data["total_score_bruit"].apply(lambda x: round(slope * x + origin_ordinate, 2))
+    # Apply normalization to score_distance_bruit to get a bruit_score between 0 and 10
+    edges_data["bruit_score"] = edges_data["score_distance_bruit"].apply(lambda x: round(slope * x + origin_ordinate, 2))
+    
+    print(f"Calculation of bruit_score completed.")
 
-    print(f"Calcul du bruit_score terminé.")
-
-    # Sauvegarder le fichier du score de bruit
+    # Save the noise score file
     edges_data.to_file(output_path, driver="GPKG")
-    print(f"Le fichier de bruit_score a été sauvegardé sous {output_path}.")
+    print(f"The bruit_score file has been saved at {output_path}.")
+
 
 def create_graph_bruit(graph_path, edges_buffered_path, graph_output_path):
-    """Créer un graphe avec les scores de bruit appliqués"""
+    """Create a graph with applied noise scores"""
     graph_e = gpd.read_file(graph_path, layer="edges")
     graph_n = gpd.read_file(graph_path, layer="nodes")
     edges_buffered_data = gpd.read_file(edges_buffered_path)
@@ -66,23 +72,23 @@ def create_graph_bruit(graph_path, edges_buffered_path, graph_output_path):
     edges_buffered_data = edges_buffered_data.set_index(["u", "v", "key"])
     graph_n = graph_n.set_index(["osmid"])
 
-    # Appliquer les scores au graphe
+    # Apply the scores to the graph
     graph_e["total_score_bruit"] = edges_buffered_data["total_score_bruit"]
     graph_e["score_distance_bruit"] = edges_buffered_data["score_distance_bruit"]
     graph_e["bruit_score"] = edges_buffered_data["bruit_score"]
 
-    # Générer le graphe 
+    # Generate the graph 
     G = ox.graph_from_gdfs(graph_n, graph_e)
 
-    # Sauvegarder le graphe final
+    # Save the final graph
     ox.save_graph_geopackage(G, graph_output_path)
-    print(f"Le graphe de bruit a été sauvegardé sous {graph_output_path}")
+    print(f"The noise graph has been saved at {graph_output_path}")
 
-# Exécution des fonctions
-total_score(edges_buffer_bruit_wavg_path, edges_buffer_total_score_path, ["DN_scaled"])
+# Execution of functions
+total_score(edges_buffer_bruit_wavg_path, edges_buffer_total_score_path, ["DN"])
 score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
 score_bruit(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_bruit_path)
 create_graph_bruit(metrop_network_bouding_path, edges_buffer_total_score_distance_bruit_path, "./output_data/network/graph/final_network_bruit.gpkg")
 
-# Télécharger les pickles pour le bruit 
+# Download the pickles for noise
 load_graphs("bruit")

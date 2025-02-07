@@ -133,6 +133,19 @@ def create_data_informations_file():
 
 
 def create_folder(folder_path):
+    """
+    Creates a folder at the specified path if it does not already exist.
+    
+    Parameters:
+    -----------
+    folder_path : str
+        The path where the folder should be created.
+    
+    Returns:
+    --------
+    None
+        The function creates the folder and prints a message if the folder is created.
+    """
     exist = os.path.exists(folder_path)
     if not exist:
         os.makedirs(folder_path)
@@ -243,7 +256,9 @@ def download_data_wms(service_name, version, path):
             print(f"fetching {d_name} ..")
             print(d_info['wms_key'])
             try:
-                img = wms.getmap(layers=[f"{d_info['wms_key']}"], bbox=box, size=(d_info["width"], d_info["height"]), srs=d_info["srs"], format=f"image/{d_info['format']}" , transparent=d_info["transparent"])
+                img = wms.getmap(layers=[f"{d_info['wms_key']}"], bbox=box, 
+                                 size=(d_info["width"], d_info["height"]), srs=d_info["srs"], format=f"image/{d_info['format']}" ,
+                                   transparent=d_info["transparent"])
                 print(f"SUCCESS")
             except NameError:
                 print(f"Error while fetching {d_name} from {service_name}... : {NameError}")
@@ -441,8 +456,26 @@ def add_attributes(input_path, output_path, attributes_to_add):
     file.to_file(output_path)
 
 def remove_and_add_attributes(output_path_folder):
-    """ """
+    """
+    Removes specified attributes and adds new attributes to the GeoPackage files.
+    
+    For each dataset in the 'data_wfs' section of the configuration, this function:
+    1. Removes the listed attributes from the input GeoPackage.
+    2. Adds the new attributes to the GeoPackage.
+    3. Saves the modified GeoPackage to the output folder.
+    4. Updates the path to the cleaned dataset in the configuration file.
 
+    Parameters:
+    -----------
+    output_path_folder : str
+        The folder where the cleaned GeoPackages will be saved.
+
+    Returns:
+    --------
+    None
+        The function modifies the GeoPackage files and updates the configuration.
+    """
+    
     with open(data_informations_path, "r") as f:
         data_informations = json.load(f)
 
@@ -461,6 +494,24 @@ def remove_and_add_attributes(output_path_folder):
 
 
 def print_layers_name(folder_path):
+    """
+    Prints the names of the layers in all GeoPackage files (.gpkg) within a given folder.
+    
+    For each GeoPackage file in the specified folder, the function:
+    1. Opens the file.
+    2. Retrieves the names of the layers.
+    3. Prints the file path and layer names.
+
+    Parameters:
+    -----------
+    folder_path : str
+        The path to the folder containing the GeoPackage files.
+    
+    Returns:
+    --------
+    None
+        The function prints the paths and layer names to the console.
+    """
     for filename in os.listdir(folder_path):
         if filename.endswith(".gpkg"):
             file_path = os.path.join(folder_path, filename)
@@ -471,26 +522,83 @@ def print_layers_name(folder_path):
 
 
 def extract_attributes(gdf, index):
+    """
+    Extracts attributes (non-geometry columns) from a GeoDataFrame for a given index.
+    
+    This function iterates through all columns in the GeoDataFrame and collects the
+    values of all columns except for the "geometry" column, returning them as a dictionary.
+
+    Parameters:
+    -----------
+    gdf : geopandas.GeoDataFrame
+        The GeoDataFrame from which attributes are to be extracted.
+    
+    index : int
+        The index of the row in the GeoDataFrame for which attributes are extracted.
+    
+    Returns:
+    --------
+    dict
+        A dictionary containing the attributes (column names as keys and their values as values) 
+        for the specified index.
+    """
     attributes = {}
     for column in gdf.columns:
         if column != "geometry":
             attributes[column] = gdf.loc[index, column]
     return attributes
 
-
 def filter_dictionnary(dictionnary, filter):
-    """the filter is a string contains or not into the dictionnary keys"""
-    return {k:v for k,v in dictionnary.items() if filter in k}
+    """
+    Filters the given dictionary by checking if the filter string is present in the keys.
+
+    This function creates a new dictionary that includes only the key-value pairs where the
+    key contains the specified filter string.
+
+    Parameters:
+    -----------
+    dictionnary : dict
+        The dictionary to be filtered.
+    
+    filter : str
+        The string to check for presence in the dictionary keys.
+
+    Returns:
+    --------
+    dict
+        A filtered dictionary containing only the items where the key contains the filter string.
+    """
+    return {k: v for k, v in dictionnary.items() if filter in k}
 
 def convert_gpkg_into_geojson(input_path, output_path):
+    """
+    Converts a GeoPackage file (.gpkg) into a GeoJSON file (.geojson).
+
+    This function reads a GeoPackage file, reprojects its contents to the EPSG:4326 coordinate 
+    reference system (commonly used by Leaflet), and saves it as a GeoJSON file.
+
+    Parameters:
+    -----------
+    input_path : str
+        The path to the input GeoPackage file.
+    
+    output_path : str
+        The path to save the output GeoJSON file.
+    
+    Returns:
+    --------
+    None
+        The function saves the converted GeoJSON file to the specified output path.
+    """
     gdf = gpd.read_file(input_path)
 
-    # 4326 is crs of OSM => used to project data on leaflet
+    # 4326 is the CRS of OSM, used to project data for Leaflet
     gdf = gdf.to_crs(epsg=4326)
 
     print("Converting GPKG into GeoJSON")
     gdf.to_file(output_path, driver='GeoJSON')
     print("Done")
+
 
 # create_folder("./data/geojson")
 #convert_gpkg_into_geojson("./data/osm/shortest_path/big_shortest_path_IF_3946.gpkg", "./data/geojson/sp_IF_3946.json")

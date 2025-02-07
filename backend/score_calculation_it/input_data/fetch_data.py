@@ -14,12 +14,41 @@ geojsonOutputFormat = "application/json"
 
 ### FUNCTION ###
 def create_folder(folder_path):
+    """
+    Creates a folder at the specified path if it doesn't already exist.
+
+    Parameters:
+    folder_path (str): The path where the folder will be created.
+
+    Returns:
+    None
+
+    Side effects:
+    - Creates a folder at the specified `folder_path` if it doesn't exist.
+    - Prints a message indicating whether the folder was created or already exists.
+    """
     exist = os.path.exists(folder_path)
     if not exist:
         os.makedirs(folder_path)
         print(f"{folder_path} created")
 
 def connection_wfs(url, service_name, version):
+    """
+    Connects to a WFS (Web Feature Service) using the provided URL, service name, and version.
+
+    Parameters:
+    url (str): The URL of the WFS service.
+    service_name (str): The name of the service to connect to.
+    version (str): The version of the WFS service.
+
+    Returns:
+    WebFeatureService or None: Returns a WFS object if the connection is successful, otherwise None.
+
+    Side effects:
+    - Prints connection status messages.
+    - If the connection fails, prints the error message.
+    """
+
     """ Return a wfs object after connecting to a service thanks the url provided """
     print(f"Connecting {service_name} WFS ... ")
     wfs=None
@@ -32,6 +61,23 @@ def connection_wfs(url, service_name, version):
     return wfs
 
 def download_data(params, data_name, wfs, outputFormat):
+    """
+    Downloads geographic data from a WFS (Web Feature Service), saves it in GeoJSON and GPKG formats, and converts CRS.
+
+    Parameters:
+    params (dict): A dictionary containing configuration data for each dataset, including WFS key, GeoPackage path, and GeoJSON path.
+    data_name (str): The name of the dataset to download.
+    wfs (WebFeatureService): The connected WFS service object to fetch the data from.
+    outputFormat (str): The desired output format for the WFS request (e.g., 'application/geojson').
+
+    Side effects:
+    - Creates a folder for the dataset if it doesn't exist.
+    - Downloads the data from the WFS, saves it in the specified output formats (GeoJSON and GPKG).
+    - Transforms the coordinate reference system (CRS) of the data to EPSG:3946 (for Lyon Metropole) and EPSG:4326 (for leaflet).
+
+    Raises:
+    - NameError: If the WFS request fails.
+    """
     create_folder(f"./{data_name}/")
     print(f"Downloading {data_name}")
     data_key = params[data_name]["wfs_key"]
@@ -64,6 +110,23 @@ def download_data(params, data_name, wfs, outputFormat):
     
 
 def download_all_data(parametre, wfs, outputFormat):
+    """
+    Downloads all datasets specified in the 'parametre' dictionary from a WFS (Web Feature Service),
+    using the provided configuration for each dataset, and saves them in GeoJSON and GPKG formats.
+
+    Parameters:
+    parametre (dict): A dictionary containing configuration data for each dataset, including WFS key, GeoPackage path, and GeoJSON path.
+    wfs (WebFeatureService): The connected WFS service object to fetch the data from.
+    outputFormat (str): The desired output format for the WFS request (e.g., 'application/geojson').
+
+    Side effects:
+    - For each dataset in the 'parametre' dictionary, the corresponding data is downloaded, 
+      saved in the specified output formats (GeoJSON and GPKG), and CRS is transformed.
+    - Creates folders for each dataset if they do not exist.
+
+    Calls:
+    - `download_data`: Downloads and processes each dataset according to the specified parameters.
+    """
     print("FETCHING ALL DATA")
     for data_name in parametre.keys():
         download_data(parametre, data_name, wfs, outputFormat)
@@ -84,10 +147,11 @@ data_grandlyon_wfs = connection_wfs(data_grandlyon_wfs_url, "datagrandlyon", "2.
 
 ## DATA DOWNLOAD ##
 
-fetching_choice = input("\n Voulez-vous télécharger toutes (ALL) les données, une seule (ONE) ou seulement les données à afficher sur l'application web (WEB_ONLY) ? \n Veuillez entrer ALL, ONE ou WEB_ONLY selon votre choix : ")
+fetching_choice = input("\n Do you want to download all (ALL) the data, just one (ONE), or only the data to be displayed on the web application (WEB_ONLY)? \n Please enter ALL, ONE, or WEB_ONLY based on your choice: ")
 print("Data Download")
 
 if(fetching_choice == "ALL"):
+
 ### Download all data ###
     download_all_data(data_params, data_grandlyon_wfs, geojsonOutputFormat)
     #download_all_data(data_params_tourisme, data_grandlyon_tourisme_wfs, geojsonOutputFormat)
@@ -95,17 +159,17 @@ if(fetching_choice == "ALL"):
 elif(fetching_choice == "ONE"):
 ###  download a specific data ###
     available_data = [data_name for data_name in data_params.keys()]
-    data_choice = input(f"Veuilez choisir un identifiant de données parmi la liste suivante : {available_data} : \n")
+    data_choice = input(f"Please choose a data identifier from the following list: {available_data} : \n")
 
     if(data_choice in available_data):
         download_data(data_params, data_choice, data_grandlyon_wfs, geojsonOutputFormat)
     else:
-        print("Veuillez entrer un identifiant présent dans la liste")
+        print("Please enter an identifier from the list")
 elif(fetching_choice == "WEB_ONLY"):
     data_web = {data_name : data_param for data_name, data_param in data_params.items() if data_param["onMap"] == True}
     download_all_data(data_web, data_grandlyon_wfs, geojsonOutputFormat)
 else:
-    print("VEUILLEZ entrer un choix valide (ALL, ONE ou WEB_ONLY)")
+    print("PLEASE enter a valid choice (ALL, ONE or WEB_ONLY)")
 
 
 """

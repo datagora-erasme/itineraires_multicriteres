@@ -1,5 +1,9 @@
 #%%
 import os
+import sys
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import random
@@ -9,19 +13,32 @@ import numpy as np
 import osmnx as ox
 import networkx as nx
 import pickle
-from data_utils import *
+from function_utils import *
 from shapely.geometry import Polygon
 
 from scipy.stats import ttest_rel
 
 from score_calculation import *
-import sys
-sys.path.append("../")
+
 from global_variable import *
 
 #%%
 ## FUNCTION : 
 def load_network(network_path, pickle_path, network_multidigraph_pickle_path):
+    """
+    Load a network from a given geographical dataset, process the data, and save the network as pickled objects.
+    
+    Parameters:
+    - network_path (str): The path to the network data file (GeoPackage format).
+    - pickle_path (str): The path where the simple graph (nx.Graph) will be saved as a pickle file.
+    - network_multidigraph_pickle_path (str): The path where the multi-directed graph (nx.MultiDiGraph) will be saved as a pickle file.
+    
+    Returns:
+    - bool: True if the network is successfully processed and saved, otherwise False.
+    
+    This function reads the 'edges' and 'nodes' layers from the specified network file, processes the network data,
+    creates a graph using the `osmnx` library, and stores both a simple graph and a multi-directed graph in pickle files.
+    """
     gdf_edges = gpd.read_file(network_path, layer='edges')
     gdf_nodes = gpd.read_file(network_path, layer="nodes")
 
@@ -50,6 +67,17 @@ def load_network(network_path, pickle_path, network_multidigraph_pickle_path):
     return True
 
 def load_graph_from_pickle(pickle_path):
+    """
+    Load a graph from a pickle file.
+    
+    Parameters:
+    - pickle_path (str): The path to the pickle file containing the graph.
+    
+    Returns:
+    - G (networkx.Graph or networkx.MultiDiGraph): The graph object loaded from the pickle file.
+    
+    This function opens the given pickle file and loads the graph object stored in it using the pickle module.
+    """
     # Load the graph from the pickle file
     with open(pickle_path, 'rb') as f:
         G = pickle.load(f)
@@ -57,6 +85,25 @@ def load_graph_from_pickle(pickle_path):
     return G
 
 def shortest_path(G, start, end, G_multidigraph, index, global_gdf, zone_id="Non", total_score_column="total_score_13", min_dist=200, max_dist=4000):
+    """
+    Finds the shortest path between two nodes in a graph using both the 'total_score_column' and 'length' for path weighting.
+    It adds the resulting paths to the global GeoDataFrame if the length of the path is within the specified range.
+
+    Parameters:
+    - G (networkx.Graph): The main graph to calculate the shortest path.
+    - start (tuple): The starting coordinates (longitude, latitude).
+    - end (tuple): The destination coordinates (longitude, latitude).
+    - G_multidigraph (networkx.MultiDiGraph): The multigraph with multiple edges between nodes, used for routing.
+    - index (int): An identifier to tag the resulting route.
+    - global_gdf (GeoDataFrame): The global GeoDataFrame where the results will be appended.
+    - zone_id (str, optional): The zone identifier to tag the resulting route. Default is "Non".
+    - total_score_column (str, optional): The column to use for the path weight. Default is "total_score_13".
+    - min_dist (float, optional): The minimum path length (in meters) for inclusion. Default is 200.
+    - max_dist (float, optional): The maximum path length (in meters) for inclusion. Default is 4000.
+
+    Returns:
+    - global_gdf (GeoDataFrame): The updated GeoDataFrame with the added shortest paths.
+    """
     origin_node = ox.nearest_nodes(G, X=start[0], Y=start[1])
     destination_node = ox.nearest_nodes(G, X=end[0], Y=end[1])
 
@@ -107,7 +154,17 @@ def shortest_path(G, start, end, G_multidigraph, index, global_gdf, zone_id="Non
 
     return global_gdf
 
-def clipp_graph_nodes_from_zone(zone, graph_n):
+def clip_graph_nodes_from_zone(zone, graph_n):
+    """
+    Clips graph nodes from a zone.
+
+    Parameters:
+    - zone (GeoDataFrame): The zone (polygon) that will be used to clip the nodes.
+    - graph_n (GeoDataFrame): The nodes of the graph, assumed to be points with a 'geometry' column.
+
+    Returns:
+    - clipped_nodes (GeoDataFrame): The nodes that fall within the specified zone.
+    """
     zone = zone.to_crs(3946)
     graph_n = graph_n.to_crs(3946)
     clipped_nodes = graph_n.overlay(zone, how="intersection")
@@ -115,6 +172,23 @@ def clipp_graph_nodes_from_zone(zone, graph_n):
 
 
 def create_random_itineraries(nodes, graph, multidigraph, n_itineraries, global_gdf, zone_id, total_score_column, min_dist=200, max_dist=4000):
+    """
+    Create random itineraries by selecting random start and end nodes, and finding the shortest paths.
+
+    Parameters:
+    - nodes (GeoDataFrame): Nodes of the graph with latitudes and longitudes.
+    - graph (NetworkX graph): The base graph.
+    - multidigraph (MultiDiGraph): The graph with multi-edge support.
+    - n_itineraries (int): Number of itineraries to generate.
+    - global_gdf (GeoDataFrame): The global GeoDataFrame to store the resulting itineraries.
+    - zone_id (str): Identifier for the zone to which the itinerary belongs.
+    - total_score_column (str): The column used to calculate path weight (e.g., score or length).
+    - min_dist (float): Minimum path distance.
+    - max_dist (float): Maximum path distance.
+
+    Returns:
+    - global_gdf (GeoDataFrame): Updated GeoDataFrame containing all itineraries.
+    """
     ## SELECT RANDOM POINTS
     nodes = nodes.set_index(["osmid"])
 
@@ -138,6 +212,24 @@ def create_random_itineraries(nodes, graph, multidigraph, n_itineraries, global_
     return global_gdf
 
 def extract_frequency_scores(itineraries):
+    """
+    Extracts frequency and associated scores for each edge in the given itineraries,
+    separating the itineraries into "IF" and "LEN" types. The itineraries are aggregated 
+    by edge based on their identifiers and scores.
+
+    Args:
+        itineraries (GeoDataFrame): A GeoDataFrame containing itineraries with columns 
+                                    such as 'u', 'v', 'key', 'total_score_08', 'total_score_13',
+                                    'total_score_18', 'geometry', and 'type'.
+
+    Returns:
+        freq_edges_if (GeoDataFrame): A GeoDataFrame containing the frequency and scores of edges 
+                                      for "IF" type itineraries, with columns:
+                                      'uniqId', 'count', 'score_08', 'score_13', 'score_18', and 'geometry'.
+        freq_edges_len (GeoDataFrame): A GeoDataFrame containing the frequency and scores of edges 
+                                       for "LEN" type itineraries, with columns:
+                                       'uniqId', 'count', 'score_08', 'score_13', 'score_18', and 'geometry'.
+    """
     print(itineraries)
     
     itineraries_if = itineraries[itineraries["type"] == "IF"]
@@ -183,6 +275,16 @@ def create_df_mean_score(itineraries_path, output_path, score_column):
     it_score.to_csv(output_path)
 
 def convert_score_on_ten(x, max):
+    """
+    Converts a given score `x` to a scale of 0-10 based on the provided maximum score `max`.
+
+    Args:
+        x (float): The score to be converted.
+        max (float): The maximum possible score that corresponds to a 10 on the scale.
+
+    Returns:
+        float: The converted score on a scale of 0-10.
+    """
     return (10/max)*x
 
 def create_df_mean_value_by_columns(itineraries_path, edges_path, output_path, columns, total_score_column, max_score):
@@ -236,11 +338,33 @@ def distance_cost(group1, group2):
     return round(np.mean(percent_diff),2)
 
 def get_bounds(data):
+    """
+    Extracts the bounding box of the given GeoDataFrame or spatial data.
+
+    Args:
+        data (GeoDataFrame): A GeoDataFrame containing spatial data.
+
+    Returns:
+        tuple: A tuple containing the minimum x (minx), minimum y (miny),
+               maximum x (maxx), and maximum y (maxy) coordinates of the bounding box.
+    """
     bounds = data.total_bounds
     minx, miny, maxx, maxy = bounds
     return minx, miny, maxx, maxy
 
 def create_grid(input_path, cell_size, output_path):
+    """
+    Creates a grid of polygons (cells) within the bounding box of the input GeoDataFrame,
+    clips the grid to the boundaries of the input data, and saves the result as a GeoPackage.
+
+    Args:
+        input_path (str): Path to the input shapefile or GeoDataFrame.
+        cell_size (float): Size of each cell in the grid.
+        output_path (str): Path to save the output GeoPackage file.
+
+    Returns:
+        None
+    """
     print("read file")
     data = gpd.read_file(input_path)
     minx, miny, maxx, maxy = get_bounds(data)
@@ -292,6 +416,23 @@ def create_random_nodes(zones_path, input_graph_path, n_itineraries, output_node
     end_nodes.to_file(output_nodes_end_path, driver="GPKG", layer="nodes")
 
 def pipeline_generate_dataset_new(params, nodes_start_path, end_nodes_path, total_score_column, min_dist, max_dist, hour):
+    """
+    Generates a dataset for each data source specified in the params dictionary. It reads input files for start and end nodes, 
+    loads graph data, generates itineraries, calculates frequency scores, and then produces several outputs including datasets, 
+    frequency analysis, and mean values.
+
+    Args:
+        params (dict): Dictionary containing parameters for data sources and their graph paths.
+        nodes_start_path (str): Path to the shapefile containing the starting nodes.
+        end_nodes_path (str): Path to the shapefile containing the ending nodes.
+        total_score_column (str): Name of the column used to score paths.
+        min_dist (float): Minimum distance for path inclusion.
+        max_dist (float): Maximum distance for path inclusion.
+        hour (str): The hour of analysis used to generate output paths.
+
+    Returns:
+        None
+    """
     start_nodes = gpd.read_file(nodes_start_path)
     end_nodes = gpd.read_file(end_nodes_path)
     n_itineraries = len(start_nodes)

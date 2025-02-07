@@ -1,17 +1,24 @@
 #%%
 import os
+import sys
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import pandas as pd
 import osmnx as ox
-from data_utils import *
-import sys
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
+from app import load_graphs
+import pickle
+
+
+
 
 #%%
 ###### NETWORK SCORE CALCULATION #######
-create_folder("./output_data/network/graph/")
+#create_folder("./output_data/network/graph/")
 
 edges_buffer_path = globpath("./score_calculation_it/input_data/network/edges_buffered_12_bounding.gpkg")
 
@@ -37,6 +44,14 @@ def all_prop(input_path, params, output_path):
     edges.to_file(output_path, layer="edges", driver="GPKG")
     
 def total_score(input_path, output_path, score_columns):
+    """
+    Calculate the total pollen score based on the specified columns and save the result to a new file.
+    
+    Parameters:
+    - input_path: Path to the input data file.
+    - output_path: Path where the output file will be saved.
+    - score_columns: List of columns to sum for calculating the total score.
+    """
     edges = gpd.read_file(input_path, layer="edges")
     print(edges.columns)
     edges["total_score_pollen"] = edges[score_columns].sum(axis=1)
@@ -77,7 +92,7 @@ def score_distance(input_path, output_path):
     """calculate the score by distance for each edges"""
     edges = gpd.read_file(input_path)
 
-    edges["score_distance_pollen"] = round(edges["total_score_pollen"] * (edges["length"]*2), 2)
+    edges["score_distance_pollen"] = edges["total_score_pollen"] * edges["length"]
     edges["score_distance_pollen"] = edges["score_distance_pollen"].replace(0, 1)
     print("score distance : ",edges["score_distance_pollen"].describe())
 
@@ -87,15 +102,23 @@ def score_pollen(input_path, output_path):
     """Score from 0 to 10 """
     edges = gpd.read_file(input_path)
 
-    min_score = edges["total_score_pollen"].min()
-    max_score = edges["total_score_pollen"].max()
+    min_score = edges["score_distance_pollen"].min()
+    max_score = edges["score_distance_pollen"].max()
     slope = (0-10)/(max_score-min_score)
     origin_ordinate = -slope*max_score
-    edges["pollen_score"] = edges["total_score_pollen"].apply(lambda x: round(slope*x+origin_ordinate, 2))
+    edges["pollen_score"] = edges["score_distance_pollen"].apply(lambda x: round(slope*x+origin_ordinate, 2))
 
     edges.to_file(output_path, driver="GPKG")
 
 def create_graph_pollen(graph_path, edges_buffered_path, graph_output_path):
+    """
+    Create a graph with the pollen scores applied to each edge and save it as a GeoPackage.
+
+    Parameters:
+    - graph_path: Path to the graph data file containing both nodes and edges.
+    - edges_buffered_path: Path to the edges file containing the pollen score data.
+    - graph_output_path: Path where the resulting graph with applied pollen scores will be saved.
+    """
     graph_e = gpd.read_file(graph_path, layer="edges")
     graph_n = gpd.read_file(graph_path, layer="nodes")
     edges_buffered = gpd.read_file(edges_buffered_path)
@@ -137,3 +160,5 @@ total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_colum
 score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
 score_pollen(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_pollen_path)
 create_graph_pollen(metrop_network_bouding_path, edges_buffer_total_score_distance_pollen_path, "./output_data/network/graph/final_network_pollen.gpkg")
+
+load_graphs("pollen")

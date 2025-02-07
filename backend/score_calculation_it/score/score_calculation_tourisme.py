@@ -1,12 +1,14 @@
 #%%
 import os
+import sys
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import pandas as pd
 import osmnx as ox
-from data_utils import *
-import sys
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
 
 #%%
@@ -39,6 +41,14 @@ def all_prop(input_path, params, output_path):
     edges.to_file(output_path, layer="edges", driver="GPKG")
     
 def total_score(input_path, output_path, score_columns):
+    """
+    Calculate the total score for tourism based on specified columns, then normalize it to a specific range.
+
+    Parameters:
+    - input_path: Path to the input data containing the edges with score columns.
+    - output_path: Path to save the output data containing the total score for tourism.
+    - score_columns: List of columns containing the individual scores to be summed for the total score.
+    """
     
     edges = gpd.read_file(input_path, layer="edges")
     print(edges.columns)
@@ -54,6 +64,16 @@ def total_score(input_path, output_path, score_columns):
     edges.to_file(output_path, driver="GPKG")
 
 def all_score_edges(input_path, output_path, params):
+    """
+    Calculate scores for each edge based on specified parameters and add them to the default edges GeoDataFrame.
+
+    Parameters:
+    - input_path: Path to the input GeoPackage containing the default edges.
+    - output_path: Path to save the updated edges with additional scores.
+    - params: Dictionary of parameters, where each key is a score name and each value is a dictionary containing:
+        - "edges_path": Path to the GeoDataFrame containing the data to calculate the score.
+        - "fn_cont": Function to apply to the score column.
+    """
     default_edges = gpd.read_file(input_path, layer="edges")
     
     for data_name, data_param in params.items():
@@ -101,6 +121,14 @@ def score_tourisme(input_path, output_path):
     edges.to_file(output_path, driver="GPKG")
 
 def create_graph_tourisme(graph_path, edges_buffered_path, graph_output_path):
+    """
+    Create a tourism graph by applying tourism-related scores to the edges and saving it in a GeoPackage.
+
+    Parameters:
+    - graph_path: Path to the input graph containing the nodes and edges layers.
+    - edges_buffered_path: Path to the buffered edges file containing tourism scores.
+    - graph_output_path: Path where the resulting tourism graph will be saved.
+    """
     graph_e = gpd.read_file(graph_path, layer="edges")
     graph_n = gpd.read_file(graph_path, layer="nodes")
     edges_buffered = gpd.read_file(edges_buffered_path)
