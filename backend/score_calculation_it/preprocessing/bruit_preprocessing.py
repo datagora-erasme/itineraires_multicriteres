@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from global_variable import *
+from osgeo import gdal, ogr
 from function_utils import *
 
 

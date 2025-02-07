@@ -197,9 +197,22 @@ On peut distinguer deux types de données :
 
 #### Données utilisables via l'application Web
 
-Les données du bruit sont à télécharger sur le site CRAIG via le lien suivant : "https://depot.atmo-aura.fr/orhane/orhane_2023_multibruit.zip", puis il faut mettre le fichier bruit.gpkg dans le dossier bruit (itineraires_multicriteres-dev/backend/score_calculation_it/input_data/bruit/).
+Les données du bruit sont à télécharger sur le site **CRAIG** via le lien suivant : "https://depot.atmo-aura.fr/orhane/orhane_2023_multibruit.zip". 
 
-Changer le format du fichier en GPKG via le lien : https://cloudconvert.com/
+Télécharger QGIS via le lien suivant : https://www.qgis.org/download/
+
+Une fois télécharger vous devez ajouter votre fichier **sous_indice_multibruit_aura.tif** comme ceci : 
+Ouvrir QGIS -> Couche -> Ajouter une couche -> Ajouter une couche raster -> Sélectionner le fichier .tif. 
+
+Une fois que la couche est présente dans couches: 
+Raster -> Conversion -> Polygoniser -> Laisser la couche source, mettre DN dans nom du champ à créer -> Enregistrer le fichier au nom de temp sur votre bureau -> Executer 
+
+Sur la couche temp -> Exporter -> Sauvegarder les entités sous -> changer le SCR en EPSG:3946 - RGF93 v1 / CC46 -> nom du fichier/couche **bruit** et le mettre dans backend/ score_calculation_it/ input/bruit
+
+Télécharger l'empreinte de la métropole de Lyon en GeoJSON sur le site **data.grandlyon.com** via le lien suivant :
+https://data.grandlyon.com/portail/fr/jeux-de-donnees/territoire-metropole-lyon/telechargements
+
+Mettre le fichier de l'empreinte dans le dossier empreinte (itineraires_multicriteres-dev/backend/score_calculation_it/input_data/empreinte/)
 
 Les données issues d'une requête WFS à datagrandlyon peuvent être téléchargées directement en exécutant le script **fetch_data.py** situé dans le dossier *score_calculation_it/input_data/*. Il est possible de télécharger une donnée en particulier ou toutes les données d'un coup.  Afin de lancer le téléchargement, exécuter le script dans un terminal **en se plaçant au niveau du script** puis lancer la commande suivante : 
 
@@ -242,6 +255,22 @@ Cette donnée est indispensable pour la suite (à télécharger en premier lieu 
 
 ```bash
 python fetch_network.py
+```
+
+### Chemin des fichiers 
+
+Executer le script **global_variable.py** en se mettant au niveau du backend itinéraires_multicritères/backend.
+
+```bash
+python global_variable.py
+```
+
+### Fonctions 
+
+Executer le script **data_utils.py** en se mettant au niveau du backend itinéraires_multicritères/backend/score_calculation_it.
+
+```bash
+python data_utils.py
 ```
 
 ## Itinéraire pollen
