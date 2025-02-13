@@ -14,7 +14,7 @@ function App() {
             g = d.createElement('script'),
             s = d.getElementsByTagName('script')[0];
         g.async = true;
-        g.src = 'https://statweb.grandlyon.com/js/container_RCYhv7z3.js';
+        g.src = 'https://statweb.grandlyon.com/js/container_tiGIcnW4.js';
         s.parentNode.insertBefore(g, s);
     }, []);
 
