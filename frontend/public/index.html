@@ -32,7 +32,7 @@
     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
     crossorigin=""></script>
     <title>Parcours à la carte</title>
-
+    
     <!-- Matomo -->
     <script>
       var _paq = window._paq = window._paq || [];
@@ -45,8 +45,13 @@
         var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
         g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s);
       })();
+
+      function trackButtonClick(buttonName) {
+        _paq.push(['trackEvent', 'Button', 'Click', buttonName]);
+      }
     </script>
     <!-- End Matomo Code -->
+     
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
