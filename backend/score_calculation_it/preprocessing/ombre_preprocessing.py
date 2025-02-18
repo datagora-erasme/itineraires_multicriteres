@@ -5,6 +5,7 @@ sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
+from backend.script_python.function_utils import calculate_area_proportion, clip_data, create_folder, explode_polygon
 import geopandas as gpd
 import time
 from t4gpd.sun.STHardShadow import STHardShadow
