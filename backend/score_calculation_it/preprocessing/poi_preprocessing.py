@@ -1,4 +1,8 @@
+import sys
 import os
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import random
@@ -8,9 +12,7 @@ import numpy as np
 from shapely.wkt import loads, dumps
 import os
 import time
-from data_utils import *
-import sys
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
 ###### POI PREPROCESSING ######
 
@@ -33,9 +35,9 @@ def presency(x):
 
 poiId = ["fontaines_potables", "fontaines_ornementales", "toilettes", "bancs", "tourisme"]
 
-choice = input(f""" Choisissez parmi la liste suivante l'identifiant de la donnée que vous souhaitez mettre à jour : \n
+choice = input(f""" Choose from the following list the identifier of the data you want to update: \n
 {poiId} \n
-ou entrer ALL pour tout mettre à jour
+or enter ALL to update everything
 """)
                
 if(choice == "ALL"):
@@ -61,6 +63,7 @@ elif(choice in poiId):
     print("Bufferizing ... ")
     bufferize(data_params[choice]["gpkg_path"], data_params[choice]["buffer_path"], choice, data_params[choice]["buffer_size"])
     print("Calculating Presency ...")
-    calculate_presency(edges_buffer_path, data_params[choice]["buffer_path"], data_params[choice]["edges_path"], "edges", choice, presency)
+    calculate_presency(edges_buffer_path, data_params[choice]["buffer_path"], data_params[choice]["edges_path"],
+                        "edges", choice, presency)
 else:
-    print("Veuillez entrer un identifiant valide")
+    print("Please enter a valid identifier")

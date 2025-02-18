@@ -1,7 +1,7 @@
 import os
 from data_utils import *
 from data_calculation import *
-#from data_informations import services, data_wfs
+#from data_informations import *
 from calculate_itinerary_utils import *
 import geopandas as gpd
 import time

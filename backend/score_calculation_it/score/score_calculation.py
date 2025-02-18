@@ -1,12 +1,14 @@
 #%%
 import os
+import sys
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import pandas as pd
 import osmnx as ox
-from data_utils import *
-import sys
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
 
 #%%
@@ -35,6 +37,21 @@ def all_prop(input_path, params, output_path):
     edges.to_file(output_path, layer="edges", driver="GPKG")
     
 def total_score(input_path, output_path, score_columns):
+    """
+    Calculate the total score for each edge based on specified score columns and add specific adjusted scores.
+
+    Parameters:
+    - input_path: Path to the input GeoPackage file containing the edge data.
+    - output_path: Path where the output file with total scores will be saved.
+    - score_columns: List of columns to be summed to calculate the base total score for each edge.
+
+    The function calculates a base total score by summing the specified columns, 
+    then adds specific scores like `score_ombres_08_prop`, `score_ombres_13_prop`, 
+    and `score_ombres_18_prop` for different times of the day.
+    
+    Additionally, the scores for certain times (`08`, `13`, and `18`) are adjusted to prioritize 
+    the presence of canopy scores (`score_canop`) if they are greater than a threshold (0.5).
+    """
     edges = gpd.read_file(input_path, layer="edges")
     print(edges.columns)
     edges["total_score"] = edges[score_columns].sum(axis=1)
@@ -51,6 +68,26 @@ def total_score(input_path, output_path, score_columns):
     edges.to_file(output_path, driver="GPKG")
 
 def all_score_edges(input_path, output_path, params):
+    """
+    Add multiple calculated scores to the edges based on the provided parameters.
+
+    Parameters:
+    - input_path: Path to the input GeoPackage file containing the edges layer.
+    - output_path: Path where the resulting file with all calculated scores will be saved.
+    - params: Dictionary containing configuration for each score calculation. 
+      Each entry should include the following:
+        - edges_path: Path to the edges file that contains the score data.
+        - fn_cont: A function to apply on the score data (e.g., for normalization or transformation).
+        - alpha: A weighting factor to adjust the score calculation (optional).
+
+    This function reads the edges data, applies the provided transformations (using the function 
+    in `fn_cont`) for each score type, and stores the resulting scores in a new column of the edges.
+    Finally, it saves the updated edges to the output path.
+
+    The function assumes that the input edges file has a specific layer structure, and it uses 
+    the columns from the `params` to calculate additional scores.
+    """
+    
     """
     params : {
         columns1 : {
@@ -114,6 +151,14 @@ def score_fraicheur(input_path, output_path):
     edges.to_file(output_path, driver="GPKG")
 
 def create_graph(graph_path, edges_buffered_path, graph_output_path):
+    """
+    Creates a graph from the provided edge and node data, applying various scores from the edges' buffered data.
+
+    Parameters:
+    - graph_path: Path to the GeoPackage containing the graph data (edges and nodes).
+    - edges_buffered_path: Path to the GeoPackage containing the buffered edge scores.
+    - graph_output_path: Path where the final graph should be saved.
+    """
     graph_e = gpd.read_file(graph_path, layer="edges")
     graph_n = gpd.read_file(graph_path, layer="nodes")
     edges_buffered = gpd.read_file(edges_buffered_path)
@@ -140,12 +185,19 @@ def create_graph(graph_path, edges_buffered_path, graph_output_path):
     ox.save_graph_geopackage(G, graph_output_path)
 
 def score_calculation_pipeline(meta_params):
+    """
+    Execute the score calculation pipeline for each set of parameters.
+
+    Args:
+    - meta_params (dict): Dictionary containing parameters for each calculation.
+    """
 
     for params_name, params in meta_params.items():
         print(f"Starting score calculation for {params_name}...")
         all_score_edges(edges_buffer_path, edges_buffer_scored_path, params["params"])
         total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns)
-        score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path,0.5,0.5)
+        #score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path,0.5,0.5)
+        score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
         score_fraicheur(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_freshness_path)
         create_graph(bounding_metrop_path, edges_buffer_total_score_distance_freshness_path, params["graph_path"])
 

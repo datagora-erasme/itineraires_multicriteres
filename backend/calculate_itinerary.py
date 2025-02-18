@@ -16,8 +16,8 @@ def load_graph_from_pickle(pickle_path):
     return G
 
 
-# start = (4.8478, 45.7001)
-# end = (5.0303, 45.7624)
+#start = (4.8478, 45.7001)
+#end = (5.0303, 45.7624)
 startLat = float(sys.argv[1])
 startLon = float(sys.argv[2])
 
@@ -26,7 +26,6 @@ endLon = float(sys.argv[4])
 
 start = (startLon, startLat)
 end = (endLon, endLat)
-
 
 # s = time.time()
 # s_g = time.time()
@@ -38,14 +37,19 @@ origin_node = ox.nearest_nodes(G, X=start[0], Y=start[1])
 destination_node = ox.nearest_nodes(G, X=end[0], Y=end[1])
 # e_nodes = time.time()
 
+print(origin_node)
+print(destination_node)
+
 # s_sp = time.time()
 shortest_path = nx.shortest_path(G, source=origin_node, target=destination_node, weight="IF")
 # e_sp = time.time()
 
+print(shortest_path)
 # s_convert_sp = time.time()
 G2 = nx.MultiDiGraph(G)
 
 route_edges = ox.utils_graph.get_route_edge_attributes(G2, shortest_path)
+print(route_edges)
 
 gdf_route_edges = gpd.GeoDataFrame(route_edges, crs=G.graph['crs'], geometry='geometry')
 

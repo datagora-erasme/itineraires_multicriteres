@@ -49,7 +49,7 @@ def bufferize(input_path, output_path, layer, buffer_size):
     layer_buffer.to_file(output_path, driver="GPKG", layer=layer)
 
 
-choice = input("Voulez vous télécharger le réseau (NETWORK) et le bufferizer (BUFFER) ou faire les deux (ALL)? \n Veuillez saisir une des 3 possibilitées : NETWORk, BUFFER, ALL : \n")
+choice = input("Do you want to download the network (NETWORK) and buffer it (BUFFER), or do both (ALL)? \nPlease enter one of the 3 options: NETWORK, BUFFER, ALL: \n")
 
 if(choice == "ALL"):
     fetch_OSM_graph()
@@ -59,4 +59,5 @@ elif(choice== "NETWORK"):
 elif(choice == "BUFFER"):
     bufferize(metrop_network_bouding_path, edges_buffer_path, "edges", 6.25)
 else:
-    print("Veuillez saisir un choix valide")
+    print("Please enter a valid choice")
+

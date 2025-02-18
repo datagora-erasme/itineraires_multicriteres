@@ -1,32 +1,43 @@
+import sys
 import os
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import pandas as pd
 import numpy as np
 import os
-from data_utils import *
+from function_utils import *
 from sklearn.preprocessing import MinMaxScaler
-import sys
-sys.path.append("../")
 from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR TEMPERATURE ######
 
 ###### TEMPERATURE PREPROCESSING ######
-"""Données issue de calcul QGIS pour estimer la T° de surface à partir d'une capture Landsat"""
+"""Data from QGIS calculation to estimate surface temperature from a Landsat capture"""
 
 ### FUNCTION ###
 
 def weighted_temp_average(x):
+    """
+    Calculate the weighted average temperature based on the 'C' values and their corresponding areas.
+
+    Parameters:
+    x (pandas.Series): A pandas Series containing temperature data ('C') and area data ('area').
+
+    Returns:
+    pandas.Series: A Series containing the weighted average temperature ('C_wavg') rounded to 2 decimal places.
+    """
     return pd.Series({
         "C_wavg": round(np.average(x["C"], weights=x["area"]), 2)
         })
     
-choice = input("""Souhaitez-vous mettre à jour la température moyenne par segment ? (OUI) ou (NON) \n
-    ATTENTION, le temps de calcul estimé est de ~2h
+choice = input("""Do you wish to update the average temperature per segment? (YES) or (NO) \n
+    WARNING, the estimated computation time is ~2 hours
 """)
 
-if(choice == "OUI"):
+if(choice == "YES"):
     print("Calculate Temperature weighted average ")
     calculate_weighted_average(edges_buffer_path, temperature_path, edges_buffer_temp_wavg_path, "edges", "C", weighted_temp_average)
 

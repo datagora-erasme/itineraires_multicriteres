@@ -15,12 +15,37 @@ geojsonOutputFormat = "application/json"
 
 ### FUNCTION ###
 def create_folder(folder_path):
+    """
+    Creates a new folder at the specified path if it does not already exist.
+
+    Parameters:
+    folder_path (str): The path where the new folder should be created.
+
+    If the folder does not exist, it is created, and a confirmation message is printed.
+    If the folder already exists, no action is taken.
+    """
     exist = os.path.exists(folder_path)
     if not exist:
         os.makedirs(folder_path)
         print(f"{folder_path} created")
 
 def connection_wfs(url, service_name, version):
+    """
+    Establishes a connection to a WFS (Web Feature Service) using the provided URL, service name, and version.
+
+    Parameters:
+    url (str): The URL of the WFS service to connect to.
+    service_name (str): The name of the WFS service.
+    version (str): The version of the WFS service to be used.
+
+    Returns:
+    WebFeatureService or None: Returns the WFS object if the connection is successful, or None if an error occurs.
+    
+    Prints:
+    - A success message if the connection is established.
+    - An error message if the connection fails due to a `NameError`.
+    """
+
     """ Return a wfs object after connecting to a service thanks the url provided """
     print(f"Connecting {service_name} WFS ... ")
     wfs=None
@@ -33,6 +58,28 @@ def connection_wfs(url, service_name, version):
     return wfs
 
 def download_data(params, data_name, wfs, outputFormat):
+    """
+    Downloads geographic data from a WFS service, saves it in both GeoPackage and GeoJSON formats, and converts its CRS.
+
+    Parameters:
+    params (dict): Dictionary containing paths and other parameters for data storage.
+    data_name (str): The name of the data to download and process.
+    wfs (WebFeatureService): The WFS service object used to fetch the data.
+    outputFormat (str): The desired format for the downloaded data (e.g., "application/geo+json").
+
+    Process:
+    - Downloads data using WFS service with a specified filter.
+    - Saves the data to GeoJSON and GeoPackage formats.
+    - Converts the coordinate reference system (CRS) to both EPSG:3946 (for Lyon's metropole) and EPSG:4326 (for Leaflet).
+    - Creates a folder for storing the data if it doesn't exist.
+
+    Returns:
+    None
+
+    Side effects:
+    - Creates a folder for the data if it doesn't already exist.
+    - Writes the downloaded data to specified output files (GeoJSON and GeoPackage).
+    """
     create_folder(f"./{data_name}/")
     print(f"Downloading {data_name}")
     data_key = params[data_name]["wfs_key"]
@@ -64,6 +111,26 @@ def download_data(params, data_name, wfs, outputFormat):
     
 
 def download_all_data(params, wfs, outputFormat):
+    """
+    Downloads all geographic data specified in the parameters, saving them in both GeoPackage and GeoJSON formats.
+
+    Parameters:
+    params (dict): Dictionary containing paths and other parameters for data storage for each data item.
+    wfs (WebFeatureService): The WFS service object used to fetch the data.
+    outputFormat (str): The desired format for the downloaded data (e.g., "application/geo+json").
+
+    Process:
+    - Iterates over all data names in the `params` dictionary.
+    - For each data name, it fetches the data from the WFS service and saves it in GeoPackage and GeoJSON formats.
+    - Converts the coordinate reference system (CRS) to both EPSG:3946 (for Lyon's metropole) and EPSG:4326 (for Leaflet).
+
+    Returns:
+    None
+
+    Side effects:
+    - Downloads and saves all the data specified in the `params` dictionary to the appropriate files.
+    - Creates folders for each data item if they don't already exist.
+    """
     print("FETCHING ALL DATA")
     for data_name in params.keys():
         download_data(params, data_name, wfs, outputFormat)

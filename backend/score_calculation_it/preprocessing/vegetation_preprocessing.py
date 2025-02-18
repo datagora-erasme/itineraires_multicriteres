@@ -1,11 +1,13 @@
+import sys
 import os
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import pandas as pd
 import os
-from data_utils import *
-import sys
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR VEGETATION #######
@@ -17,6 +19,18 @@ create_folder("./output_data/vegetation/arbres_align/")
 
 ### FUNCTION ###
 def veget_classification(row):
+    """
+    Classifies the type of vegetation based on the "vegetation_class" column.
+
+    Parameters:
+    row (pandas.Series): A row from a pandas DataFrame containing a "vegetation_class" column.
+
+    Returns:
+    str: The vegetation type as a string. Possible values are:
+        - "prairie" for vegetation_class 1
+        - "arbuste" for vegetation_class 2
+        - "arbre" for vegetation_class 3
+    """
     if(row["vegetation_class"] == 1):
         return "prairie"
     if(row["vegetation_class"] == 2):
@@ -25,6 +39,17 @@ def veget_classification(row):
         return "arbre"
     
 def arbres_align_classification(row):
+    """
+    Classifies the type of vegetation (tree or shrub) based on the height.
+
+    Parameters:
+    row (pandas.Series): A row from a pandas DataFrame containing the "hauteurtot" column (total height).
+
+    Returns:
+    str: The classification as a string:
+        - "arbre" if the total height ("hauteurtot") is greater than 1.5 meters.
+        - "arbuste" if the total height is less than or equal to 1.5 meters.
+    """
     if(row["hauteurtot"] > 1.5):
         return "arbre"
     return "arbuste"
@@ -32,14 +57,15 @@ def arbres_align_classification(row):
 
 ### SCRIPT ###
 
-vegetation_choices = input("""Plusieurs calculs peuvent être réalisés : \n
-    - Clipper la donnée de végétation stratifiée avec le réseau piéton bufferizé de la métropole (CLIP).\n
-    ATTENTION : ce calcul est coûteux en termes de temps de calcul avec une configuration standard (~24h).
-    La donnée en date du 03.07.23 est disponible à l'adresse renseignée dans le README.
-    - Recalculer les proportions de végétations sur les segments du réseau piéton, par exemple si les arbres d'alignement
-    ont été mis à jour.(PROP) \n
-    ATTENTION, temps de calculs estimés ~5h
+vegetation_choices = input("""Several calculations can be performed: \n
+    - Clip the stratified vegetation data with the buffered pedestrian network of the metropolitan area (CLIP).\n
+    WARNING: This calculation is resource-intensive with a standard configuration (~24h).
+    The data for 03.07.23 is available at the location specified in the README.
+    - Recalculate the proportions of vegetation on the pedestrian network segments, for example, if the alignment trees
+    have been updated (PROP).\n
+    WARNING, estimated computation time ~5h
 """)
+
                            
 if(vegetation_choices == "CLIP"):
     print("Dissolving network")

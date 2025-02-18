@@ -1,25 +1,27 @@
+import sys
 import os
+sys.path.append("../")
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
-import os
-from data_utils import *
-import sys
-sys.path.append("../")
+from function_utils import *
 from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR PARCS ET JARDINS ######
 create_folder("./output_data/parcs/")
 
 ###### PARCS ET JARDINS PREPROCESSING ######
-"""Données issue des parcs et jardins avec indice de canopée"""
+"""Data from parks and gardens with canopy index"""
 
 parcs_classes_path = "./output_data/parcs/parcs_canop_classes.gpkg"
 
 choice = input("""
-    Souhaitez-vous mettre à jour le réseau pondéré par les parcs ? OUI ou NON
+    Do you want to update the weighted network by parks? YES or NO
 """)
-if(choice=="OUI"):
-    print("Create parcs classes") 
+if(choice == "YES"):
+    print("Create park classes")
+
 
     parcs = gpd.read_file(data_params["parcs_canop"]["gpkg_path"])
 
