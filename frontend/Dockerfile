@@ -2,12 +2,12 @@ FROM node:iron-alpine3.20
 
 WORKDIR /app
 
-COPY package-lock.json /app/
-COPY package.json /app/
+COPY package.json .
+
 RUN npm install --legacy-per-deps
 
-COPY public/ /app/public
-COPY src/ /app/src
-COPY tailwind.config.js /app/
+COPY public/ ./public
+COPY src/ ./src
+COPY tailwind.config.js .
 
 CMD ["npm", "start"]
