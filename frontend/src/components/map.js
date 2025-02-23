@@ -170,31 +170,6 @@ function Map() {
         })
     }
 
-    const handleClickMarker = (coordinates) => {
-        setIsLoading(true)
-        axios({
-            method: 'get',
-            baseURL: `${process.env.REACT_APP_URL_SERVER}`,
-            url: "/itinerary/",
-            params: {
-                start: {
-                    lat: userPosition[0],
-                    lon: userPosition[1]
-                },
-                end: {
-                    lat: coordinates[0],
-                    lon: coordinates[1]
-                }
-            }
-        }).then((response) => {
-            const roundIt = roundItineraries(response.data)
-            setCurrentItinerary(roundIt)
-            setIsLoading(false)
-        }).catch((error) => {
-            console.error(error)
-        })
-    }
-
     const handleShowDetailsPopupPolygon = (e) => {
         setPoiDetails(e.target.feature)
         setShowFindFreshness(false)
@@ -333,7 +308,7 @@ function Map() {
     return (
         <div>
             {loadingLayer && "Loading ...."}
-            <MapContainer id="map" center={[45.76309302427536, 4.836502750843036]} zoom={13} scrollWheelZoom={true} className="mapContainer" zoomControl={false}>
+            <MapContainer id="map" center={[45.76309302427536, 4.836502750843036]} minZoom={11} zoom={13} scrollWheelZoom={true} className="mapContainer" zoomControl={false}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     // url="http://{s}.tile.openstreetmap.fr/openriverboatmap/{z}/{x}/{y}.png"
@@ -370,11 +345,7 @@ function Map() {
                                         {data.geojson.features.map((point, index) => {
                                             const coordinates = point.geometry.coordinates
                                             return (
-                                                <Marker key={index} position={[coordinates[1], coordinates[0]]} icon={new L.icon(markerOption)} onEachFeature={handleClickMarker}>
-                                                    <Popup>
-                                                        <div className="flex justify-center items-center">
-                                                        </div>
-                                                    </Popup>
+                                                <Marker key={index} position={[coordinates[1], coordinates[0]]} icon={new L.icon(markerOption)} className='cursor-wait'>
                                                 </Marker>
                                             )
                                         })}
@@ -479,7 +450,6 @@ function Map() {
                     }
                 })}
                 {filteredItinerariesFeatures.length !== 0 && filteredItinerariesFeatures.map((data) => {
-                    const tourismeFeature = filteredItinerariesFeatures.find(feature => feature.id === "tourisme");
                     if (data.geojson.length !== 0) {
                         const dataType = data.geojson[0].geometry.type
                         if (dataType === "MultiPolygon" || dataType === "Polygon") {
@@ -499,12 +469,11 @@ function Map() {
                                 >
                                     {data.geojson.map((dta, i) => {
                                         const coordinates = [dta.geometry.coordinates[1], dta.geometry.coordinates[0]];
-                                        
+                                        const isTourismeFeature = data.id === 'tourisme';
+
                                         return (
                                             <Marker key={Math.random()} position={coordinates} icon={new L.icon(markerOption)}>
-                                                {tourismeFeature && (
-                                                    <Popup>{dta.properties.nom}</Popup>
-                                                )}
+                                                {isTourismeFeature && <Popup>{dta.properties.nom}</Popup>}
                                             </Marker>
                                         );
                                     })}

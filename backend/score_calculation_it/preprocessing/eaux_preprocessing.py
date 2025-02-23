@@ -4,7 +4,6 @@ sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
-from backend.script_python.function_utils import bufferize_with_column, calculate_area_proportion, create_folder
 import geopandas as gpd
 import pandas as pd
 from function_utils import *
@@ -14,7 +13,7 @@ from global_variable import *
 """Les données proviennent de deux sources : plan d'eau importants et plan d'eaux détails de datagranlyon"""
 
 ### CREATE WORKING DIRECTORY ###
-create_folder("./output_data/eaux/")
+create_folder("./../output_data/eaux/")
 
 ### SCRIPT ###
 

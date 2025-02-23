@@ -11,14 +11,8 @@ import osmnx as ox
 from function_utils import *
 from global_variable import *
 
-#%%
-sys.path.append("../")
-from global_variable import *
-
 ###### NETWORK SCORE CALCULATION #######
-create_folder("./output_data/network/graph/")
-
-edges_buffer_path = globpath("./score_calculation_it/input_data/network/edges_buffered_12_bounding.gpkg")
+create_folder("./../output_data/network/graph/")
 
 ### GLOBAL VARIABLES ###
 score_columns_tourisme = ["score_tourisme_count"]
@@ -156,8 +150,8 @@ params = {
     },
 }
 
-#all_score_edges(edges_buffer_path, edges_buffer_scored_path, params)
-#total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_tourisme)
-#score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
+all_score_edges(edges_buffer_path, edges_buffer_scored_path, params)
+total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns_tourisme)
+score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
 score_tourisme(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_tourisme_path)
-create_graph_tourisme(metrop_network_bouding_path, edges_buffer_total_score_distance_tourisme_path, "./output_data/network/graph/final_network_tourisme.gpkg")
+create_graph_tourisme(metrop_network_bouding_path, edges_buffer_total_score_distance_tourisme_path, final_network_tourisme_path)

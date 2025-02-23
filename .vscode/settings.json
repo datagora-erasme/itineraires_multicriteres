@@ -1,7 +1,3 @@
-{
-    "conventionalCommits.scopes": [
-        "frontend+backend",
-        "frontend",
-        "backend"
-    ]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:595139326a2c7d2c83689c7cff2838e53dead00dca6a412e3f33c98f30277236
+size 221

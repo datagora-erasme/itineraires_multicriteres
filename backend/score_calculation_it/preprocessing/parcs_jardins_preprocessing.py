@@ -4,18 +4,17 @@ sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
-from backend.script_python.function_utils import calculate_area_proportion, create_folder
 import geopandas as gpd
 from function_utils import *
 from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR PARCS ET JARDINS ######
-create_folder("./output_data/parcs/")
+create_folder("./../output_data/parcs/")
 
 ###### PARCS ET JARDINS PREPROCESSING ######
 """Data from parks and gardens with canopy index"""
 
-parcs_classes_path = "./output_data/parcs/parcs_canop_classes.gpkg"
+parcs_classes_path = "./../output_data/parcs/parcs_canop_classes.gpkg"
 
 choice = input("""
     Do you want to update the weighted network by parks? YES or NO
@@ -26,7 +25,7 @@ if(choice == "YES"):
 
     parcs = gpd.read_file(data_params["parcs_canop"]["gpkg_path"])
 
-    parcs["indiccanop"] = parcs["indiccanop"].str.replace(",", ".").astype(float)
+    parcs["indiccanop"] = parcs["indiccanop"].astype(str).replace(",", ".").astype(float)
 
     parcs["class"] = parcs["indiccanop"].apply(lambda x: "low" if x<0.34 else("medium" if x>=0.34 and x<0.63 else "high"))
 

@@ -7,7 +7,6 @@ services:
       - "3002:3002"
     volumes:
       - ./backend:/app
-    #command: "tail -f /dev/null"
   frontend:
     build:
       context: frontend

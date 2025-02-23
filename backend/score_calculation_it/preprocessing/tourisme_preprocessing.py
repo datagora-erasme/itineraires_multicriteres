@@ -3,7 +3,6 @@ import os
 sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
-from backend.script_python.function_utils import create_folder
 import geopandas as gpd
 import pandas as pd
 import numpy as np
@@ -12,14 +11,14 @@ from function_utils import *
 from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR ARBRES ######
-create_folder("./output_data/tourisme/")
+create_folder("./../output_data/tourisme/")
 
 ###### TOURISME PREPROCESSING ######
 
 choice = input("Do you want to update the network weighted by tourist POIs? YES or NO\n")
 
 if choice.upper() == "YES":
-    poi_df = gpd.read_file("./input_data/tourisme/corrige_tourisme_3946.gpkg")
+    poi_df = gpd.read_file("./../input_data/tourisme/corrige_tourisme_3946.gpkg")
     poi_df = poi_df.to_crs(3946)
 
     poi_df = poi_df[poi_df["type"] == 'PATRIMOINE_CULTUREL']

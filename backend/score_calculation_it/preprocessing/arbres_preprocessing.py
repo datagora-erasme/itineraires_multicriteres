@@ -4,7 +4,6 @@ sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
-from backend.script_python.function_utils import create_folder
 import geopandas as gpd
 import pandas as pd
 import numpy as np
@@ -17,7 +16,7 @@ from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR ARBRES ######
 
-create_folder("./output_data/arbres/")
+create_folder("./../output_data/arbres/")
 
 ###### ARBRES PREPROCESSING ######
 
@@ -49,7 +48,7 @@ if choice.upper() == "YES":
     #print(arbres.columns)
 
     # Trees in Lyon's parks, additional non-public dataset provided by municipalities
-    arbres_parcs = gpd.read_file('./input_data/arbres/arbre_vdl_opendata_juin_2024.shp')
+    arbres_parcs = gpd.read_file('./../input_data/arbres/arbre_vdl_opendata_juin_2024.shp')
     arbres_parcs = arbres_parcs.to_crs(epsg=3946)
 
     #arbres['lat'] = arbres['lat'].apply(lambda x: float(x.replace(',', '.')) if isinstance(x, str) else x)

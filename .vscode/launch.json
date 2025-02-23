@@ -1,17 +1,3 @@
-{
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python Debugger: Current File",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "cwd":"/home/erasmedev04/Bureau/ERASME/itineraires_multicriteres/backend/score_calculation_it/",
-            "env": {"PYTHONPATH": "${workspaceFolder}"}
-        }
-    ]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:03bb1ecae7239d58f2805be7af7addb6890360119227f2fd473006efc67e9dc4
+size 639

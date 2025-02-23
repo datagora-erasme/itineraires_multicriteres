@@ -4,7 +4,6 @@ sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
-from backend.script_python.function_utils import bufferize_with_column, calculate_area_proportion, classification, clip_data, create_folder, dissolving
 import geopandas as gpd
 import pandas as pd
 import os
@@ -12,9 +11,9 @@ from function_utils import *
 from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR VEGETATION #######
-create_folder("./output_data/vegetation/")
-create_folder("./output_data/vegetation/veget_strat/")
-create_folder("./output_data/vegetation/arbres_align/")
+create_folder("./../output_data/vegetation/")
+create_folder("./../output_data/vegetation/veget_strat/")
+create_folder("./../output_data/vegetation/arbres_align/")
 
 ###### VEGETATION STRATIFIEE PREPROCESSING ######
 
@@ -51,7 +50,7 @@ def arbres_align_classification(row):
         - "arbre" if the total height ("hauteurtot") is greater than 1.5 meters.
         - "arbuste" if the total height is less than or equal to 1.5 meters.
     """
-    if(row["hauteurtot"] > 1.5):
+    if(row["hauteurtotale_m"] > 1.5):
         return "arbre"
     return "arbuste"
     
@@ -87,16 +86,16 @@ elif(vegetation_choices == "PROP"):
     classification(arbres_align_gpkg_path, arbres_align_class_folder, arbres_align_classification, "arbres_align")
 
     print("Buffering arbres and arbustes align")
-    bufferize_with_column(class_arbres_align_path, arbres_align_buffer_path, "arbres_align_arbre", "rayoncouro", 2.5, coeff_buffer=2)
-    bufferize_with_column(class_arbustes_align_path, arbustes_align_buffer_path, "arbres_align_arbuste", "rayoncouro", 2.5, coeff_buffer=2)
+    bufferize_with_column(class_arbres_align_path, arbres_align_buffer_path, "arbres_align_arbre", "rayoncouronne_m", 2.5, coeff_buffer=2)
+    bufferize_with_column(class_arbustes_align_path, arbustes_align_buffer_path, "arbres_align_arbuste", "rayoncouronne_m", 2.5, coeff_buffer=2)
 
     arbres_align_buffer = gpd.read_file(arbres_align_buffer_path)
     arbustes_align_buffer = gpd.read_file(arbustes_align_buffer_path)
 
     edges_buffer = gpd.read_file(edges_buffer_path)
     print("Clipping arbres and arbustes align")
-    clip_data(edges_buffer_path, arbres_align_buffer_path, clipped_arbres_align_path, 5, "arbres_align")
-    clip_data(edges_buffer_path, arbustes_align_buffer_path, clipped_arbustes_align_path, 5, "arbustes_align")
+    clip_data(edges_buffer_path, arbres_align_buffer_path, clipped_arbres_align_path, 1, "arbres_align")
+    clip_data(edges_buffer_path, arbustes_align_buffer_path, clipped_arbustes_align_path, 1, "arbustes_align")
 
 ###### MERGE ARBRES ALIGNEMENT ET VEGETATION STRATIFIEE ###### 
 

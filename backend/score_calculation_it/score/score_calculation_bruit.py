@@ -88,7 +88,7 @@ def create_graph_bruit(graph_path, edges_buffered_path, graph_output_path):
 total_score(edges_buffer_bruit_wavg_path, edges_buffer_total_score_path, ["DN"])
 score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
 score_bruit(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_bruit_path)
-create_graph_bruit(metrop_network_bouding_path, edges_buffer_total_score_distance_bruit_path, "./output_data/network/graph/final_network_bruit.gpkg")
+create_graph_bruit(metrop_network_bouding_path, edges_buffer_total_score_distance_bruit_path, final_network_bruit_path)
 
 # Download the pickles for noise
 load_graphs("bruit")

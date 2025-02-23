@@ -4,7 +4,6 @@ sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
-from backend.script_python.function_utils import bufferize, calculate_presency, create_folder
 import geopandas as gpd
 import random
 import pandas as pd
@@ -21,9 +20,9 @@ from global_variable import *
 However, the following file can be used to generate networks with the presence or absence of a POI on a segment. """
 
 ### CREATE WORKING DIRECTORIES ###
-create_folder("./output_data/toilettes/")
-create_folder("./output_data/fontaines/")
-create_folder("./output_data/bancs/")
+create_folder("./../output_data/toilettes/")
+create_folder("./../output_data/fontaines/")
+create_folder("./../output_data/bancs/")
 
 ### FUNCTION ###
 def presency(x):

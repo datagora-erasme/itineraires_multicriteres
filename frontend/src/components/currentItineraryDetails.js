@@ -50,56 +50,67 @@ const CurrentItineraryDetails = ({ showMenu }) => {
         return { distance, duration };
     };
 
+    const tourismeFeature = filteredItinerariesFeatures.find(feature => feature.id === 'tourisme');
+
+
     return (
-        <div className={`${showMenu ? "" : "hidden"} md:block mt-4 md:mt-0 card md:card-details-desktop`}>
-            <div 
-                className="absolute w-full md:flex justify-end -mt-2 -ml-6 cursor-pointer hidden" 
-                onClick={() => { 
-                    setShowCurrentItineraryDetails(false);
-                }}>
-                <BiX className="w-6 h-6" />
+        <div className={`${showMenu ? '' : 'hidden'} pt-5px md:block mt-4 md:mt-0 card md:card-details-desktop`}>
+            <div className="item-align-end w-full md:flex justify-end cursor-default hidden">
+                <BiX
+                    className="w-6 h-6 -mr-1 cursor-pointer"
+                    cursor-pointer
+                    onClick={() => {
+                        setShowCurrentItineraryDetails(false);
+                    }}
+                />
             </div>
             <div className="flex flex-col gap-4">
-            {criteria.map((criterion, idx) => {
-                const shortDetail = details[criterion+"length"]; //itinéraire le plus court
-                const weightedDetail = details[criterion];  //itinéraire pondéré pour le critère
-                return (
-                    <div key={idx}>
-                        {/* Itinéraire le plus court (ligne en pointillé) */}
-                        <ItineraryDetail
-                            detail={shortDetail}
-                            criterion={criterion}
-                            score={lenScore[idx]}
-                            isShortest={true}
-                        />
-                        {/* Itinéraire pondéré (ligne pleine) */}
-                        <ItineraryDetail
-                            detail={weightedDetail}
-                            criterion={criterion}
-                            score={ifScore[idx]}
-                            isShortest={false}
-                        />
-                    </div>
-                );
-            })}
+                {criteria.map((criterion, idx) => {
+                    const shortDetail = details[criterion + 'length']; //itinéraire le plus court
+                    const weightedDetail = details[criterion]; //itinéraire pondéré pour le critère
+                    return (
+                        <div key={idx}>
+                            {/* Itinéraire le plus court (ligne en pointillé) */}
+                            <ItineraryDetail detail={shortDetail} criterion={criterion} score={lenScore[idx]} isShortest={true} />
 
+                            {/* Itinéraire pondéré (ligne pleine) */}
+                            {criterion === 'tourisme' && tourismeFeature?.geojson.length === 0 ? (
+                                <div className="mt-2 flex flex-col items-start gap-2">
+                                    <h6 className="font-bold text-mainText">
+                                        Nous n'avons pas trouvé de lieux touristiques sur votre trajet
+                                    </h6>
+                                </div>
+                            ) : (
+                                <ItineraryDetail detail={weightedDetail} criterion={criterion} score={ifScore[idx]} isShortest={false} />
+                            )}
+                            <hr className="mt-4"/>
+                        </div>
+                    );
+                })}
             </div>
-            <div className="mt-2 flex flex-col items-start gap-2">
-                <h6 className="font-bold text-mainText">Sur votre chemin :</h6>
-                <ul className="flex flex-row gap-8 flex-wrap">
-                    {filteredItinerariesFeatures.map((layer) => {
-                        if (layer.geojson.length !== 0) {
-                            return (
-                                <li key={layer.id} className="flex flex-row gap-2 items-center">
-                                    {layer.geojson.length}
-                                    <img className="w-8 h-8" alt={`${layer.id}_icon`} src={layer.markerOption.iconUrl} />
-                                </li>
-                            );
-                        }
-                        return null;
-                    })}
-                </ul>
-            </div>
+
+            {criteria.length > 0 ? (
+                <div className="mt-2 flex flex-col items-start gap-2">
+                    <h6 className="font-bold text-mainText">Sur votre chemin :</h6>
+                    <ul className="flex flex-row gap-8 flex-wrap">
+                        {filteredItinerariesFeatures.map(layer => {
+                            if (layer.geojson.length !== 0) {
+                                return (
+                                    <li key={layer.id} className="flex flex-row gap-2 items-center">
+                                        {layer.geojson.length}
+                                        <img className="w-8 h-8" alt={`${layer.id}_icon`} src={layer.markerOption.iconUrl} />
+                                    </li>
+                                );
+                            }
+                            return null;
+                        })}
+                    </ul>
+                </div>
+            ) : (
+                <div className="mt-2 flex flex-col items-start gap-2">
+                    <h6 className="font-bold text-mainText">Veuillez sélectionner un critère pour effectuer une recherche</h6>
+                </div>
+            )}
         </div>
     );
 };
@@ -109,7 +120,7 @@ const ItineraryDetail = ({ detail, criterion, score, isShortest }) => {
 
     return (
         <div className="flex flex-col items-start w-full">
-            <div className="flex w-full items-center gap-6">
+            <div className="flex w-full items-center place-content-between">
                 <h6 className="font-bold text-mainText">{detail.name}</h6>
                 <div className="flex items-center gap-1">
                     {renderIcon(criterion)}
@@ -123,7 +134,7 @@ const ItineraryDetail = ({ detail, criterion, score, isShortest }) => {
                     {renderEndIcon(criterion)}
                 </div>
             </div>
-            <div className="flex gap-4">
+            <div className="grid grid-cols-3 w-full">
                 <div className="px-2 flex gap-1">
                     <GiPathDistance className="mt-1" /> {detail.distance}
                 </div>

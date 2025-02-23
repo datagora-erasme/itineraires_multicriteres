@@ -135,7 +135,13 @@ const FreshnessAroundUser = () => {
                             )
                         })}
                         </ul>}
-                        <BiCurrentLocation size={30} className="mt-2 cursor-pointer" onClick={handleSelectUserAddress}/>
+                        <BiCurrentLocation 
+                            size={30} 
+                            className="mt-2 cursor-pointer" 
+                            onClick={() => {
+                                handleSelectUserAddress()
+                                window.trackButtonClick(`FindFreshness_UseUserPosition`);
+                            }}/>
                     </div>
                     <div className="w-full mx-auto mb-2 flex flex-col gap-2 mt-2">
                         <div className="w-full flex justify-between">
