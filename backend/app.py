@@ -8,110 +8,35 @@ from models.data import *
 from load_graph import *
 from models.itinerary import *
 from global_variable import *
+from concurrent.futures import ThreadPoolExecutor
 
 app = Flask(__name__)
 CORS(app)
 
-"""
-The final graph is loaded into a pickle file in order to keep it in RAM. 
-It allows to reduce the time between request and response (the files took several seconds to open).
-"""
-
-G = None
-G_multidigraph = None
-
-current_month = datetime.now().month
-
-print("current_month", current_month)
-
-graph_paths = {
-    "frais": {
-        "gpkg": final_network_path, 
-        "pickle": final_network_pickle_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_path
-    },
-    "pollen": {
-        "gpkg": final_network_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_pollen_path,  
-        "pickle": final_network_pickle_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_pickle_pollen_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_multidigraph_pickle_pollen_path
-    },
-    "bruit": {
-        "gpkg": final_network_bruit_path,
-        "pickle": final_network_pickle_bruit_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_bruit_path
-    },
-    "tourisme": {
-        "gpkg": final_network_tourisme_path,
-        "pickle": final_network_pickle_tourisme_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_tourisme_path
-    }
-}
-
-
-G = None
-G_multidigraph = None
-
-def load_graphs(criteria):
+def load_graphs(criterion):
     """
-    Loads a graph based on a given criteria by either loading from existing pickle files or 
-    creating new pickle files if they do not exist.
-
-    This function first checks if the pickle files for the specified criteria are already 
-    available. If they exist, the function loads the graph from these files. If not, it attempts 
-    to create the pickle files from the original graph data stored in a GeoPackage file. 
-    The function will then load the graph from the created pickle files.
-
-    Parameters:
-    -----------
-    criteria : str
-        The criteria used to identify the specific graph to be loaded (e.g., network type, area, etc.).
-
-    Returns:
-    --------
-    None
-        The function loads the graph data into the global variables `G` and `G_multidigraph`, 
-        representing the graph and its multidigraph version, respectively. If the network cannot 
-        be loaded, it prints an error message.
+    Loads the graph data for the specified criterion from pickled files.
+    If the pickle files do not exist, it creates them by calling `create_pickles_from_graph_criterion()`.
+    Finally, it loads the graphs from the pickled files using `load_graphs_from_pickles()`.
     
-    Notes:
-    -----
-    - The function relies on external helper functions: `create_pickles_from_graph_criteria`, 
-      `load_graph_from_pickle`.
-    - Pickle files are expected to be stored at paths defined in the `graph_paths` dictionary 
-      for the given `criteria`.
-    """    
-    global G, G_multidigraph
-    paths = graph_paths[criteria]
-    gpkg_path = paths["gpkg"]
-    pickle_path = paths["pickle"]
-    multidigraph_pickle_path = paths["multidigraph_pickle"]
+    Parameters:
+    - `criterion`: The criterion to load the graph data for.
+    """
+    global graphs_local_cache, graph_paths
+    pickle_graph_path = graph_paths[criterion]["pickle"]
+    pickle_multidigraph_path = graph_paths[criterion]["multidigraph_pickle"]
 
-    print(f"Loading network for {criteria}...")
+    print(f"Loading network for {criterion}...")
 
-    # Vérifiez si les fichiers pickle existent déjà
-    if os.path.isfile(pickle_path) and os.path.isfile(multidigraph_pickle_path):
-        print(f"Pickle files found for {criteria}, loading them.")
-        load_net = True
-    else:
-        print(f"Pickle files not found for {criteria}, creating them...")
+    # Check if pickle files already exist
+    if not (os.path.isfile(pickle_graph_path) and os.path.isfile(pickle_multidigraph_path)):
+        print(f"Pickle files not found for {criterion}, creating them...")
         try:
-            load_net = create_pickles_from_graph_criteria(gpkg_path, pickle_path, multidigraph_pickle_path, criteria)
-            if load_net:
-                print(f"Pickle files for {criteria} created successfully.")
-            else:
-                print(f"Failed to create pickle files for {criteria}.")
+            create_pickles_from_graph_criterion(criterion)
         except Exception as e:
-            print(f"Error while creating pickle files for {criteria}: {e}")
-            load_net = False
+            return
 
-    if load_net:
-        print(f"Network loaded successfully for {criteria}.")
-        G = load_graph_from_pickle(pickle_path)
-        G_multidigraph = load_graph_from_pickle(multidigraph_pickle_path)
-    else:
-        print(f"Network loading failed for {criteria}.")
-
-
+    load_graphs_from_pickles(criterion)
 
 @app.route('/data/', methods=['GET'])
 def get_layers():
@@ -170,7 +95,7 @@ def get_layers():
         except Exception as e:
             print(e)
             return '', 500
-
+    
 @app.route('/itinerary/', methods=['GET'])
 def get_itinerary():
     """
@@ -215,14 +140,16 @@ def get_itinerary():
     end = (float(end_lon), float(end_lat))
 
     print(start_lat, start_lon, end_lat, end_lon, criteria_list)
+
+    origin_node, destination_node = nearest_nodes(start, end)
+
     results = []
-    
     try:
-        for criteria in criteria_list:
-            load_graphs(criteria)  #charger le graphe en fonction du critère
-            
-            if criteria == "frais":
-                geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph)
+        for criterion in criteria_list:
+            load_graphs(criterion)  #charger le graphe en fonction du critère
+            print(datetime.now(), f"Calculating itinerary for {criterion}...")
+            if criterion == "frais":
+                geojson_path_IF, geojson_path_length = shortest_path(criterion, origin_node, destination_node)
                 results.append({
                     "id": "LENGTH",
                     "idcriteria": "fraislength",
@@ -237,8 +164,8 @@ def get_itinerary():
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
                 })
-            elif criteria == "pollen":
-                geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_pollen')
+            elif criterion == "pollen":
+                geojson_path_IF, geojson_path_length = shortest_path(criterion, origin_node, destination_node, 'score_distance_pollen')
                 results.append({
                     "id": "LENGTH",
                     "idcriteria": "pollenlength",
@@ -253,9 +180,8 @@ def get_itinerary():
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
                 })
-
-            elif criteria == "bruit":
-                geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_bruit')
+            elif criterion == "bruit":
+                geojson_path_IF, geojson_path_length = shortest_path(criterion, origin_node, destination_node, 'score_distance_bruit')
                 results.append({
                     "id": "LENGTH",
                     "idcriteria": "bruitlength",
@@ -270,8 +196,8 @@ def get_itinerary():
                     "geojson": geojson_path_IF, 
                     "color": "#1f8b2c"
                 })
-            elif criteria == "tourisme":
-                geojson_path_IF, geojson_path_length = shortest_path(G, start, end, G_multidigraph, 'score_distance_tourisme')
+            elif criterion == "tourisme":
+                geojson_path_IF, geojson_path_length = shortest_path(criterion, origin_node, destination_node, 'score_distance_tourisme')
                 results.append({
                     "id": "LENGTH",
                     "idcriteria": "tourismelength",
@@ -289,12 +215,13 @@ def get_itinerary():
             
         return jsonify(results)
     except Exception as e:
-        print(e)
+        print('error:', e)
         return '', 500
     
 @app.errorhandler(500)
 def internal_server_error(e):
     """Handle internal server error (500) and shows custom HTML page"""
+    print('error 500:', e)
     return render_template('./public/error500.html'), 500
 
 @app.route('/force_error')
@@ -302,6 +229,30 @@ def force_error():
     """Route to force a 500 error for testing"""
     raise Exception("This is a forced error to test the 500 error handler.")
 
-# Lancer appli
+
+def preload_graphs():
+    """    
+    Preloads the graphs for different criteria (e.g. "bruit", "tourisme") into the local cache.
+    It uses a thread pool executor to parallelize the loading process, and only loads the graphs if they are not already present in the cache.
+    """    
+    global graph_paths, graphs_local_cache
+
+    futures = []
+    with ThreadPoolExecutor() as executor:
+        for criterion in graph_paths:
+            pickle_graph_path = graph_paths[criterion]["pickle"]
+            pickle_multidigraph_path = graph_paths[criterion]["multidigraph_pickle"]
+            # Only preload if not already in cache.
+            if ((pickle_graph_path not in graphs_local_cache) or (graphs_local_cache[pickle_graph_path] is None)) or ((pickle_multidigraph_path not in graphs_local_cache) or (graphs_local_cache[pickle_multidigraph_path] is None)):
+                print(datetime.now(), f"Pre-loading graphs for {criterion}.")
+                futures.append(executor.submit(load_graphs, criterion))
+        # Wait for all tasks to finish.
+        for future in futures:
+            future.result()
+
+# Pre-load graphs on application startup
+preload_graphs()
+
+# Launch application
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=3002)
+    app.run(debug=True, use_reloader=False, host="0.0.0.0", port=3002)

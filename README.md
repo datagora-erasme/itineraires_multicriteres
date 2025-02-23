@@ -259,7 +259,7 @@ python fetch_network.py
 
 ### Chemin des fichiers 
 
-Executer le script **global_variable.py** en se mettant au niveau du backend itinéraires_multicritères/backend.
+Executer le script **global_variable.py** en se mettant au niveau du backend *itinéraires_multicritères/backend*.
 
 ```bash
 python global_variable.py
@@ -267,10 +267,16 @@ python global_variable.py
 
 ### Fonctions 
 
-Executer le script **data_utils.py** en se mettant au niveau du backend itinéraires_multicritères/backend/score_calculation_it.
+Executer le script **data_utils.py** en se mettant au niveau du backend *itinéraires_multicritères/backend/script_python*.
 
 ```bash
 python data_utils.py
+```
+
+/!\ Si l'import 'osg' ne marche pas, il faut installer le package 'gdal' :
+
+```bash
+ conda install -c conda-forge gdal
 ```
 
 ## Itinéraire pollen
@@ -279,6 +285,8 @@ Le graphe pollen est calculé via différentes données d'arbres ainsi que les d
 ### Arbres
 
 Les calculs nécessaire pour ce graphe peuvent être exécuté via le fichier **arbres_preprocessing.py** et en se laissant guider par les instructions du terminal.
+
+Avant de le lancer, il faut télecharger des données pour des arbres et les ajouter dans backend/score_calculation_it/input_data/arbres. Les données sont disponibles dans le drive. Vu que ce sont des données privés, demander le lien à quelqu'un de l'équipe.
 
 ```bash
 python arbres_preprocessing.py

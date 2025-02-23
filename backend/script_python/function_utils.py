@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
@@ -58,6 +59,8 @@ def dissolving(input_path, output_path, layer):
     dissolved_data.to_file(output_path, layer=layer, driver="GPKG")
     
 def clip_data(edges_path, data_path, output_path, nbre_cpu, layer):
+    # nbre_cpu_max = os.cpu_count()
+    print(datetime.now(), f"Number of CPU cores in use: {nbre_cpu}")
     """
     Clips spatial data using a multiprocessing approach to improve performance.
 

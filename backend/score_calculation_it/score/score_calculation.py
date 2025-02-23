@@ -1,4 +1,3 @@
-#%%
 import os
 import sys
 sys.path.append("../")
@@ -11,9 +10,8 @@ import osmnx as ox
 from function_utils import *
 from global_variable import *
 
-#%%
 ###### NETWORK SCORE CALCULATION #######
-create_folder("./output_data/network/graph/")
+create_folder("./../output_data/network/graph/")
 
 ### GLOBAL VARIABLES ###
 
@@ -104,6 +102,7 @@ def all_score_edges(input_path, output_path, params):
     for data_name, data_param in params.items():
         print(f"Score {data_name}")
         data = gpd.read_file(data_param["edges_path"])
+        print("columns", data.columns)
         default_edges[f"score_{data_name}"] = data[data_name].apply(data_param["fn_cont"])
 
     default_edges.to_file(output_path, driver="GPKG", layer="edges")
@@ -196,12 +195,11 @@ def score_calculation_pipeline(meta_params):
         print(f"Starting score calculation for {params_name}...")
         all_score_edges(edges_buffer_path, edges_buffer_scored_path, params["params"])
         total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_columns)
-        #score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path,0.5,0.5)
         score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
         score_fraicheur(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_freshness_path)
-        create_graph(bounding_metrop_path, edges_buffer_total_score_distance_freshness_path, params["graph_path"])
+        create_graph(metrop_network_bouding_path, edges_buffer_total_score_distance_freshness_path, params["graph_path"])
 
-        weights_path = "./weights_score.csv"
+        weights_path = globpath("./score_calculation_it/weights_score.csv")
 
         # Check if the weights file is empty
         try:
@@ -228,7 +226,7 @@ def score_calculation_pipeline(meta_params):
 
 final_params = {
     "P0_01O5At0_01Ar10C0_01E5Ca" : {
-        "graph_path": "./output_data/network/graph/final_network_P0_01O5At0_01Ar10C0_01E5Ca.gpkg",
+        "graph_path": final_network_path,
         "params": {
             "prairies_prop" : {
             "edges_path": edges_buffer_prairies_prop_path,
@@ -261,7 +259,7 @@ final_params = {
             "alpha": 10
             },
         "C_wavg_scaled": {
-            "edges_path": edges_buffer_temp_wavg_path,
+            "edges_path": edges_buffer_temp_wavg_path_no_na,
             "fn_cont": lambda x: 0.01*x,
             "alpha": 0.01
             },

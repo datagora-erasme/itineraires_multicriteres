@@ -20,7 +20,6 @@ import pickle
 ###### NETWORK SCORE CALCULATION #######
 #create_folder("./output_data/network/graph/")
 
-edges_buffer_path = globpath("./score_calculation_it/input_data/network/edges_buffered_12_bounding.gpkg")
 
 ### GLOBAL VARIABLES ###
 
@@ -159,6 +158,6 @@ total_score(edges_buffer_scored_path, edges_buffer_total_score_path, score_colum
 
 score_distance(edges_buffer_total_score_path, edges_buffer_total_score_distance_path)
 score_pollen(edges_buffer_total_score_distance_path, edges_buffer_total_score_distance_pollen_path)
-create_graph_pollen(metrop_network_bouding_path, edges_buffer_total_score_distance_pollen_path, "./output_data/network/graph/final_network_pollen.gpkg")
+create_graph_pollen(metrop_network_bouding_path, edges_buffer_total_score_distance_pollen_path, final_network_pollen_path)
 
 load_graphs("pollen")

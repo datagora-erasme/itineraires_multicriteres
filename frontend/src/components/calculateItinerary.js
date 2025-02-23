@@ -69,7 +69,7 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
     if (query.length > 3) {
       debounceEndAddress(query);
     } else {
-      setStartAddressSuggestions([]);
+      setEndAddressSuggestions([]);
     }
   };
 
@@ -95,6 +95,14 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
         setEndAddressSuggestions([]);
       }
     }
+  };
+
+  const handlePreviousEndAddress = () => {
+
+    const previousEndAddress = JSON.parse(sessionStorage.getItem('previousEndAddress'));
+    setEndAddress(`${addressName(previousEndAddress.properties).slice(0, 30)}...`);
+    setSelectedEndAddress(previousEndAddress);
+    setEndAddressSuggestions([]);
   };
 
   const handleSelectUserAddress = () => {
@@ -135,6 +143,7 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
         criteria
       }
     }).then((response) => {
+      sessionStorage.setItem('previousEndAddress', JSON.stringify(selectedEndAddress));
       const end = performance.now();
       const roundIt = roundItineraries(response.data);
       setCurrentItinerary(roundIt);
@@ -160,6 +169,10 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
     if (userAddress && startAddress === "") {
       setStartAddress(`${userAddress.properties.label.slice(0, 30)}...`);
       setSelectedStartAddress(userAddress);
+    }
+
+    if (sessionStorage?.getItem('previousEndAddress')) {
+      handlePreviousEndAddress()
     }
   }, [userAddress]);
 
@@ -206,7 +219,13 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
             )
           })}
         </ul>}
-        <BiCurrentLocation size={30} className="mt-1 cursor-pointer" onClick={handleSelectUserAddress} />
+        <BiCurrentLocation 
+          size={30}
+          className="mt-1 cursor-pointer" 
+          onClick={() => {
+            handleSelectUserAddress()
+            window.trackButtonClick(`CalculateItinerary_UseUserPosition`);
+          }} />
       </div>
       <label htmlFor="endAddress" className="block my-2 flex ">
         Arrivée
@@ -243,14 +262,20 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
         <span className="block mb-1 mt-4 flex">Critères</span>
         <div className="flex justify-center items-center mb-4 ">
           <button
-            onClick={() => toggleCriteria("frais")}
+            onClick={() => {
+              toggleCriteria("frais")
+              window.trackButtonClick(`CalculateItinerary_PlusAuFrais`)
+            }}
             className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria.includes("frais") ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <FaSnowflake className="mr-1" /> Plus au frais
           </button>
 
           <button
-            onClick={() => toggleCriteria("pollen")}
+            onClick={() => {
+              toggleCriteria("pollen")
+              window.trackButtonClick(`CalculateItinerary_MoinsDePollen`);
+            }}
             className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria.includes("pollen") ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <TbFlowerOff className="mr-1" /> Moins de pollen
@@ -258,13 +283,19 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
           </div>
           <div className="flex justify-center items-center mb-4 ">
           <button
-            onClick={() => toggleCriteria("bruit")}
+            onClick={() => {
+              toggleCriteria("bruit")
+              window.trackButtonClick(`CalculateItinerary_MoinsDeBruit`);
+            }}
             className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria.includes("bruit") ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <HiSpeakerXMark className="mr-1" /> Moins de bruit
           </button>
           <button
-            onClick={() => toggleCriteria("tourisme")}
+            onClick={() => {
+              toggleCriteria("tourisme")
+              window.trackButtonClick(`CalculateItinerary_LieuxTouristiques`);
+            }}
             className={`main-btn inline-flex items-center mx-1 text-xs rounded-full transition duration-300 ${criteria.includes("tourisme") ? "bg-black text-white" : "bg-white text-black border border-gray-300"}`}
           >
             <MdPhotoCamera className="mr-1" /> Lieux touristiques

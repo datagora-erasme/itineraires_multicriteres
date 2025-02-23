@@ -4,7 +4,6 @@ sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
-from backend.script_python.function_utils import create_folder
 import geopandas as gpd
 import pandas as pd
 from shapely.wkt import dumps, loads
@@ -13,11 +12,11 @@ from global_variable import *
 
 ###### CREATE WORKING DIRECTORY FOR PARCS ######
 
-create_folder("./output_data/parcs/")
+create_folder("./../output_data/parcs/")
 
 ###### PARCS PREPROCESSING ######
 
-parcs_classes_path = "./output_data/parcs/parcs_classes.gpkg"
+parcs_classes_path = "./../output_data/parcs/parcs_classes.gpkg"
 
 choice = input("Do you want to update the weighted network by parks? YES or NO\n")
 if choice.upper() == "YES":

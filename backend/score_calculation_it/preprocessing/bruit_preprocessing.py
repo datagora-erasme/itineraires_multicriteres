@@ -1,15 +1,8 @@
 import os
 import sys
-import sys
 sys.path.append("../")
-
-sys.path.append("../../../script_python")
-from backend.script_python.function_utils import bruit_pre, cut_empreinte
-from data_utils import *
-from function_utils import *
-
-sys.path.append("../../../")
-from global_variable import *
+sys.path.append("../../")
+sys.path.append("../../script_python")
 os.environ['USE_PYGEOS'] = '0'
 import geopandas as gpd
 import pandas as pd
@@ -17,7 +10,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from global_variable import *
 from osgeo import gdal, ogr
-
+from function_utils import *
 
 ###### BRUIT PREPROCESSING ######
 """Données Ohrane"""
