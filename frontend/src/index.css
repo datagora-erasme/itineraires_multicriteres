@@ -108,3 +108,12 @@ input[type=range].custom-slider::-moz-range-progress {
 img.huechange {
 filter: hue-rotate(145deg); /* rouge */
 }
+
+/* Override Leaflet default styling*/
+.leaflet-marker-icon.leaflet-interactive {
+  @apply cursor-default;
+}
+
+.leaflet-marker-icon.pointer-cursor {
+  @apply cursor-pointer;
+}
