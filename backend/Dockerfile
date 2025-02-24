@@ -13,9 +13,9 @@ COPY ./models/ ./models
 COPY ./score_calculation_it/input_data/bancs/bancs.json /app/score_calculation_it/input_data/bancs/bancs.json
 COPY ./score_calculation_it/input_data/fontaines_ornementales/fontaines_ornementales.json /app/score_calculation_it/input_data/fontaines_ornementales/fontaines_ornementales.json
 COPY ./score_calculation_it/input_data/fontaines_potables/fontaines_potables.json /app/score_calculation_it/input_data/fontaines_potables/fontaines_potables.json
-COPY ./score_calculation_it/input_data/parcs/*.json /app/score_calculation_it/input_data/parcs/*.json
+COPY ./score_calculation_it/input_data/parcs/*.json /app/score_calculation_it/input_data/parcs/
 COPY ./score_calculation_it/input_data/toilettes/toilettes.json /app/score_calculation_it/input_data/toilettes/toilettes.json
-COPY ./score_calculation_it/input_data/tourisme/*.json /app/score_calculation_it/input_data/tourisme/*.json
+COPY ./score_calculation_it/input_data/tourisme/*.json /app/score_calculation_it/input_data/tourisme/
 
 COPY ./score_calculation_it/output_data/network/graph/ ./score_calculation_it/output_data/network/graph
 
