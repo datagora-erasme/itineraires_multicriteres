@@ -17,7 +17,7 @@ COPY ./score_calculation_it/input_data/parcs/*.json /app/score_calculation_it/in
 COPY ./score_calculation_it/input_data/toilettes/toilettes.json /app/score_calculation_it/input_data/toilettes/toilettes.json
 COPY ./score_calculation_it/input_data/tourisme/*.json /app/score_calculation_it/input_data/tourisme/
 
-COPY ./score_calculation_it/output_data/network/graph/ ./score_calculation_it/output_data/network/graph
+COPY ./score_calculation_it/output_data/network/graph/*.pickle ./score_calculation_it/output_data/network/graph
 
 COPY ./global_variable.py .
 COPY ./load_graph.py .

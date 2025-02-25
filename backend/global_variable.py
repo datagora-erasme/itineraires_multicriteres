@@ -17,7 +17,7 @@ def globpath(path):
     return os.path.join(base_path, path)
 
 ### BOUDING LYON METROPOLE PATH ###
-bounding_metrop_path = globpath("./score_calculation_it/input_data/bounding_metrop.gpkg")
+bounding_metrop_path = globpath("./score_calculation_it/input_data/empreinte/bounding_metrop.gpkg")
 
 ### NETWORK PATH ###
 metrop_network_bouding_path = globpath("./score_calculation_it/input_data/network/metrop_network_bounding.gpkg")
@@ -137,10 +137,7 @@ arbres_classes_pollen_path = globpath("./score_calculation_it/output_data/arbres
 
 #### BRUIT ####
 bruit_path = globpath("./score_calculation_it/input_data/bruit/bruit.gpkg")
-sortie_path = globpath("./score_calculation_it/input_data/bruit/ouche_decoupee.gpkg")
-
-#### EMPREINTE ####
-empreinte_path = globpath("./score_calculation_it/input_data/empreinte/empreinte.gpkg")
+bruit_decoupe_path = globpath("./score_calculation_it/input_data/bruit/bruit_decoupe.gpkg")
 
 ### DATA PARAMS ###
 data_params = {

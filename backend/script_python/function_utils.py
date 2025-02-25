@@ -368,7 +368,7 @@ def calculate_many_prop(data_folder_path, edges_path, layer):
 
 
 
-def bruit_pre(edges_buffer_path, bruit_path, edges_buffer_bruit_wavg_path, layer, name):
+def bruit_pre(edges_buffer_path, bruit_decoupe_path, edges_buffer_bruit_wavg_path, layer, name):
     """
     Computes the maximum noise (DN) value for each road segment based on spatial noise data.
 
@@ -386,7 +386,7 @@ def bruit_pre(edges_buffer_path, bruit_path, edges_buffer_bruit_wavg_path, layer
         print("Loading files...")
         # Load GeoPackage files
         edges = gpd.read_file(edges_buffer_path)
-        data = gpd.read_file(bruit_path)
+        data = gpd.read_file(bruit_decoupe_path)
 
         # Check if columns and layers exist
         print(f"Columns in 'edges': {edges.columns}")
@@ -527,7 +527,7 @@ def create_csv_dataset(edges_path, output_path, layer):
 
 
 
-def cut_empreinte(bruit_path, empreinte_path, sortie_path):
+def cut_empreinte(bruit_path, empreinte_path, bruit_decoupe_path):
     """
     Extracts only the area of interest (Métropole de Lyon) from the noise dataset 
     by clipping it with the provided footprint layer.
@@ -535,7 +535,7 @@ def cut_empreinte(bruit_path, empreinte_path, sortie_path):
     Args:
         bruit_path (str): Path to the GeoPackage file containing the noise dataset.
         empreinte_path (str): Path to the GeoPackage file containing the footprint of the desired area.
-        sortie_path (str): Path where the clipped dataset will be saved.
+        bruit_decoupe_path (str): Path where the clipped dataset will be saved.
 
     Returns:
         None: The function processes and saves the clipped data.
@@ -571,8 +571,8 @@ def cut_empreinte(bruit_path, empreinte_path, sortie_path):
 
     # Save the clipped dataset
     try:
-        decoupe.to_file(sortie_path, driver="GPKG")
-        print(f"Clipped dataset saved at: {sortie_path}")
+        decoupe.to_file(bruit_decoupe_path, driver="GPKG")
+        print(f"Clipped dataset saved at: {bruit_decoupe_path}")
     except Exception as e:
         print(f"Error saving the clipped dataset: {e}")
         return
@@ -588,14 +588,14 @@ def cut_empreinte(bruit_path, empreinte_path, sortie_path):
         print(f"File {bruit_path} does not exist, skipping deletion.")
 
     # Rename the clipped dataset to replace the original file
-    if os.path.exists(sortie_path):
+    if os.path.exists(bruit_decoupe_path):
         try:
-            os.rename(sortie_path, bruit_path)
+            os.rename(bruit_decoupe_path, bruit_path)
             print(f"File renamed to {bruit_path}.")
         except Exception as e:
-            print(f"Error renaming file {sortie_path} to {bruit_path}: {e}")
+            print(f"Error renaming file {bruit_decoupe_path} to {bruit_path}: {e}")
     else:
-        print(f"File {sortie_path} does not exist, skipping renaming.")
+        print(f"File {bruit_decoupe_path} does not exist, skipping renaming.")
 
 
 
