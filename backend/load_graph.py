@@ -23,7 +23,7 @@ def create_pickles_from_graph_criterion(criterion):
     - graph_multidigraph_pickle_path: str, path to save the multidigraph pickle file.
     - score_type: str, type of score ('pollen' or 'bruit') to be used for specific columns.
     """
-    print(datetime.now(), f"Pickle file creation start")
+    print(datetime.now(), f"Pickle file creation start for {criterion}")
 
     gdf_edges = gpd.read_file(gpkg_path, layer='edges')
     gdf_nodes = gpd.read_file(gpkg_path, layer="nodes")
@@ -33,13 +33,15 @@ def create_pickles_from_graph_criterion(criterion):
     gdf_nodes["geometry"] = gpd.points_from_xy(gdf_nodes["x"], gdf_nodes["y"])  # Fix warning
 
     if criterion == 'frais':
-        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "score_distance_13", "total_score_13", "freshness_score_13", "geometry"]]
+        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "score_distance_13", "freshness_score_13", "geometry"]]
     elif criterion == 'pollen':
-        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "score_distance_pollen", "total_score_pollen", "pollen_score", "geometry"]]
+        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "score_distance_pollen", "pollen_score", "geometry"]]
     elif criterion == 'bruit':
-        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "score_distance_bruit", "total_score_bruit", "bruit_score", "geometry"]]
+        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "score_distance_bruit", "bruit_score", "geometry"]]
     elif criterion == 'tourisme':
-        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "score_distance_tourisme", "total_score_tourisme", "tourisme_score", "geometry"]]
+        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "score_distance_tourisme", "tourisme_score", "geometry"]]
+    elif criterion == 'length':
+        new_edges = gdf_edges[["u", "v", "key", "osmid", "length", "from", "to", "length", "freshness_score_13", "pollen_score", "bruit_score", "tourisme_score", "geometry"]]
     else:
         raise ValueError("Invalid score_type. Must be 'frais', 'pollen', 'bruit' or 'tourisme'.")
 
@@ -60,7 +62,7 @@ def create_pickles_from_graph_criterion(criterion):
     with open(pickle_multidigraph_path, "wb") as f:
         pickle.dump(G_digraph, f, protocol=5)
     
-    print(datetime.now(), f"Pickle file creation end")
+    print(datetime.now(), f"Pickle file creation end for {criterion}")
     
     return True
 
@@ -77,8 +79,7 @@ def load_graphs_from_pickles(criterion):
     pickle_graph_path = graph_paths[criterion]["pickle"]
     pickle_multidigraph_path = graph_paths[criterion]["multidigraph_pickle"]
 
-
-    print(datetime.now(), f"Load pickle file start.")
+    print(datetime.now(), f"Load pickle file start for {criterion}")
 
     if (pickle_graph_path not in graphs_local_cache) or (graphs_local_cache[pickle_graph_path] is None):
         print(datetime.now(), f"Not in cache. Loading pickle file and caching it")
@@ -92,4 +93,4 @@ def load_graphs_from_pickles(criterion):
             multidi_pickle_file = pickle.load(f)
             graphs_local_cache[pickle_multidigraph_path] = multidi_pickle_file
         
-    print(datetime.now(), f"Load pickle file end.")
+    print(datetime.now(), f"Load pickle file end for {criterion}")

@@ -129,6 +129,8 @@ def get_itinerary():
     - The `shortest_path` function calculates the itineraries based on the loaded graph.
     - If no valid criteria are found or if an error occurs, the request will return a 500 status.
     """
+    global graph_paths
+
     criteria_list = request.args.getlist("criteria[]")
 
     start_lat = request.args.get("start[lat]")
@@ -148,71 +150,30 @@ def get_itinerary():
         for criterion in criteria_list:
             load_graphs(criterion)  #charger le graphe en fonction du critère
             print(datetime.now(), f"Calculating itinerary for {criterion}...")
-            if criterion == "frais":
-                geojson_path_IF, geojson_path_length = shortest_path(criterion, origin_node, destination_node)
-                results.append({
-                    "id": "LENGTH",
-                    "idcriteria": "fraislength",
-                    "name": "Itinéraire le plus court",
-                    "geojson": geojson_path_length,
-                    "color": " #1b2599 "
-                })
-                results.append({
-                    "id": "IF",
-                    "idcriteria": "frais",
-                    "name": "Itinéraire le plus au frais",
-                    "geojson": geojson_path_IF, 
-                    "color": "#1f8b2c"
-                })
-            elif criterion == "pollen":
-                geojson_path_IF, geojson_path_length = shortest_path(criterion, origin_node, destination_node, 'score_distance_pollen')
-                results.append({
-                    "id": "LENGTH",
-                    "idcriteria": "pollenlength",
-                    "name": "Itinéraire le plus court",
-                    "geojson": geojson_path_length,
-                    "color": " #1b2599 "
-                })
-                results.append({
-                    "id": "IF",
-                    "idcriteria": "pollen",
-                    "name": "Itinéraire le moins allergène",
-                    "geojson": geojson_path_IF, 
-                    "color": "#1f8b2c"
-                })
-            elif criterion == "bruit":
-                geojson_path_IF, geojson_path_length = shortest_path(criterion, origin_node, destination_node, 'score_distance_bruit')
-                results.append({
-                    "id": "LENGTH",
-                    "idcriteria": "bruitlength",
-                    "name": "Itinéraire le plus court",
-                    "geojson": geojson_path_length,
-                    "color": " #1b2599 "
-                })
-                results.append({
-                    "id": "IF",
-                    "idcriteria": "bruit",
-                    "name": "Itinéraire le moins bruyant",
-                    "geojson": geojson_path_IF, 
-                    "color": "#1f8b2c"
-                })
-            elif criterion == "tourisme":
-                geojson_path_IF, geojson_path_length = shortest_path(criterion, origin_node, destination_node, 'score_distance_tourisme')
-                results.append({
-                    "id": "LENGTH",
-                    "idcriteria": "tourismelength",
-                    "name": "Itinéraire le plus court",
-                    "geojson": geojson_path_length,
-                    "color": " #1b2599 "
-                })
-                results.append({
-                    "id": "IF",
-                    "idcriteria": "tourisme",
-                    "name": "Itinéraire le plus touristique",
-                    "geojson": geojson_path_IF, 
-                    "color": "#1f8b2c"
-                })
+
+            geojson = shortest_path_criterion(criterion, origin_node, destination_node)
+            path_score = path_mean_score_criterion(criterion, geojson)
+            results.append({
+                "id": "IF",
+                "idcriteria": criterion,
+                "name": graph_paths[criterion]["label"],
+                "geojson": geojson, 
+                "color": "#1f8b2c",
+                "score": path_score
+            })
             
+        load_graphs("length")
+        geojson = shortest_path_length(origin_node, destination_node)
+        path_score = path_mean_score_length(geojson, criteria_list)
+        results.append({
+            "id": "LENGTH",
+            "idcriteria": "length",
+            "name": graph_paths["length"]["label"],
+            "geojson": geojson,
+            "color": " #1b2599 ",
+            "score": path_score
+        })
+
         return jsonify(results)
     except Exception as e:
         print('error:', e)
