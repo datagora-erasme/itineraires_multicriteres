@@ -20,7 +20,7 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
   const {
     setCurrentItinerary, userAddress, history, setHistory, setShowCurrentItineraryDetails,
     selectedStartAddress, setSelectedStartAddress, selectedEndAddress, setSelectedEndAddress,
-    startAddress, setStartAddress, endAddress, setEndAddress, setUserPosition, roundItineraries,
+    startAddress, setStartAddress, endAddress, setEndAddress, setUserPosition, roundGeographicalCoordinatesOnItineraries,
     criteria, setCriteria
   } = useContext(MainContext);
 
@@ -127,7 +127,6 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
   const calculateItinerary = () => {
     setIsLoading(true);
     setShowCurrentItineraryDetails(false);
-    const start = performance.now();
     axios.get(`${process.env.REACT_APP_URL_SERVER}/itinerary/`, {
       params: {
         start: {
@@ -144,8 +143,7 @@ const CalculateItinerary = ({ showItineraryCalculation, setShowItineraryCalculat
       }
     }).then((response) => {
       sessionStorage.setItem('previousEndAddress', JSON.stringify(selectedEndAddress));
-      const end = performance.now();
-      const roundIt = roundItineraries(response.data);
+      const roundIt = roundGeographicalCoordinatesOnItineraries(response.data);
       setCurrentItinerary(roundIt);
       setIsLoading(false);
       setShowItineraryCalculation(false);

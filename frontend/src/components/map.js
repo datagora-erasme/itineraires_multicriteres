@@ -101,14 +101,13 @@ function Map() {
 
     const [geojsonFiles, setGeojsonFiles] = useState([])
     const [loadingLayer, setLoadingLayer] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
     const [bufferedItineraries, setBufferedItineraries] = useState([])
 
-    const { userPosition, zoomToUserPosition, setZoomToUserPosition, selectedLayers,
-        currentItinerary, setCurrentItinerary, selectedStartAddress, selectedEndAddress, radius, showCircle,
+    const { zoomToUserPosition, setZoomToUserPosition, selectedLayers,
+        currentItinerary, selectedStartAddress, selectedEndAddress, radius, showCircle,
         zoomToItinerary, setZoomToItinerary, freshnessLayers, setShowPoiDetails, setHistory, history, setShowFindFreshness,
         setPoiDetails, layers, filteredFreshnessFeatures, setFilteredFreshnessFeatures, filteredItinerariesFeatures,
-        setFilteredItinerariesFeatures, roundItineraries, criteria
+        setFilteredItinerariesFeatures
     } = useContext(MainContext)
 
     function getColor(data) {
@@ -378,8 +377,9 @@ function Map() {
                                     selectedColors = colorPolScale(feature.properties.pollen_score).hex();
                                 } else if (itinerary.idcriteria.startsWith("tourisme")) {
                                     selectedColors = colorToScale(feature.properties.tourisme_score).hex();
+                                } else if (itinerary.idcriteria.startsWith("length")) {
+                                    selectedColors = 'black'
                                 }
-
 
                                 return {
                                     color: selectedColors,
