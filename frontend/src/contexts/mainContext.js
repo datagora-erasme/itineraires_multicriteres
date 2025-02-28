@@ -39,33 +39,10 @@ export const MainContextProvider = ({ children }) => {
 
     const [poiDetails, setPoiDetails] = useState(null)
 
-    const [ifScore, setIfScore] = useState([])
-
-    const [lenScore, setLenScore] = useState([])
-
     const [criteria, setCriteria] = useState([]);
 
-
-    const calculateMeanScore = (itinerary, criteria) => {
-      let scores;
-      if (criteria === "frais") {
-          scores = itinerary.geojson.features.map((feat) => feat.properties.freshness_score_13);
-      } else if (criteria === "pollen") {
-          scores = itinerary.geojson.features.map((feat) => feat.properties.pollen_score);
-      } else if (criteria === "bruit") {
-        scores = itinerary.geojson.features.map((feat) => feat.properties.bruit_score);
-      } else if (criteria === "tourisme") {
-        scores = itinerary.geojson.features.map((feat) => feat.properties.tourisme_score);
-      }
-      else {
-          return null;
-      }
-      const initialValue = 0;
-      const sum = scores.reduce((accumulator, currentValue) => accumulator + currentValue, initialValue);
-      return Math.round((sum / scores.length) * 10) / 10;
-    }
-
-    const roundItineraries = (itineraries) => { 
+    //Rounds the geographical coordinates of the itinerary to 5 decimal places
+    const roundGeographicalCoordinatesOnItineraries = (itineraries) => { 
       return itineraries.map((it) => {
         return {
           ...it,
@@ -195,18 +172,7 @@ export const MainContextProvider = ({ children }) => {
     useEffect(() => {
       if(currentItinerary){
         setZoomToItinerary(true);
-        const roundIt = roundItineraries(currentItinerary);
-        let newIfScore = [];
-        let newLenScore = [];
-        for (let i = 0; i < criteria.length; i++) {
-          let k = i * 2;
-          let ifScoreA = calculateMeanScore(currentItinerary[k + 1], criteria[i]);
-          let lenScoreA = calculateMeanScore(currentItinerary[k], criteria[i]);
-          newIfScore.push(ifScoreA);
-          newLenScore.push(lenScoreA);
-        }
-        setIfScore(newIfScore);
-        setLenScore(newLenScore);
+        roundGeographicalCoordinatesOnItineraries(currentItinerary);
       }
     }, [currentItinerary]);
 
@@ -256,9 +222,7 @@ export const MainContextProvider = ({ children }) => {
                 setFilteredFreshnessFeatures,
                 filteredItinerariesFeatures,
                 setFilteredItinerariesFeatures, 
-                ifScore,
-                lenScore,
-                roundItineraries,
+                roundGeographicalCoordinatesOnItineraries,
                 criteria,
                 setCriteria
             }}

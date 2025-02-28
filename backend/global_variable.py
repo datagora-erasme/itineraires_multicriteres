@@ -43,6 +43,11 @@ final_network_tourisme_path = globpath("./score_calculation_it/output_data/netwo
 final_network_pickle_tourisme_path = globpath("./score_calculation_it/output_data/network/graph/final_network_tourisme.pickle")
 final_network_multidigraph_pickle_tourisme_path = globpath("./score_calculation_it/output_data/network/graph/final_network_tourisme_multidigraph.pickle")
 
+final_network_length_path = globpath("./score_calculation_it/output_data/network/graph/final_network_length.gpkg")
+final_network_pickle_length_path = globpath("./score_calculation_it/output_data/network/graph/final_network_length.pickle")
+final_network_multidigraph_pickle_length_path = globpath("./score_calculation_it/output_data/network/graph/final_network_length_multidigraph.pickle")
+
+
 ### EDGES PATH ###
 edges_buffer_path = globpath("./score_calculation_it/input_data/network/edges_buffered_12_bounding.gpkg")
 edges_buffer_disolved_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_dissolved_path.gpkg")
@@ -80,6 +85,8 @@ edges_buffer_bruit_wavg_path = globpath("./score_calculation_it/output_data/netw
 edges_buffer_bruit_wavg_path_no_na = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_bruit_wavg_bounding_no_na.gpkg")
 
 edges_buffer_tourisme_prop_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_tourisme_prop_bounding.gpkg")
+
+edges_buffer_length_path = globpath("./score_calculation_it/output_data/network/edges/edges_buffered_length.gpkg")
 
 ### DATA PATH ###
 #### VEGETATION ####
@@ -319,27 +326,41 @@ graph_paths = {
     "frais": {
         "gpkg": final_network_path, 
         "pickle": final_network_pickle_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_path
+        "multidigraph_pickle": final_network_multidigraph_pickle_path,
+        "score_weigth": "score_distance_13",
+        "score_value": "freshness_score_13", 
+        "label": "Itinéraire le plus au frais"
     },
     "pollen": {
         "gpkg": final_network_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_pollen_path,  
         "pickle": final_network_pickle_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_pickle_pollen_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_multidigraph_pickle_pollen_path
+        "multidigraph_pickle": final_network_multidigraph_pickle_pollen_fevmai_path if current_month >= 2 and current_month <= 5 else final_network_multidigraph_pickle_pollen_path,
+        "score_weigth": "score_distance_pollen",
+        "score_value": "pollen_score",
+        "label": "Itinéraire le moins allergène"
     },
     "bruit": {
         "gpkg": final_network_bruit_path,
         "pickle": final_network_pickle_bruit_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_bruit_path
+        "multidigraph_pickle": final_network_multidigraph_pickle_bruit_path,
+        "score_weigth": "score_distance_bruit",
+        "score_value": "bruit_score",
+        "label": "Itinéraire le moins bruyant"
     },
     "tourisme": {
         "gpkg": final_network_tourisme_path,
         "pickle": final_network_pickle_tourisme_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_tourisme_path
+        "multidigraph_pickle": final_network_multidigraph_pickle_tourisme_path,
+        "score_weigth": "score_distance_tourisme",
+        "score_value": "tourisme_score",
+        "label": "Itinéraire le plus touristique"
     },
     "length": {
-        "gpkg": final_network_tourisme_path,
-        "pickle": final_network_pickle_tourisme_path,
-        "multidigraph_pickle": final_network_multidigraph_pickle_tourisme_path
+        "gpkg": final_network_length_path,
+        "pickle": final_network_pickle_length_path,
+        "multidigraph_pickle": final_network_multidigraph_pickle_length_path,
+        "score_weigth": "length",
+        "label": "Itinéraire le plus court"
     }
 }
 
