@@ -38,8 +38,8 @@ function ListLayers() {
                                         alt="icon"
                                         className={
                                             layer.checked
-                                                ? 'w-16 p-3 bg-gray-300 border-solid border-2 rounded-full cursor-pointer'
-                                                : 'w-16 p-3 border-solid border-2 rounded-full hover:bg-gray-100 cursor-pointer'
+                                                ? 'w-16 p-2 bg-gray-300 border-solid border-2 rounded-full cursor-pointer'
+                                                : 'w-16 p-2 border-solid border-2 rounded-full hover:bg-gray-100 cursor-pointer'
                                         }
                                     />
                                     {layer.name}

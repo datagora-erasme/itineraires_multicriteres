@@ -161,7 +161,7 @@ data_params = {
         "geojson_path": globpath("./score_calculation_it/input_data/parcs/parcs.json"),
         "onMap": True,
         "marker_option": {
-            "iconUrl": "arbre.svg"
+            "iconUrl": "tree.svg"
         },
     },
     "parcs_canop": {
@@ -249,8 +249,8 @@ data_params = {
         "buffer_size": 20,
         "onMap": True,
         "marker_option": {
-            "iconUrl": "building.svg",
-            "iconRetinaUrl": "building.svg",
+            "iconUrl": "poi.svg",
+            "iconRetinaUrl": "poi.svg",
             "popupAnchor": [
                 0,
                 0
