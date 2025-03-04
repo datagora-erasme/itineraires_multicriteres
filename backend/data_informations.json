@@ -1,3 +1,114 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:1fa6fdd14016fe3fa71c22ba89130d652c221d7ecb3abaccb9544fe730b0c525
-size 4607
+{
+    "services": {
+        "data.grandlyon_wfs": "https://download.data.grandlyon.com/wfs/grandlyon?SERVICE=WFS&VERSION=2.0.0",
+        "data.grandlyon_wms": "https://download.data.grandlyon.com/wms/grandlyon?VERSION=1.3.0&SERVICE=WMS"
+    },
+    "osm": {
+        "network_parameters": {
+            "place_name": "Lyon, France",
+            "network_filters": "[\"highway\"][\"area\"!~\"yes\"][\"highway\"!~\"abandoned|bus_guideway|construction|cycleway|motorway|trunk|planned|platform|proposed|raceway|motorway_link|trunk_link|escape|busway\"][\"foot\"!~\"no\"][\"service\"!~\"private\"][\"sidewalk\"!~\"no\"]",
+            "bbox": [
+                45.9472,
+                45.5497,
+                5.0803,
+                4.6717
+            ],
+            "output_file": "./data/osm/metrop_walk_2605_2.gpkg"
+        },
+        "final_network_path": "./data/osm/final_network_iflen_1306.gpkg"
+    },
+    "data_wfs": {
+        "fontaines_potables": {
+            "name": "Fontaines potables",
+            "marker_option": {
+                "iconUrl": "droplet.svg",
+                "iconRetinaUrl": "droplet.svg",
+                "popupAnchor": [
+                    0,
+                    0
+                ],
+                "iconSize": [
+                    40,
+                    40
+                ],
+                "clusterCountStyle": "position:absolute;top:20px;left:-9px;color:white;font-weight:bold;"
+            },
+            "gpkg_path": "./score_calculation_it/input_data/fontaines/fontaines_potables.gpkg",
+            "geojson_path": "./score_calculation_it/input_data/fontaines/fontaines_potables.json"
+        },
+        "toilettes_publiques": {
+            "name": "Toilettes publiques",
+            "marker_option": {
+                "iconUrl": "toilet.svg",
+                "iconRetinaUrl": "toilet.svg",
+                "popupAnchor": [
+                    0,
+                    0
+                ],
+                "iconSize": [
+                    40,
+                    40
+                ],
+                "clusterCountStyle": "position:absolute;top:48px;left:-6px;color:black;font-weight:bold;"
+            },
+            "gpkg_path": "./score_calculation_it/input_data/toilettes/toilettes.gpkg",
+            "geojson_path": "./score_calculation_it/input_data/toilettes/toilettes.json"
+        },
+        "fontaines_ornementales": {
+            "name": "Fontaines ornementales",
+            "marker_option": {
+                "iconUrl": "fountain.svg",
+                "iconRetinaUrl": "fountain.svg",
+                "popupAnchor": [
+                    0,
+                    0
+                ],
+                "iconSize": [
+                    40,
+                    40
+                ],
+                "clusterCountStyle": "position:absolute;top:48px;left:0px;color:black;font-weight:bold;"
+            },
+            "gpkg_path": "./score_calculation_it/input_data/fontaines/fontaines_ornementales.gpkg",
+            "geojson_path": "./score_calculation_it/input_data/fontaines/fontaines_ornementales.json"
+        },
+        "parcs_jardins_metropole": {
+            "name": "Parcs et jardins",
+            "marker_option": {
+                "iconUrl": "tree.svg"
+            },
+            "gpkg_path": "./score_calculation_it/input_data/parcs/parcs.gpkg",
+            "geojson_path": "./score_calculation_it/input_data/parcs/parcs.json"
+        },
+        "bancs": {
+            "name": "Bancs",
+            "marker_option": {
+                "iconUrl": "bench.svg",
+                "iconRetinaUrl": "bench.svg",
+                "popupAnchor": [
+                    0,
+                    0
+                ],
+                "iconSize": [
+                    25,
+                    25
+                ],
+                "clusterCountStyle": "position:absolute;top:40px;left:0px;color:white;background-color:#d6eff8;font-weight:bold;"
+            },
+            "gpkg_path": "./score_calculation_it/input_data/bancs/bancs.gpkg",
+            "geojson_path": "./score_calculation_it/input_data/bancs/bancs.json"
+        }
+    },
+    "data_raw": {
+        "temp_surface_road_raw": {
+            "name": "Temp\u00e9rature de surface",
+            "gpkg_path": "./score_calculation_it/input_data/temperature/temp_0722.gpkg",
+            "geojson_path": "./data/geojson/temp_surface_road_raw.json"
+        },
+        "veget_raw": {
+            "name": "V\u00e9g\u00e9tation stratifi\u00e9e",
+            "gpkg_path": "./score_calculation_it/input_data/vegetation/clipped_veget_12.gpkg",
+            "geojson_path": "./data/geojson/veget_raw.json"
+        }
+    }
+}

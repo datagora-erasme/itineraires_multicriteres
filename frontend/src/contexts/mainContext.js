@@ -114,8 +114,6 @@ export const MainContextProvider = ({ children }) => {
               id: "parcs"
           }
       })
-        //https://download.data.grandlyon.com/files/rdata/pvo_patrimoine_voirie.pvocameracriter/equipements_frais.json --> solution temporaire
-        //https://download.data.grandlyon.com/ws/grandlyon/com_donnees_communales.equipementspublicsclimatises/all.json --> solution initiale
         const fetchFreshPlaces = await axios.get("https://download.data.grandlyon.com/files/rdata/sortons_au_frais/equipements_frais.json")
         const freshplaces = {
           id: "batiments_frais",
@@ -130,8 +128,8 @@ export const MainContextProvider = ({ children }) => {
                 properties: {
                   ...val,
                   markerOption: {
-                    iconUrl: "building.svg",
-                    iconRetinaUrl: "building.svg",
+                    iconUrl: "fresh.svg",
+                    iconRetinaUrl: "fresh.svg",
                     popupAnchor: [
                               0,
                               0

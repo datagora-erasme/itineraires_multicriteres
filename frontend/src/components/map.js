@@ -160,7 +160,7 @@ function Map() {
     const createClusterCustomIcon = function (cluster, markerOption) {
 
         return L.divIcon({
-            html: `<span class="flex flex-col items-center justify-center">
+            html: `<span class="flex flex-col items-center justify-center cursor-pointer">
                             <img src=${markerOption.iconUrl} style="display: block, width: 40px; height:40px;" />
                             <span class="text-bgWhite bg-mainText w-2/3 h-4 rounded-sm font-bold">${cluster.getChildCount()}</span>
                         </span>`,
@@ -437,7 +437,7 @@ function Map() {
                                     {data.map((dta, i) => {
                                         const coordinates = [dta.geometry.coordinates[1], dta.geometry.coordinates[0]]
                                         return (
-                                            <Marker key={Math.random()} position={coordinates} icon={new L.icon(markerOption)} eventHandlers={{
+                                            <Marker key={Math.random()} position={coordinates} icon={new L.icon({...markerOption, className: 'pointer-cursor'})} eventHandlers={{
                                                 click: () => handleShowDetailsPopupMarker(dta)
                                             }}>
 
@@ -472,7 +472,7 @@ function Map() {
                                         const isTourismeFeature = data.id === 'tourisme';
 
                                         return (
-                                            <Marker key={Math.random()} position={coordinates} icon={new L.icon(markerOption)}>
+                                            <Marker key={Math.random()} position={coordinates} icon={new L.icon({...markerOption, className: isTourismeFeature ? 'pointer-cursor' : ''})} >
                                                 {isTourismeFeature && <Popup>{dta.properties.nom}</Popup>}
                                             </Marker>
                                         );
