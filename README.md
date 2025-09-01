@@ -11,3 +11,6 @@ docker-compose build
 docker-compose up
 ```
 
+
+
+<!-- Security scan triggered at 2025-09-02 00:09:53 -->
